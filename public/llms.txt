@@ -1,0 +1,24 @@
+# Hubbly
+
+> Hubbly is an Autonomous Revenue Operating System. 8 AI agents — sharing one memory — turn any website or offer into pipeline via market research, ICP creation, contact enrichment, multi-channel email + voice outreach, and meeting booking.
+
+Primary keywords: autonomous revenue operating system, AI sales automation, AI SDR, autonomous outbound, lead generation automation, AI voice agent, ICP enrichment.
+
+Primary verticals: mortgage, insurance, financial services, marketing/sales agencies.
+
+## Key pages
+- [Homepage](https://hubbly.io/): Product overview — URL in, pipeline out.
+- [Platform](https://hubbly.io/platform): The 8 agents and shared memory architecture.
+- [Pricing](https://hubbly.io/pricing): Plans, tiers, and the Business tier with done-for-you Meta ads.
+- [AI Sales Automation](https://hubbly.io/use-cases/ai-sales-automation)
+- [Autonomous Outbound](https://hubbly.io/use-cases/autonomous-outbound)
+- [Lead Generation Automation](https://hubbly.io/use-cases/lead-generation-automation)
+- [Mortgage](https://hubbly.io/industries/mortgage)
+- [Insurance](https://hubbly.io/industries/insurance)
+- [Agencies](https://hubbly.io/industries/agencies)
+- [Financial Services](https://hubbly.io/industries/financial-services)
+
+## Optional
+- [Full content](https://hubbly.io/llms-full.txt)
+- [Privacy](https://hubbly.io/privacy-policy)
+- [Terms](https://hubbly.io/terms-of-service)
