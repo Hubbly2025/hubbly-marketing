@@ -92,7 +92,9 @@ async function sendReportEmail(params: {
   companyName?: string
   audit?: AuditLeadRow | null
 }) {
-  if (!process.env.RESEND_API_KEY) {
+  const resendApiKey = process.env.RESEND_API_KEY || process.env.Resend
+
+  if (!resendApiKey) {
     console.log("Email not sent — RESEND_API_KEY not configured")
     return { sent: false, reason: "RESEND_API_KEY is not configured" }
   }
@@ -103,7 +105,7 @@ async function sendReportEmail(params: {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      Authorization: `Bearer ${resendApiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
