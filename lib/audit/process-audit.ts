@@ -56,6 +56,7 @@ export async function processAudit(auditId: string, url: string) {
     if (scrapedContent.trim().length < 300) {
       await updateAuditLead(supabase, auditId, {
         status: "failed",
+        error_message: "Not enough content found on this site. It may block automated analysis or require JavaScript to load.",
         analysis: {
           error: "Not enough content found on this site. It may block automated analysis or require JavaScript to load.",
         },
@@ -84,6 +85,7 @@ export async function processAudit(auditId: string, url: string) {
   } catch (error) {
     await updateAuditLead(supabase, auditId, {
       status: "failed",
+      error_message: error instanceof Error ? error.message : "Audit processing failed",
       analysis: {
         error: error instanceof Error ? error.message : "Audit processing failed",
       },

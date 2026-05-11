@@ -25,6 +25,7 @@ type Audit = {
   id: string
   url: string
   status: "processing" | "complete" | "failed"
+  error_message?: string | null
   created_at?: string
   completed_at?: string
   analysis?: {
@@ -97,7 +98,7 @@ export function AuditReportPage({ auditId }: { auditId: string }) {
   }, [auditId])
 
   if (error && !audit) {
-    return <FailedState />
+    return <FailedState message={audit.error_message || audit.analysis?.error} />
   }
 
   if (!audit || audit.status === "processing") {
@@ -125,7 +126,7 @@ function ProcessingState() {
   )
 }
 
-function FailedState() {
+function FailedState({ message }: { message?: string | null }) {
   return (
     <main className="min-h-screen bg-[#0A0A0A] px-6 py-12 text-white">
       <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-xl flex-col items-center justify-center text-center">
@@ -134,7 +135,7 @@ function FailedState() {
           We couldn't analyze that site.
         </h1>
         <p className="mt-4 max-w-lg font-mono text-sm leading-6 text-white/60">
-          It may block automated tools or require JavaScript. Try a different URL or enter your company details manually.
+          {message || "It may block automated tools or require JavaScript. Try a different URL or enter your company details manually."}
         </p>
         <a
           href="/#close"
