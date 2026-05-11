@@ -126,7 +126,7 @@ async function updateAuditLead(
 
 async function scrapeWebsiteDeep(url: string) {
   const base = new URL(url)
-  const scrapingBeeApiKey = process.env.SCRAPINGBEE_API_KEY
+  const scrapingBeeApiKey = process.env.SCRAPINGBEE_API_KEY || process.env.Scrapingbee
   const scrapeResults = await Promise.allSettled(SCRAPE_PATHS.map(async (target) => {
     const targetUrl = new URL(target.path, base).toString()
     return scrapePage(targetUrl, target.label, scrapingBeeApiKey)
