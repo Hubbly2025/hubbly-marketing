@@ -1,0 +1,97 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { cn } from "@/lib/utils"
+
+export function StickyHeader() {
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      
+      // Show/hide based on scroll direction
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false)
+      } else {
+        setIsVisible(true)
+      }
+      
+      // Add background after scrolling
+      setIsScrolled(currentScrollY > 50)
+      setLastScrollY(currentScrollY)
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [lastScrollY])
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id)
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
+  return (
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        isScrolled ? "bg-background/90 backdrop-blur-md border-b border-border/30" : "bg-transparent",
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      )}
+    >
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <nav className="flex items-center justify-between h-14 md:h-16">
+          {/* Logo */}
+          <button 
+            onClick={() => scrollToSection("hero")}
+            className="font-mono text-sm md:text-base font-bold tracking-wider text-foreground hover:text-accent transition-colors"
+          >
+            HUBBLY<span className="text-accent">.</span>
+          </button>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            <button
+              onClick={() => scrollToSection("how-it-works")}
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              How It Works
+            </button>
+            <button
+              onClick={() => scrollToSection("pricing")}
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Pricing
+            </button>
+            <a
+              href="https://cal.com/hubbly/demo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Book Demo
+            </a>
+            <button
+              onClick={() => scrollToSection("close")}
+              className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
+            >
+              Run Audit
+            </button>
+          </div>
+
+          {/* Mobile CTA */}
+          <button
+            onClick={() => scrollToSection("close")}
+            className="md:hidden font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
+          >
+            Run Audit
+          </button>
+        </nav>
+      </div>
+    </header>
+  )
+}

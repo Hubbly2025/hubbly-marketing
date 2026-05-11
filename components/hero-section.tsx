@@ -94,6 +94,28 @@ export function HeroSection() {
             Book a Demo →
           </a>
         </div>
+
+        {/* Quick navigation links */}
+        <div className="mt-6 flex flex-wrap items-center gap-4 md:gap-6">
+          <a
+            href="#how-it-works"
+            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
+          >
+            See How →
+          </a>
+          <a
+            href="#pricing"
+            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
+          >
+            See Pricing →
+          </a>
+          <a
+            href="#close"
+            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
+          >
+            Skip to Audit →
+          </a>
+        </div>
       </div>
 
       {/* Floating info tag - hidden on mobile */}

@@ -16,6 +16,8 @@ import { FinalCloseSection } from "@/components/final-close-section"
 import { FooterSection } from "@/components/footer-section"
 import { SideNav } from "@/components/side-nav"
 import { TickerTape } from "@/components/ticker-tape"
+import { StickyHeader } from "@/components/sticky-header"
+import { FloatingCTA } from "@/components/floating-cta"
 
 export const metadata: Metadata = {
   title: "Hubbly — Autonomous Revenue Operating System",
@@ -108,7 +110,9 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <main className="relative min-h-screen">
+        <StickyHeader />
         <SideNav />
+        <FloatingCTA />
         <div className="grid-bg fixed inset-0 opacity-30" aria-hidden="true" />
 
         <div className="relative z-10">
