@@ -133,7 +133,7 @@ export function StackReplacementSection() {
 
       <div ref={closingRef} className="mt-12 md:mt-20 text-center max-w-3xl mx-auto">
         <p className="font-mono text-sm text-foreground">
-          Switching saves the average team $1,400/month, 30 hours of ops time per week, and gets you live in 15 minutes instead of 6 weeks.
+          Pro saves $1,542/month vs. the average 8-tool stack, saves 30 hours of ops time per week, and gets you live in 15 minutes instead of 6 weeks.
         </p>
       </div>
     </section>
