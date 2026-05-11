@@ -110,10 +110,16 @@ export function FinalCloseSection() {
         </p>
 
         {/* URL Input Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch justify-center gap-3 mb-6 md:mb-10 max-w-2xl mx-auto">
+        <form
+          action="/api/audit/form"
+          method="post"
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row items-stretch justify-center gap-3 mb-6 md:mb-10 max-w-2xl mx-auto"
+        >
           <div className="relative flex-1 w-full">
             <input
               ref={inputRef}
+              name="url"
               type="text"
               inputMode="url"
               value={url}
