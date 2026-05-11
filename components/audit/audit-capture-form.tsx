@@ -10,7 +10,9 @@ export function AuditCaptureForm({ auditId }: { auditId: string }) {
   const [company, setCompany] = useState("")
   const [weeklyOptin, setWeeklyOptin] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isRequestingManual, setIsRequestingManual] = useState(false)
   const [error, setError] = useState("")
+  const [manualQueued, setManualQueued] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -31,14 +33,52 @@ export function AuditCaptureForm({ auditId }: { auditId: string }) {
       })
 
       if (!response.ok) {
-        throw new Error("Submit failed")
+        const data = await response.json().catch(() => null)
+        throw new Error(data?.error || "We had trouble sending your report. Try again or request manual delivery.")
       }
 
       router.push(`/audit/report/${auditId}`)
-    } catch {
-      setError("Something went wrong. Please try again.")
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "We had trouble sending your report. Try again or request manual delivery.")
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  async function handleManualRequest() {
+    setError("")
+    setManualQueued(false)
+
+    if (!firstName.trim() || !email.trim()) {
+      setError("Add your first name and email so we can send the audit manually.")
+      return
+    }
+
+    setIsRequestingManual(true)
+
+    try {
+      const response = await fetch("/api/audit/request-manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          audit_id: auditId,
+          first_name: firstName,
+          email,
+          company,
+          reason: error || "Manual delivery requested from capture page",
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null)
+        throw new Error(data?.error || "We could not queue manual delivery.")
+      }
+
+      setManualQueued(true)
+    } catch (manualError) {
+      setError(manualError instanceof Error ? manualError.message : "We could not queue manual delivery.")
+    } finally {
+      setIsRequestingManual(false)
     }
   }
 
@@ -108,7 +148,25 @@ export function AuditCaptureForm({ auditId }: { auditId: string }) {
             </label>
 
             {error ? (
-              <p className="font-mono text-xs text-red-400">{error}</p>
+              <div className="border border-red-500/40 bg-red-500/10 p-4">
+                <p className="font-mono text-xs leading-5 text-red-200">{error}</p>
+                <button
+                  type="button"
+                  onClick={handleManualRequest}
+                  disabled={isRequestingManual}
+                  className="mt-3 inline-flex min-h-10 items-center justify-center border border-accent px-4 font-mono text-[10px] uppercase tracking-widest text-accent transition-colors duration-200 hover:bg-accent hover:text-background disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isRequestingManual ? "Queueing manual delivery..." : "Email me results instead"}
+                </button>
+              </div>
+            ) : null}
+
+            {manualQueued ? (
+              <div className="border border-accent/40 bg-accent/10 p-4">
+                <p className="font-mono text-xs leading-5 text-foreground">
+                  Manual delivery is queued. We will review this audit and email the report as soon as it is ready.
+                </p>
+              </div>
             ) : null}
 
             <button

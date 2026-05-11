@@ -38,6 +38,14 @@ type AuditLeadRow = {
   } | null
 }
 
+type SubmitLog = {
+  at: string
+  level: "info" | "warn" | "error"
+  step: string
+  message: string
+  detail?: Record<string, unknown>
+}
+
 function isValidEmail(value: unknown) {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
 }
@@ -73,6 +81,45 @@ async function supabaseFetch(
   }
 
   return response
+}
+
+async function safeSupabaseFetch(
+  path: string,
+  init: RequestInit,
+  log: (level: SubmitLog["level"], step: string, message: string, detail?: Record<string, unknown>) => void,
+) {
+  try {
+    const response = await supabaseFetch(path, init)
+    return { ok: true as const, response }
+  } catch (error) {
+    log("warn", "supabase_optional_write", "Optional Supabase write failed", {
+      path,
+      error: getErrorMessage(error),
+    })
+    return { ok: false as const, error: getErrorMessage(error) }
+  }
+}
+
+async function appendSubmitDebug(auditId: string, logs: SubmitLog[]) {
+  try {
+    const audit = await getAuditLead(auditId)
+    const existingAnalysis = audit?.analysis ?? {}
+
+    await supabaseFetch(`audit_leads?id=eq.${encodeURIComponent(auditId)}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        analysis: {
+          ...existingAnalysis,
+          submit_debug: {
+            last_updated_at: new Date().toISOString(),
+            logs,
+          },
+        },
+      }),
+    })
+  } catch (error) {
+    console.log(`[audit:${auditId}] WARN submit_debug_save: ${getErrorMessage(error)}`)
+  }
 }
 
 async function getAuditLead(auditId: string) {
@@ -246,8 +293,15 @@ export async function POST(request: NextRequest) {
   const email = body.email.trim().toLowerCase()
   const company = typeof body.company === "string" && body.company.trim() ? body.company.trim() : null
   const weeklyOptin = Boolean(body.weekly_optin)
+  const logs: SubmitLog[] = []
+  const log = (level: SubmitLog["level"], step: string, message: string, detail?: Record<string, unknown>) => {
+    const entry = { at: new Date().toISOString(), level, step, message, detail }
+    logs.push(entry)
+    console.log(`[audit:${auditId}] ${level.toUpperCase()} ${step}: ${message}`, detail ?? "")
+  }
 
   try {
+    log("info", "submit_start", "Starting audit email capture", { email, weekly_optin: weeklyOptin })
     await supabaseFetch(`audit_leads?id=eq.${encodeURIComponent(auditId)}`, {
       method: "PATCH",
       body: JSON.stringify({
@@ -257,12 +311,13 @@ export async function POST(request: NextRequest) {
         weekly_optin: weeklyOptin,
       }),
     })
+    log("info", "contact_saved", "Audit contact details saved")
 
     const audit = await getAuditLead(auditId)
     const companyName = company || audit?.analysis?.company_name
 
     if (weeklyOptin) {
-      await supabaseFetch("newsletter_subscribers?on_conflict=email", {
+      const newsletterResult = await safeSupabaseFetch("newsletter_subscribers?on_conflict=email", {
         method: "POST",
         headers: { Prefer: "resolution=merge-duplicates" },
         body: JSON.stringify({
@@ -271,10 +326,11 @@ export async function POST(request: NextRequest) {
           source: "audit",
           active: true,
         }),
-      })
+      }, log)
+      log(newsletterResult.ok ? "info" : "warn", "newsletter", newsletterResult.ok ? "Newsletter subscriber saved" : "Newsletter subscriber save skipped")
     }
 
-    await supabaseFetch("leads", {
+    const leadResult = await safeSupabaseFetch("leads", {
       method: "POST",
       body: JSON.stringify({
         name: firstName,
@@ -284,7 +340,8 @@ export async function POST(request: NextRequest) {
         status: "new",
         score: 75,
       }),
-    })
+    }, log)
+    log(leadResult.ok ? "info" : "warn", "lead_create", leadResult.ok ? "Audit lead created in OS leads table" : "OS lead creation skipped")
 
     const emailResult = await sendReportEmail({
       auditId,
@@ -293,17 +350,49 @@ export async function POST(request: NextRequest) {
       companyName,
       audit,
     })
+    log(emailResult.sent ? "info" : "warn", "email", emailResult.sent ? "Report email sent" : "Report email skipped", {
+      reason: emailResult.sent ? undefined : emailResult.reason,
+    })
+
+    await appendSubmitDebug(auditId, logs)
 
     return NextResponse.json({
       success: true,
       report_url: `/audit/report/${auditId}`,
       email_sent: emailResult.sent,
       email_fallback: emailResult.sent ? null : emailResult.reason,
+      lead_created: leadResult.ok,
     })
   } catch (error) {
+    const message = getFriendlySubmitError(error)
+    log("error", "submit_failed", message, { raw_error: getErrorMessage(error) })
+    await appendSubmitDebug(auditId, logs)
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Something went wrong. Please try again." },
+      {
+        error: message,
+        code: "audit_submit_failed",
+        manual_available: true,
+      },
       { status: 500 },
     )
   }
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error)
+}
+
+function getFriendlySubmitError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  if (message.includes("supabase") || message.includes("audit service")) {
+    return "We saved your report, but had trouble saving your contact details. Try again or request manual delivery."
+  }
+
+  if (message.includes("timeout") || message.includes("network") || message.includes("fetch failed")) {
+    return "The request timed out while sending your report. Try again or request manual delivery."
+  }
+
+  return "We had trouble sending your report. Try again or request manual delivery."
 }
