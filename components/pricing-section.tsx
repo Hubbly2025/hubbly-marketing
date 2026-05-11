@@ -174,7 +174,7 @@ export function PricingSection() {
             <div className="h-[1px] w-full bg-border/40 mb-4" />
 
             <a
-              href="#"
+              href="/#close"
               className={cn(
                 "inline-flex items-center justify-center px-4 py-3 font-mono text-[10px] md:text-xs uppercase tracking-widest transition-all duration-200",
                 tier.featured

@@ -257,7 +257,7 @@ export function EngineSection() {
         </div>
         <AgentNetwork />
         <div className="mt-6 text-center">
-          <a href="#how-it-works" className="font-mono text-xs text-muted-foreground hover:text-accent transition-colors duration-200">
+          <a href="/#how-it-works" className="font-mono text-xs text-muted-foreground hover:text-accent transition-colors duration-200">
             Powered by 5 intelligence agents upstream. <span className="text-accent">↓ See how</span>
           </a>
         </div>

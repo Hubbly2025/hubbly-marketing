@@ -120,7 +120,7 @@ export function FinalCloseSection() {
           </a>
           <span className="text-muted-foreground/40 hidden sm:inline">·</span>
           <a
-            href="#how-it-works"
+            href="/#how-it-works"
             className="font-mono text-xs uppercase tracking-widest text-foreground hover:text-accent transition-colors duration-200 py-2"
           >
             SEE THE SYSTEM
