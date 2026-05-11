@@ -26,7 +26,7 @@ export async function GET(
   }
 
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/audit_leads?id=eq.${encodeURIComponent(auditId)}&select=status`,
+    `${supabaseUrl}/rest/v1/audit_leads?id=eq.${encodeURIComponent(auditId)}&select=status,error_message,analysis`,
     {
       headers: {
         apikey: serviceRoleKey,
@@ -42,8 +42,23 @@ export async function GET(
     )
   }
 
-  const rows = (await response.json()) as Array<{ status: string }>
-  const status = rows[0]?.status
+  const rows = (await response.json()) as Array<{
+    status: string
+    error_message?: string | null
+    analysis?: {
+      audit_debug?: {
+        current_step?: string
+        progress_percent?: number
+        manual_review?: {
+          required?: boolean
+          reason?: string
+        }
+      }
+      error?: string
+    } | null
+  }>
+  const audit = rows[0]
+  const status = audit?.status
 
   if (!status) {
     return NextResponse.json(
@@ -52,5 +67,11 @@ export async function GET(
     )
   }
 
-  return NextResponse.json({ status: normalizeAuditStatus(status) })
+  return NextResponse.json({
+    status: normalizeAuditStatus(status),
+    current_step: audit?.analysis?.audit_debug?.current_step ?? null,
+    progress_percent: audit?.analysis?.audit_debug?.progress_percent ?? null,
+    error_message: audit?.error_message || audit?.analysis?.error || null,
+    manual_review: audit?.analysis?.audit_debug?.manual_review ?? null,
+  })
 }

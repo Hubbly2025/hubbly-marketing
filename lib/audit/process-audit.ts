@@ -44,36 +44,114 @@ type AuditAnalysis = {
   sample_email?: Record<string, unknown>
 }
 
+type AuditDebugLog = {
+  at: string
+  level: "info" | "warn" | "error"
+  step: string
+  message: string
+  detail?: Record<string, unknown>
+}
+
+type AuditDebugState = {
+  current_step: string
+  progress_percent: number
+  logs: AuditDebugLog[]
+  manual_review?: {
+    required: boolean
+    reason: string
+  }
+}
+
 export async function processAudit(auditId: string, url: string) {
   const supabase = getSupabaseConfig()
+  const logs: AuditDebugLog[] = []
+  let currentStep = "Starting audit"
+  let progressPercent = 5
+
+  const log = (level: AuditDebugLog["level"], step: string, message: string, detail?: Record<string, unknown>) => {
+    const entry = { at: new Date().toISOString(), level, step, message, detail }
+    logs.push(entry)
+    console.log(`[audit:${auditId}] ${level.toUpperCase()} ${step}: ${message}`, detail ?? "")
+  }
+
+  const markProgress = async (step: string, progress: number, message: string, detail?: Record<string, unknown>) => {
+    currentStep = step
+    progressPercent = progress
+    log("info", step, message, detail)
+    await updateAuditDebug(supabase, auditId, { current_step: currentStep, progress_percent: progressPercent, logs })
+  }
 
   try {
-    const scrapedPages = await scrapeWebsiteDeep(url)
+    await markProgress("queued", 5, "Audit job accepted")
+    await markProgress("scraping", 15, "Scraping website content")
+    const { pages: scrapedPages, diagnostics: scrapeDiagnostics } = await scrapeWebsiteDeep(url, log)
     const companyName = extractCompanyName(scrapedPages, url)
     const scrapedContent = formatScrapedContent(scrapedPages, companyName)
 
     if (scrapedContent.trim().length < 300) {
+      const message = "We could not find enough readable content on that site. It may block automated tools or require JavaScript."
+      log("warn", "scraping", message, {
+        content_length: scrapedContent.trim().length,
+        pages_scraped: scrapedPages.length,
+        diagnostics: scrapeDiagnostics,
+      })
       await updateAuditLead(supabase, auditId, {
         status: "failed",
-        error_message: "Not enough content found on this site. It may block automated analysis or require JavaScript to load.",
+        error_message: message,
         analysis: {
-          error: "Not enough content found on this site. It may block automated analysis or require JavaScript to load.",
+          error: message,
+          audit_debug: {
+            current_step: "manual_review",
+            progress_percent: 100,
+            logs,
+            manual_review: {
+              required: true,
+              reason: "low_content",
+            },
+          },
         },
         completed_at: new Date().toISOString(),
       })
       return
     }
 
-    const analysis = await analyzeWithClaude(scrapedContent)
+    await markProgress("analyzing", 45, "Analyzing GTM strategy with Claude", {
+      content_length: scrapedContent.length,
+      pages_scraped: scrapedPages.length,
+    })
+
+    let analysis: AuditAnalysis
+    let manualReview: AuditDebugState["manual_review"] | undefined
+    try {
+      analysis = await analyzeWithClaude(scrapedContent, log)
+    } catch (error) {
+      const friendlyMessage = toFriendlyError(error)
+      log("error", "analysis", friendlyMessage, { raw_error: getErrorMessage(error) })
+      analysis = buildFallbackAnalysis(companyName, scrapedContent)
+      manualReview = {
+        required: true,
+        reason: "Claude analysis failed. Fallback report generated for manual review.",
+      }
+    }
+
+    await markProgress("building_report", 75, "Building GTM report data")
     const normalizedAnalysis = {
       ...analysis,
       company_name: analysis.company_name || companyName,
+      audit_debug: {
+        current_step: "complete",
+        progress_percent: 100,
+        logs,
+        manual_review: manualReview,
+      },
     }
     const intentData = estimateIntentData(normalizedAnalysis.industry)
     const gtmPlan = buildGtmPlan(normalizedAnalysis, intentData, companyName)
 
+    await markProgress("complete", 100, manualReview ? "Fallback report ready for manual review" : "Audit report complete")
     await updateAuditLead(supabase, auditId, {
       status: "complete",
+      error_message: manualReview?.reason ?? null,
       analysis: normalizedAnalysis,
       competitors: normalizedAnalysis.competitors ?? [],
       intent_data: intentData,
@@ -82,11 +160,22 @@ export async function processAudit(auditId: string, url: string) {
       completed_at: new Date().toISOString(),
     })
   } catch (error) {
+    const friendlyMessage = toFriendlyError(error)
+    log("error", currentStep, friendlyMessage, { raw_error: getErrorMessage(error) })
     await updateAuditLead(supabase, auditId, {
       status: "failed",
-      error_message: error instanceof Error ? error.message : "Audit processing failed",
+      error_message: friendlyMessage,
       analysis: {
-        error: error instanceof Error ? error.message : "Audit processing failed",
+        error: friendlyMessage,
+        audit_debug: {
+          current_step: "failed",
+          progress_percent: progressPercent,
+          logs,
+          manual_review: {
+            required: true,
+            reason: getErrorMessage(error),
+          },
+        },
       },
       completed_at: new Date().toISOString(),
     })
@@ -124,12 +213,41 @@ async function updateAuditLead(
   }
 }
 
-async function scrapeWebsiteDeep(url: string) {
+async function updateAuditDebug(
+  supabase: { url: string; serviceRoleKey: string },
+  auditId: string,
+  debug: AuditDebugState,
+) {
+  try {
+    await updateAuditLead(supabase, auditId, {
+      analysis: { audit_debug: debug },
+    })
+  } catch (error) {
+    console.log(`[audit:${auditId}] WARN progress_update: ${getErrorMessage(error)}`)
+  }
+}
+
+async function scrapeWebsiteDeep(
+  url: string,
+  log: (level: AuditDebugLog["level"], step: string, message: string, detail?: Record<string, unknown>) => void,
+) {
   const base = new URL(url)
   const scrapingBeeApiKey = process.env.SCRAPINGBEE_API_KEY || process.env.Scrapingbee
   const scrapeResults = await Promise.allSettled(SCRAPE_PATHS.map(async (target) => {
     const targetUrl = new URL(target.path, base).toString()
-    return scrapePage(targetUrl, target.label, scrapingBeeApiKey)
+    return withRetry(
+      `scrape ${target.label}`,
+      () => scrapePage(targetUrl, target.label, scrapingBeeApiKey),
+      { retries: 2, baseDelayMs: 500, shouldRetry: (error) => !/404|410/.test(getErrorMessage(error)) },
+      log,
+    )
+  }))
+  const diagnostics = scrapeResults.map((result, index) => ({
+    path: SCRAPE_PATHS[index].path,
+    label: SCRAPE_PATHS[index].label,
+    status: result.status,
+    ok: result.status === "fulfilled" && Boolean(result.value),
+    error: result.status === "rejected" ? getErrorMessage(result.reason) : undefined,
   }))
   const pages = scrapeResults
     .filter((result): result is PromiseFulfilledResult<ScrapedPage | null> => result.status === "fulfilled")
@@ -137,59 +255,63 @@ async function scrapeWebsiteDeep(url: string) {
     .filter((page): page is ScrapedPage => Boolean(page))
 
   if (!pages.length) {
-    throw new Error("No website pages could be scraped")
+    throw new AuditPipelineError("scrape_failed", "No website pages could be scraped", true)
   }
 
-  return pages
+  log("info", "scraping", `Scraped ${pages.length} readable page${pages.length === 1 ? "" : "s"}`, {
+    provider: scrapingBeeApiKey ? "scrapingbee" : "direct_fetch",
+    diagnostics,
+  })
+
+  return { pages, diagnostics }
 }
 
 async function scrapePage(url: string, label: string, apiKey?: string) {
-  try {
-    let response: Response
+  let response: Response
 
-    if (apiKey) {
-      const scrapeUrl = new URL("https://app.scrapingbee.com/api/v1/")
-      scrapeUrl.searchParams.set("api_key", apiKey)
-      scrapeUrl.searchParams.set("url", url)
-      scrapeUrl.searchParams.set("render_js", "false")
-      scrapeUrl.searchParams.set("block_ads", "true")
-      scrapeUrl.searchParams.set("block_resources", "true")
+  if (apiKey) {
+    const scrapeUrl = new URL("https://app.scrapingbee.com/api/v1/")
+    scrapeUrl.searchParams.set("api_key", apiKey)
+    scrapeUrl.searchParams.set("url", url)
+    scrapeUrl.searchParams.set("render_js", "false")
+    scrapeUrl.searchParams.set("block_ads", "true")
+    scrapeUrl.searchParams.set("block_resources", "true")
 
-      response = await fetch(scrapeUrl.toString(), {
-        signal: AbortSignal.timeout(15000),
-      })
-    } else {
-      response = await fetch(url, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; HubblyBot/1.0)",
-        },
-        signal: AbortSignal.timeout(5000),
-      })
-    }
+    response = await fetch(scrapeUrl.toString(), {
+      signal: AbortSignal.timeout(15000),
+    })
+  } else {
+    response = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; HubblyBot/1.0)",
+      },
+      signal: AbortSignal.timeout(5000),
+    })
+  }
 
-    if (!response.ok) {
+  if (!response.ok) {
+    if (response.status === 404 || response.status === 410) {
       return null
     }
+    throw new AuditPipelineError("scrape_http_error", `${label} returned HTTP ${response.status}`, response.status >= 500)
+  }
 
-    const html = await response.text()
-    const title = extractTagContent(html, "title")
-    const ogSiteName = extractMetaContent(html, "og:site_name")
-    const content = extractReadableText(html)
+  const html = await response.text()
+  const title = extractTagContent(html, "title")
+  const ogSiteName = extractMetaContent(html, "og:site_name")
+  const content = extractReadableText(html)
 
-    if (!content.trim()) {
-      return null
-    }
-
-    return {
-      label,
-      url,
-      title,
-      ogSiteName,
-      content: content.slice(0, 2000),
-      status: response.status,
-    }
-  } catch {
+  if (!content.trim()) {
     return null
+  }
+
+  return {
+    label,
+    url,
+    title,
+    ogSiteName,
+    content: content.slice(0, 2000),
+    status: response.status,
   }
 }
 
@@ -280,16 +402,32 @@ function formatScrapedContent(pages: ScrapedPage[], companyName: string) {
   ].join("\n\n").slice(0, 45000)
 }
 
-async function analyzeWithClaude(scrapedContent: string) {
+async function analyzeWithClaude(
+  scrapedContent: string,
+  log: (level: AuditDebugLog["level"], step: string, message: string, detail?: Record<string, unknown>) => void,
+) {
   const firstPrompt = buildAnalysisPrompt(scrapedContent)
 
   try {
-    return validateAnalysis(await callClaude(firstPrompt))
-  } catch {
+    return validateAnalysis(await withRetry(
+      "claude analysis",
+      () => callClaude(firstPrompt),
+      { retries: 2, baseDelayMs: 900 },
+      log,
+    ))
+  } catch (error) {
+    log("warn", "analysis", "Claude response failed validation, retrying with compact JSON prompt", {
+      error: getErrorMessage(error),
+    })
     const retryPrompt = `${firstPrompt}
 
 Your previous response was not usable. Return only compact valid JSON with every required top-level key present: product, industry, icp, competitors, gtm_gaps, outreach_angle, sample_email.`
-    return validateAnalysis(await callClaude(retryPrompt))
+    return validateAnalysis(await withRetry(
+      "claude compact retry",
+      () => callClaude(retryPrompt),
+      { retries: 1, baseDelayMs: 1200 },
+      log,
+    ))
   }
 }
 
@@ -342,7 +480,7 @@ async function callClaude(prompt: string) {
   const apiKey = process.env.ANTHROPIC_API_KEY || process.env.Anthropic
 
   if (!apiKey) {
-    throw new Error("ANTHROPIC_API_KEY is not configured")
+    throw new AuditPipelineError("missing_anthropic_key", "ANTHROPIC_API_KEY is not configured", false)
   }
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -360,7 +498,7 @@ async function callClaude(prompt: string) {
   })
 
   if (!response.ok) {
-    throw new Error(`Claude analysis failed: ${response.status} ${await response.text()}`)
+    throw new AuditPipelineError("claude_http_error", `Claude analysis failed: ${response.status} ${await response.text()}`, response.status >= 500 || response.status === 429)
   }
 
   const data = await response.json()
@@ -370,7 +508,7 @@ async function callClaude(prompt: string) {
     .join("\n")
 
   if (!text) {
-    throw new Error("Claude returned an empty analysis")
+    throw new AuditPipelineError("claude_empty_response", "Claude returned an empty analysis", true)
   }
 
   return parseJson(text)
@@ -383,18 +521,158 @@ function parseJson(text: string) {
 
 function validateAnalysis(analysis: AuditAnalysis) {
   if (!analysis.product || !analysis.industry || !analysis.icp || !analysis.sample_email) {
-    throw new Error("Claude response is missing required analysis fields")
+    throw new AuditPipelineError("claude_invalid_json", "Claude response is missing required analysis fields", true)
   }
 
   if (!Array.isArray(analysis.competitors) || analysis.competitors.length < 1) {
-    throw new Error("Claude response is missing competitor analysis")
+    throw new AuditPipelineError("claude_invalid_json", "Claude response is missing competitor analysis", true)
   }
 
   if (!Array.isArray(analysis.gtm_gaps) || analysis.gtm_gaps.length < 1) {
-    throw new Error("Claude response is missing GTM gaps")
+    throw new AuditPipelineError("claude_invalid_json", "Claude response is missing GTM gaps", true)
   }
 
   return analysis
+}
+
+class AuditPipelineError extends Error {
+  code: string
+  retryable: boolean
+
+  constructor(code: string, message: string, retryable: boolean) {
+    super(message)
+    this.name = "AuditPipelineError"
+    this.code = code
+    this.retryable = retryable
+  }
+}
+
+async function withRetry<T>(
+  label: string,
+  operation: () => Promise<T>,
+  options: {
+    retries: number
+    baseDelayMs: number
+    shouldRetry?: (error: unknown) => boolean
+  },
+  log: (level: AuditDebugLog["level"], step: string, message: string, detail?: Record<string, unknown>) => void,
+) {
+  let lastError: unknown
+
+  for (let attempt = 0; attempt <= options.retries; attempt++) {
+    try {
+      return await operation()
+    } catch (error) {
+      lastError = error
+      const retryable = options.shouldRetry?.(error) ?? isRetryableError(error)
+      const canRetry = retryable && attempt < options.retries
+
+      log(canRetry ? "warn" : "error", "retry", `${label} failed${canRetry ? ", retrying" : ""}`, {
+        attempt: attempt + 1,
+        max_attempts: options.retries + 1,
+        retryable,
+        error: getErrorMessage(error),
+      })
+
+      if (!canRetry) break
+      await sleep(options.baseDelayMs * 2 ** attempt)
+    }
+  }
+
+  throw lastError
+}
+
+function isRetryableError(error: unknown) {
+  if (error instanceof AuditPipelineError) return error.retryable
+  const message = getErrorMessage(error).toLowerCase()
+  return /timeout|timed out|network|fetch failed|429|500|502|503|504|rate limit/.test(message)
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error)
+}
+
+function toFriendlyError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+
+  if (message.includes("anthropic") || message.includes("claude")) {
+    return "The analysis engine had trouble reading the site. We queued this audit for manual review."
+  }
+
+  if (message.includes("scrape") || message.includes("fetch") || message.includes("timeout")) {
+    return "We could not read enough of that website. It may block automated tools or require JavaScript."
+  }
+
+  if (message.includes("supabase") || message.includes("audit update")) {
+    return "We had trouble saving the audit. Please try again in a minute."
+  }
+
+  return "We had trouble analyzing that URL. We queued it for manual review."
+}
+
+function buildFallbackAnalysis(companyName: string, scrapedContent: string): AuditAnalysis {
+  const lower = scrapedContent.toLowerCase()
+  const industry = inferIndustryFromContent(lower)
+
+  return {
+    company_name: companyName,
+    product: `${companyName} appears to help customers in ${industry} solve a revenue or operational workflow problem based on its public website.`,
+    industry,
+    icp: {
+      primary: {
+        title: "Revenue leader",
+        company_size: "25-250 employees",
+        pain_point: "They need a clearer way to turn website interest into qualified pipeline.",
+        trigger: "They are trying to increase qualified meetings without adding more manual sales headcount.",
+      },
+      secondary: {
+        title: "Founder or owner",
+        company_size: "1-50 employees",
+        pain_point: "They need more predictable customer acquisition from their existing website and positioning.",
+        trigger: "Growth has slowed or paid acquisition is getting harder to scale.",
+      },
+      emerging: {
+        title: "Marketing leader",
+        company_size: "50-500 employees",
+        pain_point: "They need sharper targeting and better conversion from existing demand.",
+        trigger: "They are reviewing campaign performance or launching a new GTM motion.",
+      },
+    },
+    competitors: [
+      {
+        name: "Manual outbound teams",
+        their_angle: "Human-led research and outreach.",
+        their_weakness: "Slow execution, inconsistent targeting, and high operating cost.",
+        your_opening: "Position around faster GTM execution with automated buyer identification and outreach.",
+      },
+    ],
+    gtm_gaps: [
+      "The public site does not provide enough machine-readable detail for a high-confidence GTM audit.",
+      "The buyer segment needs manual confirmation before campaigns launch.",
+      "Competitor displacement angles need human review.",
+      "Outbound and follow-up motion should be mapped before execution.",
+    ],
+    outreach_angle: `Lead with the specific outcome ${companyName} promises and connect it to a near-term revenue trigger.`,
+    sample_email: {
+      subject: `${companyName} pipeline idea`,
+      body: `Saw how ${companyName} is positioning around ${industry}. Teams in this market often lose demand because interest is not routed into follow-up fast enough. Hubbly can turn that website interest into targeted outreach and booked meetings. Worth mapping the first segment?`,
+    },
+  }
+}
+
+function inferIndustryFromContent(content: string) {
+  if (/ecommerce|shopify|retail|storefront|consumer brand/.test(content)) return "Ecommerce Marketing Technology"
+  if (/insurance|policy|coverage|carrier/.test(content)) return "Insurance"
+  if (/mortgage|loan|lending|refinance/.test(content)) return "Mortgage"
+  if (/real estate|property|brokerage/.test(content)) return "Real Estate"
+  if (/recruiting|hiring|talent|staffing/.test(content)) return "Recruiting"
+  if (/agency|marketing|creative|demand generation/.test(content)) return "Marketing Services"
+  if (/software|platform|saas|api|automation/.test(content)) return "B2B SaaS"
+  return "Revenue Technology"
 }
 
 function estimateIntentData(industry?: string) {

@@ -98,7 +98,7 @@ export function AuditReportPage({ auditId }: { auditId: string }) {
   }, [auditId])
 
   if (error && !audit) {
-    return <FailedState message={audit.error_message || audit.analysis?.error} />
+    return <FailedState message={error} />
   }
 
   if (!audit || audit.status === "processing") {
@@ -106,7 +106,7 @@ export function AuditReportPage({ auditId }: { auditId: string }) {
   }
 
   if (audit.status === "failed") {
-    return <FailedState />
+    return <FailedState message={audit.error_message || audit.analysis?.error} />
   }
 
   return <CompleteReport audit={audit} />

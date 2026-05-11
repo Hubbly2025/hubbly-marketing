@@ -21,6 +21,9 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
   const [animationDone, setAnimationDone] = useState(false)
   const [status, setStatus] = useState<AuditStatus>("processing")
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [serverStep, setServerStep] = useState("")
+  const [serverProgress, setServerProgress] = useState<number | null>(null)
+  const [errorMessage, setErrorMessage] = useState("")
 
   useEffect(() => {
     const timers = steps.map((_, index) =>
@@ -53,6 +56,9 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
 
         if (!cancelled && response.ok) {
           setStatus(data.status)
+          setServerStep(data.current_step || "")
+          setServerProgress(typeof data.progress_percent === "number" ? data.progress_percent : null)
+          setErrorMessage(data.error_message || "")
         }
 
         if (!cancelled && !response.ok) {
@@ -89,7 +95,7 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
             Something went wrong analyzing that URL.
           </h1>
           <p className="mt-4 max-w-md font-mono text-sm text-muted-foreground">
-            Try a different one.
+            {errorMessage || "Try a different one."}
           </p>
           <a
             href="/#close"
@@ -142,6 +148,12 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
           {animationDone && status === "processing" ? (
             <p className="mt-6 font-mono text-xs text-muted-foreground">
               This is taking a bit longer than usual. Almost there.
+            </p>
+          ) : null}
+          {serverStep ? (
+            <p className="mt-4 font-mono text-xs text-muted-foreground">
+              Current step: {serverStep.replace(/_/g, " ")}
+              {serverProgress !== null ? ` · ${serverProgress}%` : ""}
             </p>
           ) : null}
           {elapsedSeconds > 0 ? (
