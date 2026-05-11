@@ -52,6 +52,18 @@ export async function processAudit(auditId: string, url: string) {
     const scrapedPages = await scrapeWebsiteDeep(url)
     const companyName = extractCompanyName(scrapedPages, url)
     const scrapedContent = formatScrapedContent(scrapedPages, companyName)
+
+    if (scrapedContent.trim().length < 300) {
+      await updateAuditLead(supabase, auditId, {
+        status: "failed",
+        analysis: {
+          error: "Not enough content found on this site. It may block automated analysis or require JavaScript to load.",
+        },
+        completed_at: new Date().toISOString(),
+      })
+      return
+    }
+
     const analysis = await analyzeWithClaude(scrapedContent)
     const normalizedAnalysis = {
       ...analysis,

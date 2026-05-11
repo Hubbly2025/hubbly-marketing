@@ -131,8 +131,11 @@ function FailedState() {
       <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-xl flex-col items-center justify-center text-center">
         <HubblyLogo />
         <h1 className="mt-10 font-[var(--font-bebas)] text-4xl tracking-tight md:text-6xl">
-          We had trouble analyzing that URL.
+          We couldn't analyze that site.
         </h1>
+        <p className="mt-4 max-w-lg font-mono text-sm leading-6 text-white/60">
+          It may block automated tools or require JavaScript. Try a different URL or enter your company details manually.
+        </p>
         <a
           href="/#close"
           className="mt-8 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-colors duration-200 hover:opacity-90"
