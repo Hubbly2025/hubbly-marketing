@@ -13,9 +13,6 @@ export function FinalCloseSection() {
   const contentRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [url, setUrl] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [message, setMessage] = useState("")
-  const [error, setError] = useState("")
 
   useEffect(() => {
     if (!sectionRef.current) return
@@ -66,36 +63,6 @@ export function FinalCloseSection() {
     }
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    setError("")
-    setMessage("")
-    setIsSubmitting(true)
-
-    try {
-      const response = await fetch("/api/audit/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      })
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data?.error || "Could not start the audit.")
-      }
-
-      sessionStorage.setItem("hubbly_audit_id", data.audit_id)
-      sessionStorage.setItem("hubbly_audit_url", url)
-      setMessage("Audit started. Your report is being prepared.")
-      window.location.href = `/audit/loading/${data.audit_id}`
-    } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Could not start the audit.")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   return (
     <section ref={sectionRef} id="close" className="relative py-24 md:py-40 px-4 md:pl-28 md:pr-12 border-t border-border/30 bg-card/20">
       <div ref={contentRef} className="max-w-4xl mx-auto text-center">
@@ -113,7 +80,6 @@ export function FinalCloseSection() {
         <form
           action="/api/audit/form"
           method="post"
-          onSubmit={handleSubmit}
           className="flex flex-col sm:flex-row items-stretch justify-center gap-3 mb-6 md:mb-10 max-w-2xl mx-auto"
         >
           <div className="relative flex-1 w-full">
@@ -134,22 +100,14 @@ export function FinalCloseSection() {
           </div>
           <button
             type="submit"
-            disabled={isSubmitting}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent px-6 md:px-8 py-4 font-mono text-xs uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200 whitespace-nowrap min-h-[52px] active:scale-[0.98]"
           >
-            {isSubmitting ? "Starting audit" : "Run My Audit"}
+            Run My Audit
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M7 17L17 7M17 7H7M17 7V17" />
             </svg>
           </button>
         </form>
-
-        {message ? (
-          <p className="mb-6 font-mono text-xs text-accent">{message}</p>
-        ) : null}
-        {error ? (
-          <p className="mb-6 font-mono text-xs text-red-400">{error}</p>
-        ) : null}
 
         {/* Secondary Actions */}
         <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mb-12 md:mb-20">
