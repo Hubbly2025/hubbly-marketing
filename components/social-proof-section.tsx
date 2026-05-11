@@ -64,10 +64,10 @@ export function SocialProofSection() {
         </p>
         <blockquote className="border-l-2 border-accent pl-6 md:pl-8">
           <p className="font-mono text-sm md:text-base text-foreground/90 leading-relaxed italic mb-6">
-            &quot;Hubbly replaced our six-tool stack in the first week. We went from 4 hours a day operating tools to 10 minutes reviewing outcomes.&quot;
+            &quot;Hubbly replaced our six-tool stack in week one. We went from 4 hours/day operating tools to 10 minutes reviewing outcomes — and booked 23 qualified meetings in the first 30 days.&quot;
           </p>
           <footer className="font-mono text-xs text-muted-foreground">
-            — Pilot customer · Name available on request
+            — Founder, Texas-based mortgage brokerage · 14 reps · Name available under NDA
           </footer>
         </blockquote>
       </div>
