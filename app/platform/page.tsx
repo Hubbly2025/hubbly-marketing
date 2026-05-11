@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "The Hubbly Platform — 8 AI Agents, One Memory",
-  description: "Inside Hubbly: 8 coordinated AI agents that research, enrich, email, call, and book — sharing one memory with zero handoff loss.",
+  title: "The Hubbly Platform — 13 AI Agents, One Memory",
+  description: "Inside Hubbly: 13 coordinated AI agents (5 intelligence + 8 execution) that research, enrich, email, call, and book — sharing one memory with zero handoff loss.",
   alternates: { canonical: "https://hubbly.io/platform" },
 }
 
