@@ -20,6 +20,7 @@ const pricingTiers = [
       "Daily brief — first 7 days",
     ],
     cta: "Get started →",
+    href: "/signup?plan=free",
     featured: false,
   },
   {
@@ -33,6 +34,7 @@ const pricingTiers = [
       "8 vertical agents",
     ],
     cta: "Start with Starter →",
+    href: "/signup?plan=starter",
     featured: false,
   },
   {
@@ -46,6 +48,7 @@ const pricingTiers = [
       "All Starter features",
     ],
     cta: "Go Pro →",
+    href: "/signup?plan=pro",
     featured: true,
   },
   {
@@ -60,6 +63,7 @@ const pricingTiers = [
       "All Pro features",
     ],
     cta: "Go Business →",
+    href: "/signup?plan=business",
     featured: false,
   },
   {
@@ -74,6 +78,7 @@ const pricingTiers = [
       "All Business features",
     ],
     cta: "Go Agency →",
+    href: "/signup?plan=agency",
     featured: false,
   },
 ]
@@ -174,7 +179,7 @@ export function PricingSection() {
             <div className="h-[1px] w-full bg-border/40 mb-4" />
 
             <a
-              href="#"
+              href={tier.href}
               className={cn(
                 "inline-flex items-center justify-center px-4 py-3 font-mono text-[10px] md:text-xs uppercase tracking-widest transition-all duration-200",
                 tier.featured
