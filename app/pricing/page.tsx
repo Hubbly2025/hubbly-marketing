@@ -245,7 +245,7 @@ export default function PricingPage() {
             Voice credit packs: $49 / 100 min · $129 / 300 min · $299 / 1,000 min
           </p>
           <p className="font-mono text-xs text-muted-foreground">
-            Unit economics: $0.065 per lead · $0.043 per voice minute
+            Unit economics at scale: from $0.099/lead and $0.299/voice minute
           </p>
           <p className="font-mono text-xs text-muted-foreground">
             All plans include 8 vertical agents, CRM sync, and email warmup
