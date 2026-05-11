@@ -15,6 +15,11 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null)
 
   useEffect(() => {
+    // Reset scroll position on initial load (unless there's a hash in URL)
+    if (typeof window !== "undefined" && !window.location.hash) {
+      window.scrollTo(0, 0)
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
