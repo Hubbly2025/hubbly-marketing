@@ -159,7 +159,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const highIntent = intent.highIntent ?? intent.high_intent ?? 0
   const sampleEmail = audit.sample_email ?? analysis.sample_email ?? {}
   const waitlistUrl = `/waitlist?${new URLSearchParams({
-    audit_id: auditId,
+    audit_id: audit.id,
     url: audit.url,
     prospects: String(monthly || ""),
     competitors: String((competitors ?? []).length || ""),
