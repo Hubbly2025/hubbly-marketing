@@ -37,7 +37,14 @@ export function AuditCaptureForm({ auditId }: { auditId: string }) {
         throw new Error(data?.error || "We had trouble sending your report. Try again or request manual delivery.")
       }
 
-      router.push(`/audit/report/${auditId}`)
+      const params = new URLSearchParams({
+        audit_id: auditId,
+        email,
+        company,
+        source: "audit_capture",
+      })
+
+      router.push(`/waitlist?${params.toString()}`)
     } catch (error) {
       setError(error instanceof Error ? error.message : "We had trouble sending your report. Try again or request manual delivery.")
     } finally {

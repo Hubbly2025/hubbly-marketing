@@ -246,3 +246,21 @@
 .animate-hero-slide {
   animation: hero-slide 12s ease-in-out infinite;
 }
+
+.waitlist-input {
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid rgba(10, 10, 10, 0.16);
+  background: #ffffff;
+  padding: 12px 14px;
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 13px;
+  color: #0a0a0a;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.waitlist-input:focus {
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 1px #ff6b35;
+}

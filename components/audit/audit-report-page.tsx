@@ -158,6 +158,14 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const weekly = intent.weekly ?? 0
   const highIntent = intent.highIntent ?? intent.high_intent ?? 0
   const sampleEmail = audit.sample_email ?? analysis.sample_email ?? {}
+  const waitlistUrl = `/waitlist?${new URLSearchParams({
+    audit_id: auditId,
+    url: audit.url,
+    prospects: String(monthly || ""),
+    competitors: String((competitors ?? []).length || ""),
+    score: String(intent.highIntent || intent.high_intent || ""),
+    source: "audit_report",
+  }).toString()}`
   const generatedDate = formatDate(audit.completed_at || audit.created_at)
 
   return (
@@ -315,7 +323,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
                   identifiable visitors per month for companies in {analysis.industry || "this industry"}.
                 </p>
                 <a
-                  href="https://hubbly-os-web.vercel.app"
+                  href={waitlistUrl}
                   className="mt-6 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-5 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
                 >
                   Install the Hubbly Pixel — Free →
@@ -378,10 +386,10 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </div>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <a
-                href="https://hubbly-os-web.vercel.app"
+                href={waitlistUrl}
                 className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
               >
-                Start My Pipeline →
+                Join the Waitlist →
               </a>
               <a
                 href="https://cal.com/hubbly/demo"
