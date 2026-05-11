@@ -52,7 +52,7 @@ export function SocialProofSection() {
   return (
     <section ref={sectionRef} id="proof" className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-12 md:mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">11 / PROOF</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">12 / PROOF</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
           Built for teams that need more than another outbound tool.
         </h2>
