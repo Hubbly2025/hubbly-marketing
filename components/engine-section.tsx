@@ -244,7 +244,7 @@ export function EngineSection() {
       <div ref={headerRef} className="mb-12 md:mb-16">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">03 / FUNNEL</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Eight agents. One memory. Zero handoff loss.
+          13 agents. One memory. Zero handoff loss.
         </h2>
       </div>
 

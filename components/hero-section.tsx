@@ -74,7 +74,7 @@ export function HeroSection() {
         </p>
 
         <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
-          You give Hubbly a website. Hubbly builds your ICP from 498M intent-qualified records, profiles your top 5 competitors, drafts ad creative and email sequences, launches Meta campaigns, sends outbound, places AI voice calls, qualifies replies, and books meetings into your calendar. One operating system. Thirteen agents. Zero handoffs.
+          You give Hubbly a website. Hubbly builds your ICP from 498M intent-qualified records, profiles your top 5 competitors, drafts ad creative and email sequences, launches Meta campaigns, sends outbound, places AI voice calls, qualifies replies, and books meetings into your calendar. One operating system. 13 AI agents. 5 intelligence + 8 execution. One shared memory.
         </p>
 
         <div className="mt-8 md:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6">
