@@ -7,7 +7,6 @@ const SCRAPE_PATHS = [
   { path: "/product", label: "product" },
   { path: "/features", label: "features" },
   { path: "/customers", label: "customers" },
-  { path: "/case-studies", label: "case studies" },
 ] as const
 
 const INTENT_ESTIMATES: Record<string, { monthly: number; weekly: number; highIntent: number }> = {
@@ -127,9 +126,10 @@ async function updateAuditLead(
 
 async function scrapeWebsiteDeep(url: string) {
   const base = new URL(url)
+  const scrapingBeeApiKey = process.env.SCRAPINGBEE_API_KEY
   const scrapeResults = await Promise.allSettled(SCRAPE_PATHS.map(async (target) => {
     const targetUrl = new URL(target.path, base).toString()
-    return scrapePage(targetUrl, target.label)
+    return scrapePage(targetUrl, target.label, scrapingBeeApiKey)
   }))
   const pages = scrapeResults
     .filter((result): result is PromiseFulfilledResult<ScrapedPage | null> => result.status === "fulfilled")
@@ -143,14 +143,29 @@ async function scrapeWebsiteDeep(url: string) {
   return pages
 }
 
-async function scrapePage(url: string, label: string) {
+async function scrapePage(url: string, label: string, apiKey?: string) {
   try {
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; HubblyBot/1.0)",
-      },
-      signal: AbortSignal.timeout(5000),
-    })
+    let response: Response
+
+    if (apiKey) {
+      const scrapeUrl = new URL("https://app.scrapingbee.com/api/v1/")
+      scrapeUrl.searchParams.set("api_key", apiKey)
+      scrapeUrl.searchParams.set("url", url)
+      scrapeUrl.searchParams.set("render_js", "false")
+      scrapeUrl.searchParams.set("block_ads", "true")
+      scrapeUrl.searchParams.set("block_resources", "true")
+
+      response = await fetch(scrapeUrl.toString(), {
+        signal: AbortSignal.timeout(15000),
+      })
+    } else {
+      response = await fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; HubblyBot/1.0)",
+        },
+        signal: AbortSignal.timeout(5000),
+      })
+    }
 
     if (!response.ok) {
       return null
