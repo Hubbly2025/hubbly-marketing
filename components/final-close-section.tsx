@@ -44,7 +44,7 @@ export function FinalCloseSection() {
   }
 
   return (
-    <section ref={sectionRef} id="close" className="relative py-24 md:py-40 px-4 md:pl-28 md:pr-12 border-t border-border/30 bg-card/20">
+    <section ref={sectionRef} id="audit" className="relative py-24 md:py-40 px-4 md:pl-28 md:pr-12 border-t border-border/30 bg-card/20">
       <div ref={contentRef} className="max-w-4xl mx-auto text-center">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent mb-4 md:mb-8 block">10 / RUN IT</span>
         

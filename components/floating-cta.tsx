@@ -23,7 +23,7 @@ export function FloatingCTA() {
   }, [])
 
   const scrollToAudit = () => {
-    const element = document.getElementById("close")
+    const element = document.getElementById("audit")
     if (element) {
       element.scrollIntoView({ behavior: "smooth" })
     }

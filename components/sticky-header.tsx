@@ -76,7 +76,7 @@ export function StickyHeader() {
               Book Demo
             </a>
             <button
-              onClick={() => scrollToSection("close")}
+              onClick={() => scrollToSection("audit")}
               className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
             >
               Run Audit
@@ -85,7 +85,7 @@ export function StickyHeader() {
 
           {/* Mobile CTA */}
           <button
-            onClick={() => scrollToSection("close")}
+            onClick={() => scrollToSection("audit")}
             className="md:hidden font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
           >
             Run Audit

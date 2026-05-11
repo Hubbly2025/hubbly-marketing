@@ -79,7 +79,7 @@ export function HeroSection() {
 
         <div className="mt-8 md:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6">
           <a
-            href="#close"
+            href="#audit"
             className="group inline-flex items-center justify-center gap-3 bg-accent px-5 py-3 md:px-6 md:py-4 font-mono text-xs md:text-sm uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200 min-h-[48px]"
           >
             <ScrambleTextOnHover text="Run My Audit" as="span" duration={0.6} />
@@ -110,7 +110,7 @@ export function HeroSection() {
             See Pricing →
           </a>
           <a
-            href="#close"
+            href="#audit"
             className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
           >
             Skip to Audit →
