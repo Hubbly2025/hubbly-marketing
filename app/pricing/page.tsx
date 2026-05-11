@@ -280,9 +280,7 @@ export default function PricingPage() {
             Book a demo and we will walk through your use case.
           </p>
           <a
-            href="https://cal.com/hubbly/demo"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/demo"
             className="inline-flex items-center gap-2 bg-accent px-6 py-3 font-mono text-xs uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200"
           >
             Book a Demo →

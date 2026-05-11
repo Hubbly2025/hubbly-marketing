@@ -392,7 +392,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
                 Join the Waitlist →
               </a>
               <a
-                href="https://cal.com/hubbly/demo"
+                href="/demo"
                 className="inline-flex min-h-12 items-center justify-center border border-white/25 px-6 font-mono text-xs uppercase tracking-widest text-white transition-colors duration-200 hover:border-[#FF6B35] hover:text-[#FF6B35]"
               >
                 Book a Demo →

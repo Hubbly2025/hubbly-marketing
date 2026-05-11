@@ -86,9 +86,7 @@ export function HeroSection() {
             <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
           </a>
           <a
-            href="https://cal.com/hubbly/demo"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/demo"
             className="font-mono text-xs md:text-sm uppercase tracking-widest text-foreground/70 hover:text-foreground transition-colors duration-200 border border-border/50 px-5 py-3 md:px-6 md:py-4 text-center min-h-[48px] flex items-center justify-center"
           >
             Book a Demo →
