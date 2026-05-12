@@ -61,6 +61,14 @@ type Audit = {
   sample_email?: SampleEmail
 }
 
+const A16Z_WRONG_EMAIL_BODY =
+  "Saw your team led the 'No Man Left Behind' piece on American tech values. We're building autonomous targeting systems that put US warfighters first while competitors focus on commercial applications. Our defense contracts are growing 40% MoM but we need strategic guidance navigating Pentagon procurement while scaling commercial dual-use. Would 15 minutes next week work to discuss if American Dynamism invests at our stage?"
+
+const A16Z_CORRECTED_EMAIL: Required<SampleEmail> = {
+  subject: "American Dynamism + your defense AI momentum",
+  body: "Noticed your team's defense AI work putting US warfighters first while competitors chase commercial applications. Your 40% MoM contract growth and Pentagon procurement focus aligns with American Dynamism's mandate - backing founders rebuilding America's defense industrial base. We've helped portfolio companies navigate DoD procurement while scaling dual-use commercial applications. Worth 15 minutes to explore if we're a fit for your next round?",
+}
+
 export function AuditReportPage({ auditId }: { auditId: string }) {
   const [audit, setAudit] = useState<Audit | null>(null)
   const [error, setError] = useState("")
@@ -157,7 +165,9 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const monthly = intent.monthly ?? 0
   const weekly = intent.weekly ?? 0
   const highIntent = intent.highIntent ?? intent.high_intent ?? 0
-  const sampleEmail = audit.sample_email ?? analysis.sample_email ?? {}
+  const isA16zReport = isAndreessenHorowitzReport(audit, companyName, domain)
+  const sampleEmail = isA16zReport ? A16Z_CORRECTED_EMAIL : audit.sample_email ?? analysis.sample_email ?? {}
+  const displayedGtmPlan = isA16zReport ? replacePlanEmailPov(audit.gtm_plan) : audit.gtm_plan
   const waitlistUrl = `/waitlist?${new URLSearchParams({
     audit_id: audit.id,
     url: audit.url,
@@ -347,17 +357,38 @@ function CompleteReport({ audit }: { audit: Audit }) {
           </ReportSection>
 
           <ReportSection eyebrow="Section 6" title="Your 30-day execution plan">
+            {isA16zReport && (
+              <CorrectionNote>
+                [NOTE: Section 6 email sample rewritten to use a16z → founder POV.]
+              </CorrectionNote>
+            )}
             <div className="grid gap-5 lg:grid-cols-3">
-              <PlanColumn title="Week 1 — Foundation" items={audit.gtm_plan?.week_1} />
-              <PlanColumn title="Week 2-3 — Outreach" items={audit.gtm_plan?.week_2_3} />
-              <PlanColumn title="Week 4 — Optimize" items={audit.gtm_plan?.week_4} />
+              <PlanColumn title="Week 1 — Foundation" items={displayedGtmPlan?.week_1} />
+              <PlanColumn title="Week 2-3 — Outreach" items={displayedGtmPlan?.week_2_3} />
+              <PlanColumn title="Week 4 — Optimize" items={displayedGtmPlan?.week_4} />
             </div>
+            {isA16zReport && (
+              <div className="mt-5 border border-[#FF6B35]/30 bg-[#FF6B35]/[0.05] p-5">
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF6B35]">
+                  Corrected outbound sample
+                </p>
+                <p className="mt-3 text-sm leading-7 text-white/76">{A16Z_CORRECTED_EMAIL.body}</p>
+              </div>
+            )}
           </ReportSection>
 
           <ReportSection eyebrow="Section 7" title="What Hubbly would send on your behalf">
+            {isA16zReport && (
+              <CorrectionNote>
+                [NOTE: Section 7 email rewritten from founder → a16z POV to a16z → founder POV.]
+              </CorrectionNote>
+            )}
             <div className="mx-auto max-w-3xl bg-white p-6 text-[#0A0A0A] shadow-2xl md:p-8">
               <div className="grid gap-2 border-b border-black/10 pb-4 font-mono text-xs">
-                <p><span className="text-black/45">From:</span> Hubbly OS</p>
+                <p>
+                  <span className="text-black/45">From:</span>{" "}
+                  {isA16zReport ? "American Dynamism at Andreessen Horowitz (via Hubbly OS)" : "Hubbly OS"}
+                </p>
                 <p><span className="text-black/45">To:</span> {analysis.icp?.primary?.title || "Primary buyer"}</p>
                 <p><span className="text-black/45">Subject:</span> {sampleEmail.subject || "Quick question"}</p>
               </div>
@@ -424,6 +455,14 @@ function ReportSection({
       </div>
       {children}
     </section>
+  )
+}
+
+function CorrectionNote({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mb-5 border border-[#FF6B35]/30 bg-[#FF6B35]/[0.06] p-3 font-mono text-xs leading-6 text-[#FFB199]">
+      {children}
+    </p>
   )
 }
 
@@ -545,4 +584,52 @@ function formatPlanValue(value: unknown): string {
   }
 
   return String(value)
+}
+
+function isAndreessenHorowitzReport(audit: Audit, companyName: string, domain: string) {
+  const haystack = [
+    audit.url,
+    domain,
+    companyName,
+    audit.analysis?.company_name,
+    audit.analysis?.product,
+    audit.analysis?.industry,
+    audit.analysis?.outreach_angle,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+
+  return (
+    haystack.includes("andreessen") ||
+    haystack.includes("a16z") ||
+    haystack.includes("american dynamism")
+  )
+}
+
+function replacePlanEmailPov(plan: Audit["gtm_plan"]): Audit["gtm_plan"] {
+  if (!plan) return plan
+
+  return replaceNestedValue(plan) as Audit["gtm_plan"]
+}
+
+function replaceNestedValue(value: unknown): unknown {
+  if (typeof value === "string") {
+    return value.replace(A16Z_WRONG_EMAIL_BODY, A16Z_CORRECTED_EMAIL.body)
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((entry) => replaceNestedValue(entry))
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
+        key,
+        replaceNestedValue(entry),
+      ]),
+    )
+  }
+
+  return value
 }
