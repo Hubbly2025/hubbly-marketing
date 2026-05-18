@@ -95,7 +95,7 @@ export function VerticalsSection() {
           Pre-built for your vertical.
         </h2>
         <p className="mt-4 font-mono text-sm text-muted-foreground max-w-3xl leading-relaxed">
-          Eight vertical specialists ship with Hubbly. Each is a pre-configured persona that runs on top of the 13-agent system. Pick yours at signup.
+          Eight vertical specialists ship with Hubbly. Each is a pre-configured persona that runs on top of the 12-agent system. Pick yours at signup.
         </p>
       </div>
 

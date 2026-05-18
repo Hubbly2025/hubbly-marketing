@@ -49,11 +49,11 @@ export function FinalCloseSection() {
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent mb-4 md:mb-8 block">14 / RUN IT</span>
         
         <h2 className="font-[var(--font-bebas)] text-3xl md:text-6xl lg:text-7xl tracking-tight mb-4 md:mb-8 text-balance">
-          See what your revenue engine should look like.
+          See what Hubbly would build for your company.
         </h2>
 
         <p className="max-w-xl mx-auto font-mono text-xs md:text-sm text-muted-foreground mb-8 md:mb-12">
-          Run an audit on your current website, offer, and outbound motion, then see how Hubbly would structure research, targeting, and execution.
+          Run a revenue audit and see your ICP, competitors, campaign opportunities, and pipeline gaps before you launch.
         </p>
 
         {/* URL Input Form */}
@@ -71,7 +71,7 @@ export function FinalCloseSection() {
             type="submit"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent px-6 md:px-8 py-4 font-mono text-xs uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200 whitespace-nowrap min-h-[52px] active:scale-[0.98]"
           >
-            Run My Audit
+            Run My Revenue Audit
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M7 17L17 7M17 7H7M17 7V17" />
             </svg>
@@ -99,6 +99,9 @@ export function FinalCloseSection() {
         </div>
 
         {/* Bottom tagline */}
+        <p className="font-mono text-xs md:text-sm text-muted-foreground/60 mb-4">
+          From website to pipeline. In one autonomous revenue OS.
+        </p>
         <p className="font-mono text-lg md:text-xl tracking-[0.3em] text-muted-foreground/30 uppercase">
           THE OPERATING SYSTEM FOR REVENUE
         </p>

@@ -79,7 +79,7 @@ export function StickyHeader() {
               onClick={() => scrollToSection("audit")}
               className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
             >
-              Run Audit
+              Revenue Audit
             </button>
           </div>
 
@@ -88,7 +88,7 @@ export function StickyHeader() {
             onClick={() => scrollToSection("audit")}
             className="md:hidden font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
           >
-            Run Audit
+            Revenue Audit
           </button>
         </nav>
       </div>

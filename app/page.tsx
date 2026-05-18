@@ -20,9 +20,9 @@ import { StickyHeader } from "@/components/sticky-header"
 import { FloatingCTA } from "@/components/floating-cta"
 
 export const metadata: Metadata = {
-  title: "Hubbly — Autonomous Revenue Operating System",
+  title: "Hubbly — Autonomous Revenue OS",
   description:
-    "Drop your website in and Hubbly's AI agents take over — finding customers, analyzing competitors, writing ads and email, running outreach, placing voice calls, and booking meetings.",
+    "Drop your website in and Hubbly goes to work — analyzing your business, mapping your market, building campaigns, running outreach, placing calls, and booking meetings. 12 agents. 3 layers. 1 autonomous revenue OS.",
   alternates: { canonical: "https://hubbly.io/" },
 }
 

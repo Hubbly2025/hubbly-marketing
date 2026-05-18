@@ -9,12 +9,12 @@ if (typeof window !== "undefined") {
 }
 
 const stats = [
-  { number: "498M", label: "Intent-qualified records" },
+  { number: "498M+", label: "Intent-qualified records" },
   { number: "43K+", label: "Live buyer intent topics" },
-  { number: "8 execution agents", label: "Executing in coordinated sequence" },
-  { number: "5 intelligence agents", label: "Researching + strategizing upstream" },
-  { number: "Under 15 min", label: "URL to active campaign" },
-  { number: "1 system", label: "Replacing your agency + stack" },
+  { number: "12", label: "Specialized revenue agents" },
+  { number: "3", label: "Operating layers" },
+  { number: "Under 15 min", label: "Website to campaign draft" },
+  { number: "1", label: "Autonomous Revenue OS" },
 ]
 
 export function ProofStripSection() {
@@ -64,9 +64,9 @@ export function ProofStripSection() {
     <section ref={sectionRef} id="proof-strip" className="relative py-20 md:py-24 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-10 md:mb-12">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">02 / PROBLEM</span>
-        <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight">The numbers that matter.</h2>
+        <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight">The operating numbers behind Hubbly.</h2>
         <p className="mt-4 font-mono text-sm text-muted-foreground max-w-2xl">
-          Every number is measurable, reproducible, and verified against real customer pipelines.
+          Built around real buyer data, coordinated agents, and fast campaign activation.
         </p>
       </div>
 
