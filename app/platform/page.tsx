@@ -2,28 +2,30 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "The Hubbly Platform — 13 AI Agents, One Memory",
-  description: "Inside Hubbly: 13 coordinated AI agents (5 intelligence + 8 execution) that research, enrich, email, call, and book — sharing one memory with zero handoff loss.",
+  title: "The Hubbly Platform — 12 AI Agents, 3 Layers, One Memory",
+  description: "Inside Hubbly: 12 specialized revenue agents organized in 3 layers (Understand, Execute, Improve) sharing one operating memory with zero handoff loss.",
   alternates: { canonical: "https://hubbly.io/platform" },
 }
 
-const intelligenceAgents = [
-  { name: "Recon", description: "Analyzes your website, offer, market position, and competitive landscape" },
-  { name: "Competitor", description: "Maps competitor positioning, pricing, and messaging patterns" },
-  { name: "ICP", description: "Builds ideal customer profiles from your best-fit buyer signals" },
-  { name: "GTM Strategy", description: "Generates targeting logic, channel mix, and sequencing approach" },
-  { name: "Creative", description: "Writes copy variants, subject lines, and call scripts" },
+const understandAgents = [
+  { name: "Recon", description: "Analyzes the website, market, competitors, SEO, CRO, and AI visibility" },
+  { name: "ICP", description: "Defines ideal customers, segments, buying triggers, and target accounts" },
+  { name: "Strategy", description: "Turns business intelligence into GTM direction, offers, channels, and campaign plans" },
 ]
 
-const executionAgents = [
-  { name: "Discover", description: "Finds buyers matching your ICP from 498M+ intent-qualified records" },
-  { name: "Score", description: "Ranks prospects by purchase intent and fit before outreach" },
-  { name: "Write", description: "Generates personalized email and voice scripts for each contact" },
-  { name: "Send", description: "Deploys sequences across email with smart timing and throttling" },
-  { name: "Call", description: "Places AI voice calls with natural conversation handling" },
-  { name: "Listen", description: "Monitors replies, scores sentiment, and routes responses" },
-  { name: "Book", description: "Converts positive replies into scheduled calendar meetings" },
-  { name: "Sync", description: "Pushes activity, leads, and outcomes to your CRM in real-time" },
+const executeAgents = [
+  { name: "Scout", description: "Finds and enriches accounts and leads from 498M+ intent-qualified records" },
+  { name: "Score", description: "Ranks opportunities by fit, intent, urgency, and conversion potential" },
+  { name: "Writer", description: "Creates emails, ads, landing copy, scripts, and sales messaging" },
+  { name: "Sender", description: "Launches and manages outbound sequences across email" },
+  { name: "Voice", description: "Places AI calls, qualifies prospects, and captures call outcomes" },
+  { name: "Booker", description: "Schedules meetings and routes qualified opportunities" },
+]
+
+const improveAgents = [
+  { name: "Track", description: "Monitors campaigns, funnel movement, CRM activity, and pipeline performance" },
+  { name: "Optimize", description: "Identifies what is working, what is failing, and what should change" },
+  { name: "Advisor", description: "Produces prioritized recommendations and feeds improvements back into the system" },
 ]
 
 export default function PlatformPage() {
@@ -44,43 +46,61 @@ export default function PlatformPage() {
         </span>
         
         <h1 className="font-[var(--font-bebas)] text-4xl md:text-6xl lg:text-7xl tracking-tight mb-6">
-          13 AI agents. One shared memory. Zero manual handoffs.
+          12 AI agents. 3 layers. One shared memory.
         </h1>
         
         <p className="font-mono text-sm md:text-base text-muted-foreground mb-16 max-w-3xl leading-relaxed">
-          Hubbly runs on a coordinated system of AI agents that share context, execute in sequence, and learn from every interaction. Five agents handle intelligence. Eight agents handle execution. Human oversight gates every critical decision.
+          Hubbly is one product organized into three operating layers: Understand, Execute, and Improve. Each layer uses shared memory so the system gets smarter as it works. Human oversight gates every critical decision.
         </p>
 
-        {/* Intelligence Agents */}
+        {/* Understand Agents */}
         <section className="mb-16">
-          <h2 className="font-[var(--font-bebas)] text-2xl md:text-4xl tracking-tight mb-2 text-accent">
-            Intelligence Layer
+          <h2 className="font-[var(--font-bebas)] text-2xl md:text-4xl tracking-tight mb-2 text-green-500">
+            01 / Understand
           </h2>
           <p className="font-mono text-sm text-muted-foreground mb-8">
-            5 agents that research, analyze, and plan before any outreach begins.
+            Hubbly learns the business. It analyzes your website, offer, market, ICP, competitors, SEO, CRO, and buyer-intent signals.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {intelligenceAgents.map((agent) => (
-              <div key={agent.name} className="border border-border/50 bg-card/30 p-5">
-                <h3 className="font-mono text-sm uppercase tracking-widest text-foreground mb-2">{agent.name}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {understandAgents.map((agent) => (
+              <div key={agent.name} className="border border-green-500/30 bg-green-500/5 p-5">
+                <h3 className="font-mono text-sm uppercase tracking-widest text-green-500 mb-2">{agent.name}</h3>
                 <p className="font-mono text-xs text-muted-foreground leading-relaxed">{agent.description}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Execution Agents */}
+        {/* Execute Agents */}
         <section className="mb-16">
           <h2 className="font-[var(--font-bebas)] text-2xl md:text-4xl tracking-tight mb-2 text-accent">
-            Execution Layer
+            02 / Execute
           </h2>
           <p className="font-mono text-sm text-muted-foreground mb-8">
-            8 agents that find, reach, engage, and convert qualified buyers.
+            Hubbly runs the GTM motion. It builds campaigns, finds buyers, writes outreach, sends sequences, places calls, qualifies replies, and books meetings.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {executionAgents.map((agent) => (
-              <div key={agent.name} className="border border-border/50 bg-card/30 p-5">
-                <h3 className="font-mono text-sm uppercase tracking-widest text-foreground mb-2">{agent.name}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {executeAgents.map((agent) => (
+              <div key={agent.name} className="border border-accent/30 bg-accent/5 p-5">
+                <h3 className="font-mono text-sm uppercase tracking-widest text-accent mb-2">{agent.name}</h3>
+                <p className="font-mono text-xs text-muted-foreground leading-relaxed">{agent.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Improve Agents */}
+        <section className="mb-16">
+          <h2 className="font-[var(--font-bebas)] text-2xl md:text-4xl tracking-tight mb-2 text-purple-500">
+            03 / Improve
+          </h2>
+          <p className="font-mono text-sm text-muted-foreground mb-8">
+            Hubbly learns from outcomes. It tracks what works, what fails, what converts, and what should change — then feeds those insights back into the agents.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {improveAgents.map((agent) => (
+              <div key={agent.name} className="border border-purple-500/30 bg-purple-500/5 p-5">
+                <h3 className="font-mono text-sm uppercase tracking-widest text-purple-500 mb-2">{agent.name}</h3>
                 <p className="font-mono text-xs text-muted-foreground leading-relaxed">{agent.description}</p>
               </div>
             ))}
@@ -120,7 +140,7 @@ export default function PlatformPage() {
             href="/#audit"
             className="inline-flex items-center justify-center gap-2 bg-accent px-6 py-4 font-mono text-xs uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200"
           >
-            Run My Audit
+            Run My Revenue Audit
           </a>
           <a
             href="/pricing"

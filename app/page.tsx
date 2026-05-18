@@ -45,7 +45,7 @@ const softwareJsonLd = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "Autonomous revenue operating system with 13 AI agents for ICP enrichment, autonomous outbound, AI voice calling, email sequencing, Meta ads, and booked meetings.",
+    "Autonomous Revenue OS with 12 AI agents organized in 3 layers (Understand, Execute, Improve) for ICP enrichment, autonomous outbound, AI voice calling, email sequencing, and booked meetings.",
   offers: {
     "@type": "AggregateOffer",
     priceCurrency: "USD",
@@ -76,15 +76,15 @@ const faqJsonLd = {
       name: "What is Hubbly?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Hubbly is an autonomous revenue operating system. You drop in your website and Hubbly's agents find your customers, analyze competitors, write ads and email, run outreach, place voice calls, and book meetings.",
+        text: "Hubbly is an Autonomous Revenue OS. You drop in your website and Hubbly learns what you sell, who your best customers are, and what messages should move the market. Then its 12 agents turn that intelligence into action.",
       },
     },
     {
       "@type": "Question",
-      name: "Is Hubbly an AI SDR platform?",
+      name: "How is Hubbly organized?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Hubbly includes AI SDR capabilities and goes further with ICP enrichment, voice agents, Meta ads, and CRM sync in one shared memory.",
+        text: "Hubbly uses 12 agents organized in 3 layers: Understand (Recon, ICP, Strategy), Execute (Scout, Score, Writer, Sender, Voice, Booker), and Improve (Track, Optimize, Advisor). All agents share one operating memory.",
       },
     },
   ],

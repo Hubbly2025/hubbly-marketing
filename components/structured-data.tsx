@@ -75,13 +75,14 @@ export function ProductSchema() {
       },
     ],
     featureList: [
-      "13 AI agents (5 intelligence + 8 execution)",
+      "12 specialized revenue agents",
+      "3 operating layers (Understand, Execute, Improve)",
       "498M+ intent-qualified records",
       "43K+ live buyer intent topics",
       "AI-powered email and voice outreach",
-      "Human oversight with 5 approval gates",
-      "Shared memory across all agents",
-      "Vertical-specific AI agents",
+      "Human oversight with approval gates",
+      "Shared operating memory across all agents",
+      "Vertical-specific AI personas",
       "Meeting booking automation",
     ],
   }
