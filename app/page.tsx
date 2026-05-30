@@ -20,7 +20,7 @@ import { TickerTape } from "@/components/ticker-tape"
 export const metadata: Metadata = {
   title: "Hubbly — Autonomous Revenue Operating System",
   description:
-    "Drop your website in and Hubbly's AI agents take over — finding customers, analyzing competitors, writing ads and email, running outreach, placing voice calls, and booking meetings.",
+    "Drop your URL. Hubbly goes to work — finding customers, analyzing competitors, writing ads and email, running outreach, placing voice calls, and booking meetings.",
   alternates: { canonical: "https://hubbly.io/" },
 }
 
@@ -74,7 +74,7 @@ const faqJsonLd = {
       name: "What is Hubbly?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Hubbly is an autonomous revenue operating system. You drop in your website and Hubbly's agents find your customers, analyze competitors, write ads and email, run outreach, place voice calls, and book meetings.",
+        text: "Hubbly is an autonomous revenue operating system. Drop in your URL and Hubbly goes to work — finding your customers, analyzing competitors, writing ads and email, running outreach, placing voice calls, and booking meetings.",
       },
     },
     {
