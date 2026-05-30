@@ -122,7 +122,7 @@ export function StackReplacementSection() {
               Hubbly OS
             </span>
             <span className="font-mono text-xs text-muted-foreground">
-              One system. 13 agents. Shared memory.
+              One system. 12 agents. Shared memory.
             </span>
           </div>
           <p className="mt-6 font-mono text-xs text-accent">

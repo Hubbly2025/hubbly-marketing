@@ -43,7 +43,7 @@ const softwareJsonLd = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "Autonomous revenue operating system with 13 AI agents for ICP enrichment, autonomous outbound, AI voice calling, email sequencing, Meta ads, and booked meetings.",
+    "Autonomous revenue operating system with 12 AI agents for ICP enrichment, autonomous outbound, AI voice calling, email sequencing, Meta ads, and booked meetings.",
   offers: {
     "@type": "AggregateOffer",
     priceCurrency: "USD",

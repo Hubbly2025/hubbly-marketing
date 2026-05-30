@@ -75,7 +75,7 @@ export function ProductSchema() {
       },
     ],
     featureList: [
-      "13 AI agents (5 intelligence + 8 execution)",
+      "12 AI agents (5 intelligence + 7 execution)",
       "498M+ intent-qualified records",
       "43K+ live buyer intent topics",
       "AI-powered email and voice outreach",

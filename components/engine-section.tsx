@@ -244,7 +244,7 @@ export function EngineSection() {
       <div ref={headerRef} className="mb-12 md:mb-16">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">03 / FUNNEL</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Eight agents. One memory. Zero handoff loss.
+          Twelve agents. One memory. Zero handoff loss.
         </h2>
       </div>
 
@@ -252,13 +252,13 @@ export function EngineSection() {
       <div ref={visualRef}>
         <div className="flex items-center justify-center gap-3 mb-6">
           <div className="h-[1px] w-8 bg-accent/40" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">The Execution Layer</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">The Agent Network</span>
           <div className="h-[1px] w-8 bg-accent/40" />
         </div>
         <AgentNetwork />
         <div className="mt-6 text-center">
           <a href="/#how-it-works" className="font-mono text-xs text-muted-foreground hover:text-accent transition-colors duration-200">
-            Powered by 5 intelligence agents upstream. <span className="text-accent">↓ See how</span>
+            See every agent and how they share memory. <span className="text-accent">↓ See how</span>
           </a>
         </div>
       </div>
