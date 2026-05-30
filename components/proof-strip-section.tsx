@@ -11,8 +11,8 @@ if (typeof window !== "undefined") {
 const stats = [
   { number: "498M", label: "Intent-qualified records" },
   { number: "43K+", label: "Live buyer intent topics" },
-  { number: "8 agents", label: "Executing in coordinated sequence" },
-  { number: "5 agents", label: "Researching + strategizing upstream" },
+  { number: "12 agents", label: "Coordinated across one shared memory" },
+  { number: "5 gates", label: "Human approval before launch" },
   { number: "Under 15 min", label: "URL to active campaign" },
   { number: "1 system", label: "Replacing your agency + stack" },
 ]

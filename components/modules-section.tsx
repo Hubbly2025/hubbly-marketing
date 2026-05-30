@@ -135,7 +135,7 @@ export function ModulesSection() {
           </h2>
         </div>
         <p className="hidden md:block max-w-xs font-mono text-sm text-muted-foreground text-right leading-relaxed">
-          Five intelligence agents. Eight execution agents. One shared memory. Zero manual handoffs.
+          Twelve coordinated agents. One shared memory. Zero manual handoffs.
         </p>
       </div>
 

@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "The Hubbly Platform — 8 AI Agents, One Memory",
-  description: "Inside Hubbly: 8 coordinated AI agents that research, enrich, email, call, and book — sharing one memory with zero handoff loss.",
+  title: "The Hubbly Platform — 12 AI Agents, One Memory",
+  description: "Inside Hubbly: 12 coordinated AI agents that research, enrich, email, call, and book — sharing one memory with zero handoff loss.",
   alternates: { canonical: "https://hubbly.io/platform" },
 }
 
@@ -18,8 +18,7 @@ const intelligenceAgents = [
 const executionAgents = [
   { name: "Discover", description: "Finds buyers matching your ICP from 498M+ intent-qualified records" },
   { name: "Score", description: "Ranks prospects by purchase intent and fit before outreach" },
-  { name: "Write", description: "Generates personalized email and voice scripts for each contact" },
-  { name: "Send", description: "Deploys sequences across email with smart timing and throttling" },
+  { name: "Send", description: "Composes and deploys personalized email + voice scripts with smart timing" },
   { name: "Call", description: "Places AI voice calls with natural conversation handling" },
   { name: "Listen", description: "Monitors replies, scores sentiment, and routes responses" },
   { name: "Book", description: "Converts positive replies into scheduled calendar meetings" },
@@ -44,11 +43,11 @@ export default function PlatformPage() {
         </span>
         
         <h1 className="font-[var(--font-bebas)] text-4xl md:text-6xl lg:text-7xl tracking-tight mb-6">
-          13 AI agents. One shared memory. Zero manual handoffs.
+          12 AI agents. One shared memory. Zero manual handoffs.
         </h1>
         
         <p className="font-mono text-sm md:text-base text-muted-foreground mb-16 max-w-3xl leading-relaxed">
-          Hubbly runs on a coordinated system of AI agents that share context, execute in sequence, and learn from every interaction. Five agents handle intelligence. Eight agents handle execution. Human oversight gates every critical decision.
+          Hubbly runs on a coordinated system of AI agents that share context, execute in sequence, and learn from every interaction. Five agents handle intelligence. Seven agents handle execution. Human oversight gates every critical decision.
         </p>
 
         {/* Intelligence Agents */}
@@ -75,7 +74,7 @@ export default function PlatformPage() {
             Execution Layer
           </h2>
           <p className="font-mono text-sm text-muted-foreground mb-8">
-            8 agents that find, reach, engage, and convert qualified buyers.
+            7 agents that find, reach, engage, and convert qualified buyers.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {executionAgents.map((agent) => (
