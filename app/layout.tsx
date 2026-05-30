@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     template: "%s | Hubbly",
   },
   description:
-    "Drop your website in and Hubbly's AI agents take over — finding customers, analyzing competitors, writing ads and email, running outreach, placing voice calls, and booking meetings. AI SDR platform for autonomous outbound, ICP enrichment, voice, and email.",
+    "Drop your URL. Hubbly goes to work — finding customers, analyzing competitors, writing ads and email, running outreach, placing voice calls, and booking meetings. AI SDR platform for autonomous outbound, ICP enrichment, voice, and email.",
   applicationName: "Hubbly",
   keywords: [
     "AI sales automation",
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     title: "Hubbly — Autonomous Revenue Operating System",
     description:
-      "Drop your URL. Hubbly's agents find your customers, analyze competitors, write ads, run outreach, place voice calls, and book meetings.",
+      "Drop your URL. Hubbly goes to work — finding your customers, analyzing competitors, writing ads, running outreach, placing voice calls, and booking meetings.",
     images: [
       {
         url: "/og/hubbly-og.png",
@@ -89,7 +89,7 @@ export const metadata: Metadata = {
     site: "@hubblyio",
     creator: "@hubblyio",
     title: "Hubbly — Autonomous Revenue Operating System",
-    description: "Drop your URL. Hubbly's agents take over — customers, competitors, ads, outreach, voice, and booked meetings.",
+    description: "Drop your URL. Hubbly goes to work — customers, competitors, ads, outreach, voice, and booked meetings.",
     images: ["/og/hubbly-og.png"],
   },
 

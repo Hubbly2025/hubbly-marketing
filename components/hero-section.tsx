@@ -66,7 +66,7 @@ export function HeroSection() {
         </div>
 
         <h1 className="font-[var(--font-bebas)] text-foreground text-[clamp(1.5rem,4vw,3.5rem)] mt-4 md:mt-6 tracking-wide max-w-4xl leading-tight text-balance">
-          Drop your website in. <span className="text-accent">Hubbly&apos;s agents take over.</span>
+          Drop your URL. <span className="text-accent">Hubbly goes to work.</span>
         </h1>
 
         <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/60 leading-relaxed italic">
