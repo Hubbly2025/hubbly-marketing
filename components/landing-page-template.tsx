@@ -140,7 +140,7 @@ export function LandingPageTemplate({
         <section className="animate-in border-t border-border/30 pt-12 md:pt-16">
           <div className="flex flex-col sm:flex-row items-start gap-4">
             <Link
-              href="/#close"
+              href="/#audit"
               className="inline-flex items-center gap-3 bg-accent px-6 py-4 font-mono text-xs uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200"
             >
               {cta.primary}

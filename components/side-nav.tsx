@@ -12,9 +12,8 @@ const navItems = [
   { id: "why-it-wins", label: "Why" },
   { id: "replacement", label: "Replace" },
   { id: "use-cases", label: "Cases" },
-  { id: "pricing", label: "Pricing" },
   { id: "proof", label: "Proof" },
-  { id: "close", label: "Start" },
+  { id: "audit", label: "Start" },
 ]
 
 export function SideNav() {

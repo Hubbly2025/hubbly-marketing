@@ -10,14 +10,21 @@ if (typeof window !== "undefined") {
 }
 
 const agents = [
-  { id: "discover", label: "DISCOVER", sublabel: "Scout", position: { x: 50, y: 5 } },
-  { id: "score", label: "SCORE", sublabel: "Analyst", position: { x: 80, y: 20 } },
-  { id: "write", label: "WRITE", sublabel: "Writer", position: { x: 95, y: 50 } },
-  { id: "send", label: "SEND", sublabel: "Engager", position: { x: 80, y: 80 } },
-  { id: "call", label: "CALL", sublabel: "Voice", position: { x: 50, y: 95 } },
-  { id: "listen", label: "LISTEN", sublabel: "Inbox", position: { x: 20, y: 80 } },
-  { id: "book", label: "BOOK", sublabel: "Closer", position: { x: 5, y: 50 } },
-  { id: "track", label: "TRACK", sublabel: "Revenue", position: { x: 20, y: 20 } },
+  // UNDERSTAND layer (top)
+  { id: "recon", label: "RECON", sublabel: "Research", position: { x: 30, y: 8 }, layer: "understand" },
+  { id: "icp", label: "ICP", sublabel: "Audience", position: { x: 50, y: 5 }, layer: "understand" },
+  { id: "strategy", label: "STRATEGY", sublabel: "Plan", position: { x: 70, y: 8 }, layer: "understand" },
+  // EXECUTE layer (middle ring)
+  { id: "scout", label: "SCOUT", sublabel: "Find", position: { x: 90, y: 30 }, layer: "execute" },
+  { id: "score", label: "SCORE", sublabel: "Rank", position: { x: 95, y: 50 }, layer: "execute" },
+  { id: "writer", label: "WRITER", sublabel: "Draft", position: { x: 90, y: 70 }, layer: "execute" },
+  { id: "sender", label: "SENDER", sublabel: "Launch", position: { x: 70, y: 88 }, layer: "execute" },
+  { id: "voice", label: "VOICE", sublabel: "Call", position: { x: 50, y: 95 }, layer: "execute" },
+  { id: "booker", label: "BOOKER", sublabel: "Book", position: { x: 30, y: 88 }, layer: "execute" },
+  // IMPROVE layer (left side)
+  { id: "track", label: "TRACK", sublabel: "Monitor", position: { x: 10, y: 70 }, layer: "improve" },
+  { id: "optimize", label: "OPTIMIZE", sublabel: "Learn", position: { x: 5, y: 50 }, layer: "improve" },
+  { id: "advisor", label: "ADVISOR", sublabel: "Advise", position: { x: 10, y: 30 }, layer: "improve" },
 ]
 
 const AgentNetwork = memo(function AgentNetwork() {
@@ -131,24 +138,35 @@ const AgentNetwork = memo(function AgentNetwork() {
             {/* Agent node */}
             <div
               className={cn(
-                "relative z-10 w-16 h-16 md:w-20 md:h-20 border-2 flex flex-col items-center justify-center transition-all duration-500",
+                "relative z-10 w-14 h-14 md:w-16 md:h-16 border-2 flex flex-col items-center justify-center transition-all duration-500",
                 isActive
-                  ? "border-accent bg-accent/20 scale-110"
+                  ? (agent as any).layer === "understand" ? "border-green-500 bg-green-500/20 scale-110"
+                  : (agent as any).layer === "improve" ? "border-purple-500 bg-purple-500/20 scale-110"
+                  : "border-accent bg-accent/20 scale-110"
                   : "border-border/40 bg-background hover:border-accent/40"
               )}
             >
               {isActive && (
-                <div className="absolute inset-0 border-2 border-accent animate-ping opacity-30" />
+                <div className={cn(
+                  "absolute inset-0 border-2 animate-ping opacity-30",
+                  (agent as any).layer === "understand" ? "border-green-500"
+                  : (agent as any).layer === "improve" ? "border-purple-500"
+                  : "border-accent"
+                )} />
               )}
               <span
                 className={cn(
-                  "font-[var(--font-bebas)] text-xs md:text-sm tracking-wider transition-colors duration-300",
-                  isActive ? "text-accent" : "text-muted-foreground"
+                  "font-[var(--font-bebas)] text-[9px] md:text-xs tracking-wider transition-colors duration-300",
+                  isActive 
+                    ? (agent as any).layer === "understand" ? "text-green-500"
+                    : (agent as any).layer === "improve" ? "text-purple-500"
+                    : "text-accent"
+                    : "text-muted-foreground"
                 )}
               >
                 {agent.label}
               </span>
-              <span className="font-mono text-[8px] text-muted-foreground/60 uppercase">
+              <span className="font-mono text-[7px] text-muted-foreground/60 uppercase">
                 {agent.sublabel}
               </span>
             </div>
@@ -167,14 +185,18 @@ const AgentNetwork = memo(function AgentNetwork() {
       })}
 
       {/* Legend */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center gap-6">
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-wrap items-center justify-center gap-4 md:gap-6">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-          <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">Active sync</span>
+          <div className="w-2 h-2 bg-green-500 rounded-full" />
+          <span className="font-mono text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-widest">Understand</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-[1px] border-t border-dashed border-border/40" />
-          <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">Memory link</span>
+          <div className="w-2 h-2 bg-accent rounded-full" />
+          <span className="font-mono text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-widest">Execute</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-purple-500 rounded-full" />
+          <span className="font-mono text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-widest">Improve</span>
         </div>
       </div>
     </div>
@@ -246,20 +268,23 @@ export function EngineSection() {
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
           Twelve agents. One memory. Zero handoff loss.
         </h2>
+        <p className="mt-4 font-mono text-sm text-muted-foreground max-w-3xl">
+          Every agent has a defined role. Every action feeds the same operating memory. No disconnected tools. No lost context.
+        </p>
       </div>
 
       {/* Agent Network Visual */}
       <div ref={visualRef}>
         <div className="flex items-center justify-center gap-3 mb-6">
           <div className="h-[1px] w-8 bg-accent/40" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">The Agent Network</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Understand · Execute · Improve</span>
           <div className="h-[1px] w-8 bg-accent/40" />
         </div>
         <AgentNetwork />
         <div className="mt-6 text-center">
-          <a href="/#how-it-works" className="font-mono text-xs text-muted-foreground hover:text-accent transition-colors duration-200">
-            See every agent and how they share memory. <span className="text-accent">↓ See how</span>
-          </a>
+          <span className="font-mono text-xs text-muted-foreground">
+            12 agents organized in 3 layers, sharing one operating memory.
+          </span>
         </div>
       </div>
 
@@ -267,6 +292,12 @@ export function EngineSection() {
         <p className="font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
           Every agent in Hubbly works from the same shared context, so research, scoring, copy, voice, and booking stay aligned from first signal to scheduled meeting.
         </p>
+        <a
+          href="/architecture"
+          className="inline-block mt-6 font-mono text-xs uppercase tracking-widest text-accent hover:text-accent/80 transition-colors"
+        >
+          Explore the 12-agent system and shared memory layer →
+        </a>
       </div>
     </section>
   )

@@ -20,6 +20,7 @@ const pricingTiers = [
       "Daily brief — first 7 days",
     ],
     cta: "Get started →",
+    href: "/#audit",
     featured: false,
   },
   {
@@ -33,6 +34,7 @@ const pricingTiers = [
       "8 vertical agents",
     ],
     cta: "Start with Starter →",
+    href: "/#audit",
     featured: false,
   },
   {
@@ -46,6 +48,7 @@ const pricingTiers = [
       "All Starter features",
     ],
     cta: "Go Pro →",
+    href: "/#audit",
     featured: true,
   },
   {
@@ -60,6 +63,7 @@ const pricingTiers = [
       "All Pro features",
     ],
     cta: "Go Business →",
+    href: "/#audit",
     featured: false,
   },
   {
@@ -74,6 +78,7 @@ const pricingTiers = [
       "All Business features",
     ],
     cta: "Go Agency →",
+    href: "/#audit",
     featured: false,
   },
 ]
@@ -124,7 +129,7 @@ export function PricingSection() {
   return (
     <section ref={sectionRef} id="pricing" className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-12 md:mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">10 / PRICING</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">11 / PRICING</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
           Priced like a hire. Not a SaaS seat.
         </h2>
@@ -174,7 +179,7 @@ export function PricingSection() {
             <div className="h-[1px] w-full bg-border/40 mb-4" />
 
             <a
-              href="/#close"
+              href={tier.href}
               className={cn(
                 "inline-flex items-center justify-center px-4 py-3 font-mono text-[10px] md:text-xs uppercase tracking-widest transition-all duration-200",
                 tier.featured
@@ -193,7 +198,7 @@ export function PricingSection() {
           Voice credit packs: $49 / 100 min · $129 / 300 min · $299 / 1,000 min
         </p>
         <p className="font-mono text-xs text-muted-foreground">
-          Unit economics: $0.065 per lead · $0.043 per voice minute
+          Unit economics at scale: from $0.099/lead and $0.299/voice minute
         </p>
         <p className="font-mono text-xs text-muted-foreground">
           All plans include 8 vertical agents, CRM sync, and email warmup

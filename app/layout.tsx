@@ -44,20 +44,20 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Hubbly — Autonomous Revenue Operating System",
+    default: "Hubbly — Autonomous Revenue OS",
     template: "%s | Hubbly",
   },
   description:
-    "Drop your URL. Hubbly goes to work — finding customers, analyzing competitors, writing ads and email, running outreach, placing voice calls, and booking meetings. AI SDR platform for autonomous outbound, ICP enrichment, voice, and email.",
+    "Drop your website in and Hubbly goes to work — analyzing your business, mapping your market, building campaigns, running outreach, placing calls, and booking meetings. 12 agents. 3 layers. 1 autonomous revenue OS.",
   applicationName: "Hubbly",
   keywords: [
+    "autonomous revenue OS",
     "AI sales automation",
     "autonomous outbound",
     "AI SDR platform",
     "ICP enrichment",
     "AI voice outreach",
     "lead generation automation",
-    "autonomous revenue operating system",
   ],
   authors: [{ name: "Hubbly" }],
   creator: "Hubbly",
@@ -70,15 +70,15 @@ export const metadata: Metadata = {
     url: `${siteUrl}/`,
     siteName: "Hubbly",
     locale: "en_US",
-    title: "Hubbly — Autonomous Revenue Operating System",
+    title: "Hubbly — Autonomous Revenue OS",
     description:
-      "Drop your URL. Hubbly goes to work — finding your customers, analyzing competitors, writing ads, running outreach, placing voice calls, and booking meetings.",
+      "Drop your website in. Hubbly goes to work. 12 agents. 3 layers. 1 autonomous revenue OS.",
     images: [
       {
         url: "/og/hubbly-og.png",
         width: 1200,
         height: 630,
-        alt: "Hubbly — Autonomous Revenue Operating System",
+        alt: "Hubbly — Autonomous Revenue OS",
       },
     ],
   },
@@ -88,8 +88,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@hubblyio",
     creator: "@hubblyio",
-    title: "Hubbly — Autonomous Revenue Operating System",
-    description: "Drop your URL. Hubbly goes to work — customers, competitors, ads, outreach, voice, and booked meetings.",
+    title: "Hubbly — Autonomous Revenue OS",
+    description: "Drop your website in. Hubbly goes to work. 12 agents. 3 layers. 1 autonomous revenue OS.",
     images: ["/og/hubbly-og.png"],
   },
 

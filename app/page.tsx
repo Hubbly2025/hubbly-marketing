@@ -9,18 +9,19 @@ import { StackReplacementSection } from "@/components/stack-replacement-section"
 import { AcquireSection } from "@/components/acquire-section"
 import { VerticalsSection } from "@/components/verticals-section"
 import { UseCasesSection } from "@/components/use-cases-section"
-import { PricingSection } from "@/components/pricing-section"
 import { SocialProofSection } from "@/components/social-proof-section"
 import { FAQSection } from "@/components/faq-section"
 import { FinalCloseSection } from "@/components/final-close-section"
 import { FooterSection } from "@/components/footer-section"
 import { SideNav } from "@/components/side-nav"
 import { TickerTape } from "@/components/ticker-tape"
+import { StickyHeader } from "@/components/sticky-header"
+import { FloatingCTA } from "@/components/floating-cta"
 
 export const metadata: Metadata = {
-  title: "Hubbly — Autonomous Revenue Operating System",
+  title: "Hubbly — Autonomous Revenue OS",
   description:
-    "Drop your URL. Hubbly goes to work — finding customers, analyzing competitors, writing ads and email, running outreach, placing voice calls, and booking meetings.",
+    "Drop your website in and Hubbly goes to work — analyzing your business, mapping your market, building campaigns, running outreach, placing calls, and booking meetings. 12 agents. 3 layers. 1 autonomous revenue OS.",
   alternates: { canonical: "https://hubbly.io/" },
 }
 
@@ -43,14 +44,7 @@ const softwareJsonLd = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "Autonomous revenue operating system with 12 AI agents for ICP enrichment, autonomous outbound, AI voice calling, email sequencing, Meta ads, and booked meetings.",
-  offers: {
-    "@type": "AggregateOffer",
-    priceCurrency: "USD",
-    lowPrice: "0",
-    highPrice: "1498",
-    offerCount: 5,
-  },
+    "Autonomous Revenue OS with 12 AI agents organized in 3 layers (Understand, Execute, Improve) for ICP enrichment, autonomous outbound, AI voice calling, email sequencing, and booked meetings.",
 }
 
 const websiteJsonLd = {
@@ -74,15 +68,15 @@ const faqJsonLd = {
       name: "What is Hubbly?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Hubbly is an autonomous revenue operating system. Drop in your URL and Hubbly goes to work — finding your customers, analyzing competitors, writing ads and email, running outreach, placing voice calls, and booking meetings.",
+        text: "Hubbly is an Autonomous Revenue OS. You drop in your website and Hubbly learns what you sell, who your best customers are, and what messages should move the market. Then its 12 agents turn that intelligence into action.",
       },
     },
     {
       "@type": "Question",
-      name: "Is Hubbly an AI SDR platform?",
+      name: "How is Hubbly organized?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Hubbly includes AI SDR capabilities and goes further with ICP enrichment, voice agents, Meta ads, and CRM sync in one shared memory.",
+        text: "Hubbly uses 12 agents organized in 3 layers: Understand (Recon, ICP, Strategy), Execute (Scout, Score, Writer, Sender, Voice, Booker), and Improve (Track, Optimize, Advisor). All agents share one operating memory.",
       },
     },
   ],
@@ -108,7 +102,9 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <main className="relative min-h-screen">
+        <StickyHeader />
         <SideNav />
+        <FloatingCTA />
         <div className="grid-bg fixed inset-0 opacity-30" aria-hidden="true" />
 
         <div className="relative z-10">
@@ -123,7 +119,6 @@ export default function Page() {
           <AcquireSection />
           <VerticalsSection />
           <UseCasesSection />
-          <PricingSection />
           <SocialProofSection />
           <FAQSection />
           <FinalCloseSection />

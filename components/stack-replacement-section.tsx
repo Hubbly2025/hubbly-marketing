@@ -79,7 +79,7 @@ export function StackReplacementSection() {
   return (
     <section ref={sectionRef} id="replacement" className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-12 md:mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">06 / STACK</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">07 / STACK</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
           Replace fragmented tools with one operating system.
         </h2>
@@ -122,7 +122,7 @@ export function StackReplacementSection() {
               Hubbly OS
             </span>
             <span className="font-mono text-xs text-muted-foreground">
-              One system. 12 agents. Shared memory.
+              One system. 12 agents. 3 layers. Shared memory.
             </span>
           </div>
           <p className="mt-6 font-mono text-xs text-accent">
@@ -133,7 +133,7 @@ export function StackReplacementSection() {
 
       <div ref={closingRef} className="mt-12 md:mt-20 text-center max-w-3xl mx-auto">
         <p className="font-mono text-sm text-foreground">
-          Switching saves the average team $1,400/month, 30 hours of ops time per week, and gets you live in 15 minutes instead of 6 weeks.
+          Pro saves $1,542/month vs. the average 8-tool stack, saves 30 hours of ops time per week, and gets you live in 15 minutes instead of 6 weeks.
         </p>
       </div>
     </section>
