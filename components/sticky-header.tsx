@@ -68,16 +68,16 @@ export function StickyHeader() {
               How It Works
             </button>
             <a
-              href="/demo"
+              href="/waitlist"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
-              Get Pricing
+              Join Waitlist
             </a>
             <button
               onClick={() => scrollToSection("audit")}
               className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
             >
-              Start Free
+              Run Free Audit
             </button>
           </div>
 
@@ -86,7 +86,7 @@ export function StickyHeader() {
             onClick={() => scrollToSection("audit")}
             className="md:hidden font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
           >
-            Start Free
+            Free Audit
           </button>
         </nav>
       </div>
