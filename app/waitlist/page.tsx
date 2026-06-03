@@ -82,12 +82,12 @@ function WaitlistSignupContent() {
         </a>
 
         <section className="mt-12 text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.28em] text-[#FF6B35]">Private beta</p>
+          <p className="font-mono text-xs uppercase tracking-[0.28em] text-[#FF6B35]">Private beta — 30 days free</p>
           <h1 className="mx-auto mt-5 max-w-3xl font-[var(--font-bebas)] text-5xl leading-none tracking-tight md:text-8xl">
-            Your revenue audit is ready.
+            Join the waitlist. Get 30 days free.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/70">
-            Join the waitlist to get your complete analysis, early access, and a strategy session when private beta slots open.
+            Join now and get your complete analysis, early access, 30 days free when we launch, and a strategy session when private beta slots open.
           </p>
         </section>
 
@@ -162,19 +162,20 @@ function WaitlistSignupContent() {
             </Field>
 
             <div className="border border-[#FF6B35]/25 bg-[#FF6B35]/10 p-4">
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#B9471C]">What you'll get</p>
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#B9471C]">What you'll get — 30 days free</p>
               <ul className="mt-3 space-y-2 text-sm text-black/70">
+                <li>30 days free access when we launch</li>
                 <li>Complete revenue audit with competitor analysis</li>
                 <li>Prospect research and target audience mapping</li>
                 <li>Custom GTM strategy with messaging recommendations</li>
-                <li>Private beta access review for Hubbly OS</li>
+                <li>Private beta access priority</li>
               </ul>
             </div>
 
             {error ? <div className="border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
 
             <button type="submit" disabled={isSubmitting} className="min-h-13 w-full bg-[#FF6B35] px-6 font-mono text-xs font-semibold uppercase tracking-widest text-[#0A0A0A] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">
-              {isSubmitting ? "Joining waitlist..." : "Get my complete analysis"}
+              {isSubmitting ? "Joining waitlist..." : "Join Waitlist & Get 30 Days Free"}
             </button>
           </form>
         </section>

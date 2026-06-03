@@ -37,9 +37,9 @@ export function FloatingCTA() {
         "flex items-center gap-2",
         isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0 pointer-events-none"
       )}
-      aria-label="Start Free"
+      aria-label="Run Free Audit"
     >
-      <span>Start Free</span>
+      <span>Free Audit</span>
       <svg 
         className="w-3 h-3" 
         fill="none" 

@@ -375,10 +375,10 @@ export default function ArchitecturePage() {
               View Platform
             </a>
             <a
-              href="/pricing"
+              href="/waitlist"
               className="inline-flex items-center justify-center gap-2 border border-border/50 px-6 py-4 font-mono text-xs uppercase tracking-widest text-foreground hover:bg-card/50 transition-all duration-200"
             >
-              View Pricing
+              Join Waitlist
             </a>
           </div>
         </div>

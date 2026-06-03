@@ -273,12 +273,13 @@ async function scrapePage(url: string, label: string, apiKey?: string) {
     const scrapeUrl = new URL("https://app.scrapingbee.com/api/v1/")
     scrapeUrl.searchParams.set("api_key", apiKey)
     scrapeUrl.searchParams.set("url", url)
-    scrapeUrl.searchParams.set("render_js", "false")
+    scrapeUrl.searchParams.set("render_js", "true")
     scrapeUrl.searchParams.set("block_ads", "true")
-    scrapeUrl.searchParams.set("block_resources", "true")
+    scrapeUrl.searchParams.set("block_resources", "false")
+    scrapeUrl.searchParams.set("wait", "2000")
 
     response = await fetch(scrapeUrl.toString(), {
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(30000),
     })
   } else {
     response = await fetch(url, {

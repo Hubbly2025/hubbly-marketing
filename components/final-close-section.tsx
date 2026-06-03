@@ -102,7 +102,7 @@ export function FinalCloseSection() {
             type="submit"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent px-6 md:px-8 py-4 font-mono text-xs uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200 whitespace-nowrap min-h-[52px] active:scale-[0.98]"
           >
-            Start Free
+            Run Free Audit
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M7 17L17 7M17 7H7M17 7V17" />
             </svg>
@@ -113,10 +113,10 @@ export function FinalCloseSection() {
         <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mb-12 md:mb-20">
           <span className="font-mono text-xs text-muted-foreground">or</span>
           <a
-            href="/demo"
+            href="/waitlist"
             className="font-mono text-xs uppercase tracking-widest text-foreground hover:text-accent transition-colors duration-200 py-2"
           >
-            GET PRICING →
+            JOIN WAITLIST & GET 30 DAYS FREE →
           </a>
           <span className="text-muted-foreground/40 hidden sm:inline">·</span>
           <a
