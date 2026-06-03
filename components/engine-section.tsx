@@ -292,6 +292,12 @@ export function EngineSection() {
         <p className="font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
           Every agent in Hubbly works from the same shared context, so research, scoring, copy, voice, and booking stay aligned from first signal to scheduled meeting.
         </p>
+        <a
+          href="/architecture"
+          className="inline-block mt-6 font-mono text-xs uppercase tracking-widest text-accent hover:text-accent/80 transition-colors"
+        >
+          Explore the 12-agent system and shared memory layer →
+        </a>
       </div>
     </section>
   )

@@ -102,6 +102,12 @@ export function HeroSection() {
         {/* Quick navigation links */}
         <div className="mt-6 flex flex-wrap items-center gap-4 md:gap-6">
           <a
+            href="/architecture"
+            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
+          >
+            See the Full Architecture →
+          </a>
+          <a
             href="#how-it-works"
             className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
           >

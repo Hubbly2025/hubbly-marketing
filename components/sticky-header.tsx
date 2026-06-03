@@ -55,6 +55,12 @@ export function StickyHeader() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            <a
+              href="/architecture"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Architecture
+            </a>
             <button
               onClick={() => scrollToSection("how-it-works")}
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"

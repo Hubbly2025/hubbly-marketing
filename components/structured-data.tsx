@@ -9,10 +9,18 @@ export function OrganizationSchema() {
     name: "Hubbly",
     url: siteUrl,
     logo: `${siteUrl}/logo.png`,
+    description: "Hubbly is an autonomous revenue operating system for modern growth teams.",
     sameAs: [
       "https://twitter.com/hubblyio",
       "https://www.linkedin.com/company/hubbly-io",
     ],
+    email: "hello@hubbly.io",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Austin",
+      addressRegion: "TX",
+      addressCountry: "US",
+    },
     contactPoint: [{
       "@type": "ContactPoint",
       email: "hello@hubbly.io",
@@ -35,55 +43,67 @@ export function ProductSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Hubbly",
+    name: "Hubbly Autonomous Revenue Operating System",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "Autonomous revenue operating system that researches your market, builds your ICP, enriches contacts, launches outreach across email and voice, and books meetings from one shared system with human oversight.",
+      "Hubbly is an autonomous revenue operating system that turns a website, offer, and market position into a live pipeline engine through 12 specialized revenue agents, shared memory, and human approval gates.",
     url: siteUrl,
+    brand: {
+      "@type": "Brand",
+      name: "Hubbly",
+    },
     offers: [
       {
         "@type": "Offer",
-        name: "Free Scan",
+        name: "Free",
         price: "0",
         priceCurrency: "USD",
-        description: "Run an audit on your website, offer, and outbound motion.",
+        description: "100 leads, email outreach, daily brief for first 7 days.",
       },
       {
         "@type": "Offer",
         name: "Starter",
-        price: "197",
+        price: "98",
         priceCurrency: "USD",
         billingIncrement: "P1M",
-        description: "500 leads, 50 voice minutes per month.",
-      },
-      {
-        "@type": "Offer",
-        name: "Growth",
-        price: "497",
-        priceCurrency: "USD",
-        billingIncrement: "P1M",
-        description: "2,500 leads, 200 voice minutes per month.",
+        description: "500 leads, email outreach, daily brief, 8 vertical agents.",
       },
       {
         "@type": "Offer",
         name: "Pro",
-        price: "997",
+        price: "298",
         priceCurrency: "USD",
         billingIncrement: "P1M",
-        description: "7,500 leads, 500 voice minutes, custom verticals.",
+        description: "2,000 leads, 60 voice minutes, reputation responses.",
+      },
+      {
+        "@type": "Offer",
+        name: "Business",
+        price: "698",
+        priceCurrency: "USD",
+        billingIncrement: "P1M",
+        description: "6,000 leads, 200 voice minutes, Acquire Meta ads, competitor analysis.",
+      },
+      {
+        "@type": "Offer",
+        name: "Agency",
+        price: "1498",
+        priceCurrency: "USD",
+        billingIncrement: "P1M",
+        description: "15,000 leads, 400 voice minutes, multi-account, white-label.",
       },
     ],
     featureList: [
       "12 specialized revenue agents",
-      "3 operating layers (Understand, Execute, Improve)",
-      "498M+ intent-qualified records",
-      "43K+ live buyer intent topics",
-      "AI-powered email and voice outreach",
-      "Human oversight with approval gates",
-      "Shared operating memory across all agents",
-      "Vertical-specific AI personas",
-      "Meeting booking automation",
+      "3 operating layers",
+      "Shared memory layer",
+      "Human-in-the-loop approval gates",
+      "ICP mapping",
+      "Email outreach",
+      "AI voice calling",
+      "Meeting booking",
+      "CRM sync",
     ],
   }
 
@@ -103,18 +123,34 @@ export function FAQSchema() {
     mainEntity: [
       {
         "@type": "Question",
-        name: "What is Hubbly?",
+        name: "How does Hubbly's 12-agent system work?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Hubbly is an autonomous revenue operating system that turns a website, offer, and market position into a live pipeline engine. It combines research, ICP building, enrichment, outreach, voice, booking, and optimization in one shared system.",
+          text: "Hubbly uses 12 specialized revenue agents organized across 3 operating layers. These agents share one memory layer so research, targeting, messaging, outreach, replies, booking, and optimization stay coordinated from first signal to scheduled meeting.",
         },
       },
       {
         "@type": "Question",
-        name: "How does Hubbly work?",
+        name: "What is the shared memory layer in Hubbly?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Hubbly analyzes the business, maps the best-fit buyer profile, builds targeting logic, writes and launches outreach, places voice calls, books meetings, and learns from replies and conversions over time.",
+          text: "The shared memory layer is the common operating context every Hubbly agent reads from and writes to. It preserves business context, buyer logic, outreach history, reply classification, and meeting outcomes across the full revenue workflow.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How is Hubbly different from a chatbot or sales copilot?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "A chatbot or copilot generates suggestions in-session. Hubbly is an autonomous revenue operating system that combines intelligence, execution, memory, and optimization into one coordinated workflow with human approval gates.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "What does Hubbly replace?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Hubbly replaces fragmented outbound and pipeline stacks that often include lead data tools, enrichment products, sequencing platforms, dialers, booking tools, AI copy tools, spreadsheet workflows, and disconnected reporting dashboards.",
         },
       },
       {
@@ -127,34 +163,10 @@ export function FAQSchema() {
       },
       {
         "@type": "Question",
-        name: "What does Hubbly replace?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Hubbly replaces disconnected outbound stacks that often include lead data vendors, enrichment tools, sequencing products, dialers, booking tools, AI copy tools, spreadsheet glue, and reporting dashboards.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Is Hubbly an AI SDR platform?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Hubbly includes AI SDR-style capabilities, but it is broader than a single SDR product because it combines intelligence, execution, memory, and optimization in one operating system.",
-        },
-      },
-      {
-        "@type": "Question",
         name: "Does Hubbly support specific industries?",
         acceptedAnswer: {
           "@type": "Answer",
           text: "Yes. Hubbly supports verticals such as insurance, mortgage, agencies, financial services, and B2B SaaS, with tailored workflows and specialized go-to-market logic.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Does Hubbly work with our existing CRM and sales tools?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes. Hubbly is designed to layer on top of the systems you already use or replace parts of your stack over time. It connects with major CRMs and existing tools, so teams can start with their current setup, keep their process running, and then consolidate into Hubbly where it makes sense.",
         },
       },
     ],
