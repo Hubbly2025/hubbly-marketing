@@ -233,6 +233,9 @@ async function scrapeWebsiteDeep(
 ) {
   const base = new URL(url)
   const scrapingBeeApiKey = process.env.SCRAPINGBEE_API_KEY || process.env.Scrapingbee
+  
+  console.log(`[v0] scrapeWebsiteDeep: SCRAPINGBEE_API_KEY=${!!process.env.SCRAPINGBEE_API_KEY}, Scrapingbee=${!!process.env.Scrapingbee}, finalKey=${!!scrapingBeeApiKey}`)
+  
   const scrapeResults = await Promise.allSettled(SCRAPE_PATHS.map(async (target) => {
     const targetUrl = new URL(target.path, base).toString()
     return withRetry(
@@ -269,6 +272,8 @@ async function scrapeWebsiteDeep(
 async function scrapePage(url: string, label: string, apiKey?: string) {
   let response: Response
 
+  console.log(`[v0] scrapePage: url=${url}, label=${label}, hasApiKey=${!!apiKey}`)
+
   if (apiKey) {
     const scrapeUrl = new URL("https://app.scrapingbee.com/api/v1/")
     scrapeUrl.searchParams.set("api_key", apiKey)
@@ -281,6 +286,7 @@ async function scrapePage(url: string, label: string, apiKey?: string) {
     response = await fetch(scrapeUrl.toString(), {
       signal: AbortSignal.timeout(30000),
     })
+    console.log(`[v0] ScrapingBee response: status=${response.status}, ok=${response.ok}`)
   } else {
     response = await fetch(url, {
       headers: {
@@ -298,11 +304,14 @@ async function scrapePage(url: string, label: string, apiKey?: string) {
   }
 
   const html = await response.text()
+  console.log(`[v0] HTML received: length=${html.length}, first100=${html.slice(0, 100)}`)
   const title = extractTagContent(html, "title")
   const ogSiteName = extractMetaContent(html, "og:site_name")
   const content = extractReadableText(html)
+  console.log(`[v0] Extracted: title=${title}, contentLength=${content.length}`)
 
   if (!content.trim()) {
+    console.log(`[v0] No content extracted, returning null`)
     return null
   }
 
