@@ -269,8 +269,6 @@ async function scrapeWebsiteDeep(
 async function scrapePage(url: string, label: string, apiKey?: string) {
   let response: Response
 
-  console.log(`[v0] scrapePage called for ${label}: ${url}, apiKey present: ${!!apiKey}`)
-
   if (apiKey) {
     const scrapeUrl = new URL("https://app.scrapingbee.com/api/v1/")
     scrapeUrl.searchParams.set("api_key", apiKey)
@@ -280,13 +278,10 @@ async function scrapePage(url: string, label: string, apiKey?: string) {
     scrapeUrl.searchParams.set("block_resources", "false")
     scrapeUrl.searchParams.set("wait", "2000")
 
-    console.log(`[v0] Using ScrapingBee for ${url}`)
     response = await fetch(scrapeUrl.toString(), {
       signal: AbortSignal.timeout(30000),
     })
-    console.log(`[v0] ScrapingBee response status: ${response.status}`)
   } else {
-    console.log(`[v0] Using direct fetch for ${url}`)
     response = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; HubblyBot/1.0)",
@@ -296,7 +291,6 @@ async function scrapePage(url: string, label: string, apiKey?: string) {
   }
 
   if (!response.ok) {
-    console.log(`[v0] Response not OK: ${response.status} for ${url}`)
     if (response.status === 404 || response.status === 410) {
       return null
     }
@@ -304,14 +298,11 @@ async function scrapePage(url: string, label: string, apiKey?: string) {
   }
 
   const html = await response.text()
-  console.log(`[v0] Got HTML for ${url}, length: ${html.length}`)
   const title = extractTagContent(html, "title")
   const ogSiteName = extractMetaContent(html, "og:site_name")
   const content = extractReadableText(html)
-  console.log(`[v0] Extracted content for ${url}, length: ${content.length}, title: ${title}`)
 
   if (!content.trim()) {
-    console.log(`[v0] No content extracted for ${url}`)
     return null
   }
 
