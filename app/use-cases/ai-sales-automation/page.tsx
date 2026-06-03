@@ -54,8 +54,8 @@ export default function AISalesAutomationPage() {
         ],
       }}
       cta={{
-        primary: "Run a free audit",
-        secondary: "Book a demo",
+        primary: "Start free",
+        secondary: "Get pricing",
       }}
     />
   )

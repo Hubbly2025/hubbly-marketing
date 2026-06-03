@@ -20,7 +20,7 @@ const pricingTiers = [
       "Daily brief — first 7 days",
     ],
     cta: "Get started →",
-    href: "/signup?plan=free",
+    href: "/#audit",
     featured: false,
   },
   {
@@ -34,7 +34,7 @@ const pricingTiers = [
       "8 vertical agents",
     ],
     cta: "Start with Starter →",
-    href: "/signup?plan=starter",
+    href: "/#audit",
     featured: false,
   },
   {
@@ -48,7 +48,7 @@ const pricingTiers = [
       "All Starter features",
     ],
     cta: "Go Pro →",
-    href: "/signup?plan=pro",
+    href: "/#audit",
     featured: true,
   },
   {
@@ -63,7 +63,7 @@ const pricingTiers = [
       "All Pro features",
     ],
     cta: "Go Business →",
-    href: "/signup?plan=business",
+    href: "/#audit",
     featured: false,
   },
   {
@@ -78,7 +78,7 @@ const pricingTiers = [
       "All Business features",
     ],
     cta: "Go Agency →",
-    href: "/signup?plan=agency",
+    href: "/#audit",
     featured: false,
   },
 ]

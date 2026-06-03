@@ -68,7 +68,7 @@ export function FooterSection() {
             <li><a href="https://twitter.com/hubblyio" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Twitter</a></li>
             <li><a href="https://www.linkedin.com/company/hubbly-io" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">LinkedIn</a></li>
             <li><a href="mailto:hello@hubbly.io" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Contact us</a></li>
-            <li><a href="https://cal.com/hubbly/demo" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Book a demo</a></li>
+            <li><a href="/demo" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Book a demo</a></li>
           </ul>
         </div>
         <div>

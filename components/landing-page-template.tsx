@@ -149,9 +149,7 @@ export function LandingPageTemplate({
               </svg>
             </Link>
             <Link
-              href="https://cal.com/hubbly/demo"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/demo"
               className="inline-flex items-center gap-2 border border-border/50 px-6 py-4 font-mono text-xs uppercase tracking-widest text-foreground/70 hover:text-foreground hover:border-border transition-all duration-200"
             >
               {cta.secondary} →

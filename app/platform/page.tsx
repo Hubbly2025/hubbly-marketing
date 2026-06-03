@@ -140,13 +140,15 @@ export default function PlatformPage() {
             href="/#audit"
             className="inline-flex items-center justify-center gap-2 bg-accent px-6 py-4 font-mono text-xs uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200"
           >
-            Run My Revenue Audit
+            Start Free
           </a>
           <a
-            href="/pricing"
+            href="https://cal.com/hubbly/demo"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 border border-border/50 px-6 py-4 font-mono text-xs uppercase tracking-widest text-foreground hover:bg-card/50 transition-all duration-200"
           >
-            View Pricing
+            Get Pricing
           </a>
         </div>
       </div>

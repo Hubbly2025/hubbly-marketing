@@ -11,6 +11,7 @@ if (typeof window !== "undefined") {
 export function FinalCloseSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const [url, setUrl] = useState("")
 
   useEffect(() => {
@@ -35,13 +36,32 @@ export function FinalCloseSection() {
     return () => ctx.revert()
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission - redirect to signup with URL param
-    if (url) {
-      window.location.href = `#pricing?url=${encodeURIComponent(url)}`
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const params = new URLSearchParams(window.location.search)
+    const source = params.get("utm_source") || params.get("ref")
+    let detectedUrl = ""
+
+    if (source) {
+      detectedUrl = normalizeDetectedDomain(source)
     }
-  }
+
+    if (!detectedUrl) {
+      const referrer = document.referrer
+      if (referrer && !referrer.includes("hubbly.io")) {
+        try {
+          detectedUrl = new URL(referrer).hostname.replace(/^www\./, "")
+        } catch {}
+      }
+    }
+
+    if (detectedUrl) {
+      setUrl(detectedUrl)
+    } else {
+      inputRef.current?.focus()
+    }
+  }, [])
 
   return (
     <section ref={sectionRef} id="audit" className="relative py-24 md:py-40 px-4 md:pl-28 md:pr-12 border-t border-border/30 bg-card/20">
@@ -57,15 +77,26 @@ export function FinalCloseSection() {
         </p>
 
         {/* URL Input Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch justify-center gap-3 mb-6 md:mb-10 max-w-2xl mx-auto">
+        <form
+          action="/api/audit/form"
+          method="post"
+          className="flex flex-col sm:flex-row items-stretch justify-center gap-3 mb-6 md:mb-10 max-w-2xl mx-auto"
+        >
           <div className="relative flex-1 w-full">
             <input
-              type="url"
+              ref={inputRef}
+              name="url"
+              type="text"
+              inputMode="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="your-website.com"
+              placeholder="yourcompany.com"
+              required
               className="w-full bg-background border border-border/50 px-4 md:px-5 py-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[52px]"
             />
+            <p className="mt-3 text-left font-mono text-[11px] text-muted-foreground">
+              We'll analyze your site, your competitors, and your active buyers.
+            </p>
           </div>
           <button
             type="submit"
@@ -82,16 +113,14 @@ export function FinalCloseSection() {
         <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mb-12 md:mb-20">
           <span className="font-mono text-xs text-muted-foreground">or</span>
           <a
-            href="https://cal.com/hubbly/demo"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/demo"
             className="font-mono text-xs uppercase tracking-widest text-foreground hover:text-accent transition-colors duration-200 py-2"
           >
             GET PRICING →
           </a>
           <span className="text-muted-foreground/40 hidden sm:inline">·</span>
           <a
-            href="#how-it-works"
+            href="/#how-it-works"
             className="font-mono text-xs uppercase tracking-widest text-foreground hover:text-accent transition-colors duration-200 py-2"
           >
             SEE THE SYSTEM
@@ -108,4 +137,17 @@ export function FinalCloseSection() {
       </div>
     </section>
   )
+}
+
+function normalizeDetectedDomain(value: string) {
+  const trimmed = value.trim()
+
+  if (!trimmed) return ""
+
+  try {
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+    return new URL(withProtocol).hostname.replace(/^www\./, "")
+  } catch {
+    return trimmed.replace(/^www\./, "")
+  }
 }
