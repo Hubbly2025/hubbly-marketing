@@ -88,31 +88,21 @@ export async function processAudit(auditId: string, url: string) {
     const companyName = extractCompanyName(scrapedPages, url)
     const scrapedContent = formatScrapedContent(scrapedPages, companyName)
 
-    if (scrapedContent.trim().length < 300) {
-      const message = "We could not find enough readable content on that site. It may block automated tools or require JavaScript."
-      log("warn", "scraping", message, {
-        content_length: scrapedContent.trim().length,
+    // Lower threshold and allow partial audits with limited content
+    const contentLength = scrapedContent.trim().length
+    const isLowContent = contentLength < 150
+    let manualReview: AuditDebugState["manual_review"] | undefined
+
+    if (isLowContent) {
+      log("warn", "scraping", "Limited content extracted, will generate partial audit", {
+        content_length: contentLength,
         pages_scraped: scrapedPages.length,
         diagnostics: scrapeDiagnostics,
       })
-      await updateAuditLead(supabase, auditId, {
-        status: "failed",
-        error_message: message,
-        analysis: {
-          error: message,
-          audit_debug: {
-            current_step: "manual_review",
-            progress_percent: 100,
-            logs,
-            manual_review: {
-              required: true,
-              reason: "low_content",
-            },
-          },
-        },
-        completed_at: new Date().toISOString(),
-      })
-      return
+      manualReview = {
+        required: true,
+        reason: "Limited website content available. Partial audit generated based on available metadata.",
+      }
     }
 
     await markProgress("analyzing", 45, "Analyzing GTM strategy with Claude", {
@@ -121,16 +111,18 @@ export async function processAudit(auditId: string, url: string) {
     })
 
     let analysis: AuditAnalysis
-    let manualReview: AuditDebugState["manual_review"] | undefined
     try {
-      analysis = await analyzeWithClaude(scrapedContent, log)
+      // Use a simplified prompt if we have very little content
+      analysis = await analyzeWithClaude(scrapedContent, log, isLowContent)
     } catch (error) {
       const friendlyMessage = toFriendlyError(error)
       log("error", "analysis", friendlyMessage, { raw_error: getErrorMessage(error) })
       analysis = buildFallbackAnalysis(companyName, scrapedContent)
       manualReview = {
         required: true,
-        reason: "Claude analysis failed. Fallback report generated for manual review.",
+        reason: manualReview?.reason 
+          ? `${manualReview.reason} Claude analysis also failed.`
+          : "Claude analysis failed. Fallback report generated for manual review.",
       }
     }
 
@@ -234,8 +226,6 @@ async function scrapeWebsiteDeep(
   const base = new URL(url)
   const scrapingBeeApiKey = process.env.SCRAPINGBEE_API_KEY || process.env.Scrapingbee
   
-  console.log(`[v0] scrapeWebsiteDeep: SCRAPINGBEE_API_KEY=${!!process.env.SCRAPINGBEE_API_KEY}, Scrapingbee=${!!process.env.Scrapingbee}, finalKey=${!!scrapingBeeApiKey}`)
-  
   const scrapeResults = await Promise.allSettled(SCRAPE_PATHS.map(async (target) => {
     const targetUrl = new URL(target.path, base).toString()
     return withRetry(
@@ -269,49 +259,46 @@ async function scrapeWebsiteDeep(
   return { pages, diagnostics }
 }
 
-async function scrapePage(url: string, label: string, apiKey?: string) {
-  let response: Response
+// Browser-like user agents to avoid bot detection
+const USER_AGENTS = [
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+]
 
-  console.log(`[v0] scrapePage: url=${url}, label=${label}, hasApiKey=${!!apiKey}`)
+async function scrapePage(url: string, label: string, apiKey?: string): Promise<ScrapedPage | null> {
+  let html: string | null = null
+  let responseStatus = 200
 
+  // Try ScrapingBee first if API key is available
   if (apiKey) {
-    const scrapeUrl = new URL("https://app.scrapingbee.com/api/v1/")
-    scrapeUrl.searchParams.set("api_key", apiKey)
-    scrapeUrl.searchParams.set("url", url)
-    scrapeUrl.searchParams.set("render_js", "true")
-    scrapeUrl.searchParams.set("block_ads", "true")
-    scrapeUrl.searchParams.set("block_resources", "false")
-    scrapeUrl.searchParams.set("wait", "2000")
-
-    response = await fetch(scrapeUrl.toString(), {
-      signal: AbortSignal.timeout(30000),
-    })
-    console.log(`[v0] ScrapingBee response: status=${response.status}, ok=${response.ok}`)
-  } else {
-    response = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; HubblyBot/1.0)",
-      },
-      signal: AbortSignal.timeout(5000),
-    })
-  }
-
-  if (!response.ok) {
-    if (response.status === 404 || response.status === 410) {
-      return null
+    try {
+      html = await scrapeWithScrapingBee(url, apiKey)
+    } catch {
+      // ScrapingBee failed, will try direct fetch
     }
-    throw new AuditPipelineError("scrape_http_error", `${label} returned HTTP ${response.status}`, response.status >= 500)
   }
 
-  const html = await response.text()
-  console.log(`[v0] HTML received: length=${html.length}, first100=${html.slice(0, 100)}`)
+  // Fallback to direct fetch with multiple strategies
+  if (!html) {
+    html = await scrapeWithDirectFetch(url)
+  }
+
+  if (!html) {
+    return null
+  }
+
+  // Extract all available metadata
   const title = extractTagContent(html, "title")
   const ogSiteName = extractMetaContent(html, "og:site_name")
+  const metaDescription = extractMetaContent(html, "description")
+  const ogDescription = extractMetaContent(html, "og:description")
   const content = extractReadableText(html)
-  console.log(`[v0] Extracted: title=${title}, contentLength=${content.length}`)
 
-  if (!content.trim()) {
-    console.log(`[v0] No content extracted, returning null`)
+  // Build content from whatever we could extract
+  const combinedContent = buildCombinedContent(content, title, metaDescription, ogDescription)
+
+  if (!combinedContent.trim()) {
     return null
   }
 
@@ -320,9 +307,109 @@ async function scrapePage(url: string, label: string, apiKey?: string) {
     url,
     title,
     ogSiteName,
-    content: content.slice(0, 2000),
-    status: response.status,
+    content: combinedContent.slice(0, 2000),
+    status: responseStatus,
   }
+}
+
+async function scrapeWithScrapingBee(url: string, apiKey: string): Promise<string | null> {
+  const scrapeUrl = new URL("https://app.scrapingbee.com/api/v1/")
+  scrapeUrl.searchParams.set("api_key", apiKey)
+  scrapeUrl.searchParams.set("url", url)
+  scrapeUrl.searchParams.set("render_js", "true")
+  scrapeUrl.searchParams.set("block_ads", "true")
+  scrapeUrl.searchParams.set("block_resources", "false")
+  scrapeUrl.searchParams.set("wait", "3000")
+  scrapeUrl.searchParams.set("premium_proxy", "true")
+
+  const response = await fetch(scrapeUrl.toString(), {
+    signal: AbortSignal.timeout(45000),
+  })
+
+  if (!response.ok) {
+    return null
+  }
+
+  const html = await response.text()
+  return html.length > 500 ? html : null
+}
+
+async function scrapeWithDirectFetch(url: string): Promise<string | null> {
+  const parsedUrl = new URL(url)
+  
+  // Try different URL variations
+  const urlVariations = [url]
+  
+  // Add www variant if not present, or remove if present
+  if (parsedUrl.hostname.startsWith("www.")) {
+    urlVariations.push(url.replace("://www.", "://"))
+  } else {
+    urlVariations.push(url.replace("://", "://www."))
+  }
+
+  for (const testUrl of urlVariations) {
+    for (const userAgent of USER_AGENTS) {
+      try {
+        const response = await fetch(testUrl, {
+          headers: {
+            "User-Agent": userAgent,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+          },
+          signal: AbortSignal.timeout(10000),
+          redirect: "follow",
+        })
+
+        if (response.ok) {
+          const html = await response.text()
+          if (html.length > 500) {
+            return html
+          }
+        }
+      } catch {
+        // Try next combination
+        continue
+      }
+    }
+  }
+
+  return null
+}
+
+function buildCombinedContent(
+  extractedContent: string,
+  title: string | null,
+  metaDescription: string | null,
+  ogDescription: string | null
+): string {
+  const parts: string[] = []
+
+  if (extractedContent.trim().length > 100) {
+    parts.push(extractedContent)
+  }
+
+  // If main content extraction failed, use metadata as fallback
+  if (parts.length === 0) {
+    if (title) {
+      parts.push(`Title: ${title}`)
+    }
+    if (metaDescription) {
+      parts.push(`Description: ${metaDescription}`)
+    }
+    if (ogDescription && ogDescription !== metaDescription) {
+      parts.push(`About: ${ogDescription}`)
+    }
+  }
+
+  return parts.join("\n\n")
 }
 
 function extractTagContent(html: string, tag: string) {
@@ -415,8 +502,11 @@ function formatScrapedContent(pages: ScrapedPage[], companyName: string) {
 async function analyzeWithClaude(
   scrapedContent: string,
   log: (level: AuditDebugLog["level"], step: string, message: string, detail?: Record<string, unknown>) => void,
+  isLowContent = false,
 ) {
-  const firstPrompt = buildAnalysisPrompt(scrapedContent)
+  const firstPrompt = isLowContent 
+    ? buildSimplifiedPrompt(scrapedContent)
+    : buildAnalysisPrompt(scrapedContent)
 
   try {
     return validateAnalysis(await withRetry(
@@ -424,7 +514,7 @@ async function analyzeWithClaude(
       () => callClaude(firstPrompt),
       { retries: 2, baseDelayMs: 900 },
       log,
-    ))
+    ), isLowContent)
   } catch (error) {
     log("warn", "analysis", "Claude response failed validation, retrying with compact JSON prompt", {
       error: getErrorMessage(error),
@@ -437,8 +527,52 @@ Your previous response was not usable. Return only compact valid JSON with every
       () => callClaude(retryPrompt),
       { retries: 1, baseDelayMs: 1200 },
       log,
-    ))
+    ), isLowContent)
   }
+}
+
+function buildSimplifiedPrompt(scrapedContent: string) {
+  return `You are a senior GTM strategist. Based on limited website information, provide your best analysis.
+
+Website content (limited):
+${scrapedContent}
+
+Even with limited information, provide your best educated guess for each field. Use industry knowledge to fill gaps.
+
+Respond with JSON only:
+
+{
+  "company_name": "Best guess at company name from URL or content",
+  "product": "Your best guess at what this company does",
+  "industry": "Most likely industry based on available clues",
+  "icp": {
+    "primary": {
+      "title": "Most likely buyer title for this type of business",
+      "company_size": "Typical company size that buys this",
+      "pain_point": "Common pain point in this industry",
+      "trigger": "Typical buying trigger"
+    },
+    "secondary": { "title": "", "company_size": "", "pain_point": "", "trigger": "" },
+    "emerging": { "title": "", "company_size": "", "pain_point": "", "trigger": "" }
+  },
+  "competitors": [
+    {
+      "name": "A likely competitor in this space",
+      "their_angle": "Typical positioning",
+      "their_weakness": "Common weakness",
+      "your_opening": "Potential differentiation"
+    }
+  ],
+  "gtm_gaps": ["Likely gap 1", "Likely gap 2", "Likely gap 3"],
+  "outreach_angle": "Best guess at compelling outreach angle",
+  "sample_email": {
+    "subject": "Generic but relevant subject line",
+    "body": "3 sentences: reference their likely situation, the pain, the outcome, one CTA."
+  }
+}
+
+Note: This is a preliminary analysis based on limited data. Mark for follow-up.
+Return valid JSON only.`
 }
 
 function buildAnalysisPrompt(scrapedContent: string) {
@@ -529,7 +663,19 @@ function parseJson(text: string) {
   return JSON.parse(cleaned) as AuditAnalysis
 }
 
-function validateAnalysis(analysis: AuditAnalysis) {
+function validateAnalysis(analysis: AuditAnalysis, isLenient = false) {
+  // For low-content audits, be more lenient
+  if (isLenient) {
+    if (!analysis.product && !analysis.industry) {
+      throw new AuditPipelineError("claude_invalid_json", "Claude response is missing basic analysis fields", true)
+    }
+    // Fill in missing fields with defaults for lenient validation
+    analysis.competitors = analysis.competitors || []
+    analysis.gtm_gaps = analysis.gtm_gaps || ["Needs more research"]
+    analysis.sample_email = analysis.sample_email || { subject: "Quick question", body: "Would love to learn more about your needs." }
+    return analysis
+  }
+
   if (!analysis.product || !analysis.industry || !analysis.icp || !analysis.sample_email) {
     throw new AuditPipelineError("claude_invalid_json", "Claude response is missing required analysis fields", true)
   }
