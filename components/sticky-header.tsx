@@ -68,9 +68,7 @@ export function StickyHeader() {
               How It Works
             </button>
             <a
-              href="https://cal.com/hubbly/demo"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/demo"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
               Get Pricing

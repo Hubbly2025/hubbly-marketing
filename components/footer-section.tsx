@@ -42,7 +42,7 @@ export function FooterSection() {
             <li><a href="#how-it-works" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">How Hubbly works</a></li>
             <li><a href="/platform" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Platform</a></li>
             <li><a href="#faq" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">FAQ</a></li>
-            <li><a href="https://cal.com/hubbly/demo" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Get pricing</a></li>
+            <li><a href="/demo" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Get pricing</a></li>
           </ul>
         </div>
         <div>
