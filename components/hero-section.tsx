@@ -86,7 +86,7 @@ export function HeroSection() {
             href="#audit"
             className="group inline-flex items-center justify-center gap-3 bg-accent px-5 py-3 md:px-6 md:py-4 font-mono text-xs md:text-sm uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200 min-h-[48px]"
           >
-            <ScrambleTextOnHover text="Run My Revenue Audit" as="span" duration={0.6} />
+            <ScrambleTextOnHover text="Start Free" as="span" duration={0.6} />
             <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
           </a>
           <a
@@ -95,7 +95,7 @@ export function HeroSection() {
             rel="noopener noreferrer"
             className="font-mono text-xs md:text-sm uppercase tracking-widest text-foreground/70 hover:text-foreground transition-colors duration-200 border border-border/50 px-5 py-3 md:px-6 md:py-4 text-center min-h-[48px] flex items-center justify-center"
           >
-            Book a Demo →
+            Get Pricing →
           </a>
         </div>
 
@@ -114,16 +114,10 @@ export function HeroSection() {
             See How →
           </a>
           <a
-            href="#pricing"
-            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
-          >
-            See Pricing →
-          </a>
-          <a
             href="#audit"
             className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
           >
-            Skip to Audit →
+            Start Your Free Audit →
           </a>
         </div>
       </div>

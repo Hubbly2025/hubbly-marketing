@@ -49,11 +49,11 @@ export function FinalCloseSection() {
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent mb-4 md:mb-8 block">14 / RUN IT</span>
         
         <h2 className="font-[var(--font-bebas)] text-3xl md:text-6xl lg:text-7xl tracking-tight mb-4 md:mb-8 text-balance">
-          See what Hubbly would build for your company.
+          Start your free revenue audit.
         </h2>
 
         <p className="max-w-xl mx-auto font-mono text-xs md:text-sm text-muted-foreground mb-8 md:mb-12">
-          Run a revenue audit and see your ICP, competitors, campaign opportunities, and pipeline gaps before you launch.
+          Drop your website in and see what Hubbly would build — your ICP, competitors, campaign opportunities, and pipeline gaps. No credit card required.
         </p>
 
         {/* URL Input Form */}
@@ -71,7 +71,7 @@ export function FinalCloseSection() {
             type="submit"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent px-6 md:px-8 py-4 font-mono text-xs uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200 whitespace-nowrap min-h-[52px] active:scale-[0.98]"
           >
-            Run My Revenue Audit
+            Start Free
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M7 17L17 7M17 7H7M17 7V17" />
             </svg>
@@ -87,7 +87,7 @@ export function FinalCloseSection() {
             rel="noopener noreferrer"
             className="font-mono text-xs uppercase tracking-widest text-foreground hover:text-accent transition-colors duration-200 py-2"
           >
-            BOOK A DEMO →
+            GET PRICING →
           </a>
           <span className="text-muted-foreground/40 hidden sm:inline">·</span>
           <a

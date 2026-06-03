@@ -8,11 +8,11 @@ export function FloatingCTA() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show after scrolling past pricing section (approximately 70% down the page)
-      const pricingSection = document.getElementById("pricing")
-      if (pricingSection) {
-        const rect = pricingSection.getBoundingClientRect()
-        // Show when pricing section is scrolled past (its bottom is above viewport)
+      // Show after scrolling past the how-it-works section
+      const howItWorksSection = document.getElementById("how-it-works")
+      if (howItWorksSection) {
+        const rect = howItWorksSection.getBoundingClientRect()
+        // Show when how-it-works section is scrolled past (its bottom is above viewport)
         setIsVisible(rect.bottom < 0)
       }
     }
@@ -37,9 +37,9 @@ export function FloatingCTA() {
         "flex items-center gap-2",
         isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0 pointer-events-none"
       )}
-      aria-label="Run My Revenue Audit"
+      aria-label="Start Free"
     >
-      <span>Revenue Audit</span>
+      <span>Start Free</span>
       <svg 
         className="w-3 h-3" 
         fill="none" 

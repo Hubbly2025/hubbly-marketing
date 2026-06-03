@@ -67,25 +67,19 @@ export function StickyHeader() {
             >
               How It Works
             </button>
-            <button
-              onClick={() => scrollToSection("pricing")}
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Pricing
-            </button>
             <a
               href="https://cal.com/hubbly/demo"
               target="_blank"
               rel="noopener noreferrer"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
-              Book Demo
+              Get Pricing
             </a>
             <button
               onClick={() => scrollToSection("audit")}
               className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
             >
-              Revenue Audit
+              Start Free
             </button>
           </div>
 
@@ -94,7 +88,7 @@ export function StickyHeader() {
             onClick={() => scrollToSection("audit")}
             className="md:hidden font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
           >
-            Revenue Audit
+            Start Free
           </button>
         </nav>
       </div>

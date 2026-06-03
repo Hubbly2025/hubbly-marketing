@@ -9,7 +9,6 @@ import { StackReplacementSection } from "@/components/stack-replacement-section"
 import { AcquireSection } from "@/components/acquire-section"
 import { VerticalsSection } from "@/components/verticals-section"
 import { UseCasesSection } from "@/components/use-cases-section"
-import { PricingSection } from "@/components/pricing-section"
 import { SocialProofSection } from "@/components/social-proof-section"
 import { FAQSection } from "@/components/faq-section"
 import { FinalCloseSection } from "@/components/final-close-section"
@@ -46,13 +45,6 @@ const softwareJsonLd = {
   operatingSystem: "Web",
   description:
     "Autonomous Revenue OS with 12 AI agents organized in 3 layers (Understand, Execute, Improve) for ICP enrichment, autonomous outbound, AI voice calling, email sequencing, and booked meetings.",
-  offers: {
-    "@type": "AggregateOffer",
-    priceCurrency: "USD",
-    lowPrice: "0",
-    highPrice: "1498",
-    offerCount: 5,
-  },
 }
 
 const websiteJsonLd = {
@@ -127,7 +119,6 @@ export default function Page() {
           <AcquireSection />
           <VerticalsSection />
           <UseCasesSection />
-          <PricingSection />
           <SocialProofSection />
           <FAQSection />
           <FinalCloseSection />
