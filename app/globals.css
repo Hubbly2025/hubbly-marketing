@@ -78,6 +78,37 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Visible, consistent keyboard focus ring across all interactive elements */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  /* Don't show the ring on mouse/touch clicks, only keyboard focus */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+  /* Skip-to-content link: hidden until focused via keyboard */
+  .skip-link {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transform: translateY(-120%);
+    padding: 0.75rem 1.25rem;
+    background: var(--accent);
+    color: var(--background);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: transform 0.15s ease;
+  }
+  .skip-link:focus {
+    transform: translateY(0);
+    outline: 2px solid var(--background);
+    outline-offset: -4px;
+  }
   html {
     overflow-x: hidden;
     max-width: 100vw;

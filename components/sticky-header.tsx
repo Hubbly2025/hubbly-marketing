@@ -36,6 +36,16 @@ export function StickyHeader() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [lastScrollY])
 
+  // Close the mobile menu on Escape for keyboard users
+  useEffect(() => {
+    if (!isMenuOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMenuOpen(false)
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [isMenuOpen])
+
   return (
     <header
       className={cn(
@@ -86,6 +96,7 @@ export function StickyHeader() {
               onClick={() => setIsMenuOpen((open) => !open)}
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
               className="flex flex-col justify-center gap-1.5 p-1.5 text-foreground"
             >
               <span
@@ -113,7 +124,11 @@ export function StickyHeader() {
 
       {/* Mobile menu panel */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-border/30 bg-background/95 backdrop-blur-md">
+        <nav
+          id="mobile-menu"
+          aria-label="Mobile"
+          className="md:hidden border-t border-border/30 bg-background/95 backdrop-blur-md"
+        >
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col">
             {navLinks.map((item) => (
               <a
@@ -126,7 +141,7 @@ export function StickyHeader() {
               </a>
             ))}
           </div>
-        </div>
+        </nav>
       )}
     </header>
   )

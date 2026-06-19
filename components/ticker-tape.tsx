@@ -15,7 +15,10 @@ const tickerItems = [
 
 export function TickerTape() {
   return (
-    <div className="ticker-wrap w-full h-10 overflow-hidden flex items-center bg-card/50 border-b border-border/40">
+    <div
+      className="ticker-wrap w-full h-10 overflow-hidden flex items-center bg-card/50 border-b border-border/40"
+      aria-hidden="true"
+    >
       <div className="ticker-track flex whitespace-nowrap animate-ticker">
         {/* First set of items */}
         {tickerItems.map((item, index) => (

@@ -142,8 +142,15 @@ export default function RootLayout({
       <body
         className={`${ibmPlexSans.variable} ${bebasNeue.variable} ${ibmPlexMono.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased overflow-x-hidden`}
       >
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <div className="noise-overlay" aria-hidden="true" />
-        <SmoothScroll>{children}</SmoothScroll>
+        <SmoothScroll>
+          <div id="main-content" tabIndex={-1} className="outline-none">
+            {children}
+          </div>
+        </SmoothScroll>
         <Analytics />
       </body>
     </html>
