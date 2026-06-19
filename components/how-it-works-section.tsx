@@ -34,7 +34,7 @@ const steps = [
 
 const intelligenceStages = [
   { label: "RECON", sub: "Research" },
-  { label: "COMPETITOR", sub: "Intel" },
+  { label: "SIGNAL RANK", sub: "SEO & rivals" },
   { label: "ICP", sub: "Audience" },
   { label: "GTM STRATEGY", sub: "Plan" },
   { label: "CREATIVE", sub: "Assets" },

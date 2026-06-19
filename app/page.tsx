@@ -8,6 +8,7 @@ import { ModulesSection } from "@/components/modules-section"
 import { WhyItWinsSection } from "@/components/why-it-wins-section"
 import { StackReplacementSection } from "@/components/stack-replacement-section"
 import { AcquireSection } from "@/components/acquire-section"
+import { SignalRankSection } from "@/components/signal-rank-section"
 import { VerticalsSection } from "@/components/verticals-section"
 import { UseCasesSection } from "@/components/use-cases-section"
 import { SocialProofSection } from "@/components/social-proof-section"
@@ -119,6 +120,7 @@ export default function Page() {
           <WhyItWinsSection />
           <StackReplacementSection />
           <AcquireSection />
+          <SignalRankSection />
           <VerticalsSection />
           <UseCasesSection />
           <SocialProofSection />
