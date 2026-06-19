@@ -55,11 +55,11 @@ export function HeroSection() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
           </span>
           <span className="font-mono text-[10px] md:text-[13px] tracking-[0.1em] text-muted-foreground uppercase">
-            Autonomous Revenue OS
+            Autonomous Growth Engine
           </span>
         </div>
 
-        <div role="img" aria-label="Hubbly — Autonomous Revenue OS wordmark">
+        <div role="img" aria-label="Hubbly — Autonomous Growth Engine wordmark">
           <SplitFlapAudioProvider>
             <SplitFlapText text="HUBBLY" speed={80} />
           </SplitFlapAudioProvider>
@@ -70,7 +70,11 @@ export function HeroSection() {
         </h1>
 
         <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/60 leading-relaxed italic">
-          Analyzes your business. Maps your market. Builds campaigns. Runs outreach. Places calls. Books meetings.
+          Hubbly analyzes your market, scouts competitors, maps your strengths and gaps, and reads search demand. Then specialized agents coordinate SEO, outbound, voice, and booking — on autopilot, with your team in control.
+        </p>
+
+        <p className="mt-3 max-w-2xl font-mono text-[10px] md:text-xs uppercase tracking-[0.15em] text-foreground/45 leading-relaxed">
+          The strategy of a top firm. The autonomy of a built system. The simplicity of one input.
         </p>
 
         <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
@@ -78,7 +82,7 @@ export function HeroSection() {
         </p>
 
         <p className="mt-4 font-mono text-xs md:text-sm text-accent tracking-wide">
-          12 agents. 3 layers. 1 autonomous revenue OS.
+          12 specialized agents. 3 operating layers. 1 autonomous growth engine.
         </p>
 
         <div className="mt-8 md:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6">
@@ -123,7 +127,7 @@ export function HeroSection() {
       {/* Floating info tag - hidden on mobile */}
       <div className="hidden sm:block absolute bottom-8 right-8 md:bottom-12 md:right-12">
         <div className="border border-border/50 bg-card/30 px-4 py-2 font-mono text-xs uppercase tracking-widest text-foreground/60">
-          AUTONOMOUS REVENUE OS
+          AUTONOMOUS GROWTH ENGINE
         </div>
       </div>
     </section>
