@@ -73,11 +73,25 @@ export function HeroSection() {
           Drop your website in. <span className="text-accent">Hubbly goes to work.</span>
         </h1>
 
-        <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
-          Hubbly learns what you sell and who buys it, then puts 12 agents to work — building campaigns, finding buyers, running outreach, placing calls, and booking meetings.
-        </p>
+        <ol className="mt-6 md:mt-8 max-w-2xl grid gap-3 sm:grid-cols-3">
+          {[
+            { step: "01", text: "Learns your business from your site." },
+            { step: "02", text: "Builds ICP, messaging, and campaigns." },
+            { step: "03", text: "Launches outreach, calls, and booking with approvals." },
+          ].map((item) => (
+            <li
+              key={item.step}
+              className="flex flex-col gap-2 border-l border-border/50 pl-3 py-1"
+            >
+              <span className="font-mono text-xs text-accent tracking-widest">{item.step}</span>
+              <span className="font-mono text-sm text-foreground/80 leading-relaxed text-pretty">
+                {item.text}
+              </span>
+            </li>
+          ))}
+        </ol>
 
-        <p className="mt-4 font-mono text-xs md:text-sm text-accent tracking-wide">
+        <p className="mt-6 font-mono text-xs md:text-sm text-accent tracking-wide">
           12 agents. 3 layers. 1 autonomous revenue OS.
         </p>
 
