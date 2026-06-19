@@ -44,6 +44,9 @@ export default function SignalPage() {
 
   const totalSecsRef = useRef(0)
 
+  // Live chronological session log ("we've been watching since you got here")
+  const [logEvents, setLogEvents] = useState<{ time: string; text: string }[]>([])
+
   // Capture session facts on mount
   useEffect(() => {
     t0Ref.current = Date.now()
@@ -83,13 +86,43 @@ export default function SignalPage() {
     const secs = rootRef.current ? Array.from(rootRef.current.querySelectorAll("[data-sec]")) : []
     totalSecsRef.current = secs.length
 
+    // Chronological session log — deduped by key, built from real behavior
+    const logKeys = new Set<string>()
+    const logArr: { time: string; text: string }[] = []
+    const pushLog = (key: string, text: string) => {
+      if (logKeys.has(key)) return
+      logKeys.add(key)
+      logArr.push({ time: fmt(Date.now() - t0Ref.current), text })
+      setLogEvents([...logArr])
+    }
+
+    // Opening entries from the real session
+    const dev = /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop"
+    let ref = "direct"
+    try {
+      ref = document.referrer ? new URL(document.referrer).hostname : "direct"
+    } catch {
+      ref = "direct"
+    }
+    pushLog("arrive", `arrived from ${ref}`)
+    pushLog("device", `identified ${dev} · ${window.innerWidth}\u00d7${window.innerHeight}`)
+
     const onScroll = () => {
       const d = Math.min(
         100,
         Math.round(((window.scrollY + window.innerHeight) / document.body.scrollHeight) * 100),
       )
-      if (d > maxDepth) maxDepth = d
-      if (window.scrollY < lastY - 300) wentBack = true
+      if (d > maxDepth) {
+        maxDepth = d
+        if (d >= 25) pushLog("d25", "scrolled past 25% — engaged")
+        if (d >= 50) pushLog("d50", "reached the halfway mark")
+        if (d >= 75) pushLog("d75", "read 75% of the page")
+        if (d >= 95) pushLog("d95", "read to the very end")
+      }
+      if (window.scrollY < lastY - 300) {
+        wentBack = true
+        pushLog("back", "scrolled back up — re-reading")
+      }
       lastY = window.scrollY
     }
     const onMove = () => {
@@ -101,7 +134,11 @@ export default function SignalPage() {
     const secIO = new IntersectionObserver(
       (es) =>
         es.forEach((e) => {
-          if (e.isIntersecting) secsSeen.add(e.target)
+          if (e.isIntersecting) {
+            secsSeen.add(e.target)
+            const label = e.target.getAttribute("data-label")
+            if (label) pushLog(`sec-${label}`, `read "${label}"`)
+          }
         }),
       { threshold: 0.4 },
     )
@@ -118,6 +155,10 @@ export default function SignalPage() {
     const interval = setInterval(() => {
       const sc = score()
       const mins = (Date.now() - t0Ref.current) / 60000
+      const secsElapsed = (Date.now() - t0Ref.current) / 1000
+      if (secsElapsed >= 30) pushLog("t30", "30 seconds in — still here")
+      if (secsElapsed >= 60) pushLog("t60", "over a minute — high intent")
+      if (sc >= 60) pushLog("hot", "engagement crossed 60 — qualified")
       setLive({
         elapsed: fmt(Date.now() - t0Ref.current),
         depth: maxDepth,
@@ -239,7 +280,7 @@ export default function SignalPage() {
       </section>
 
       {/* SCENE 2 · THESIS */}
-      <section className={styles.scene} data-sec>
+      <section className={styles.scene} data-sec data-label="The problem">
         <div className={styles.wrap}>
           <span className={`${styles.k} ${styles.rv}`}>The problem</span>
           <h2 className={`${styles.huge} ${styles.rv} ${styles.d1}`} style={{ marginTop: 24 }}>
@@ -259,7 +300,7 @@ export default function SignalPage() {
       </section>
 
       {/* SCENE 3 · MIRROR */}
-      <section className={styles.scene} data-sec>
+      <section className={styles.scene} data-sec data-label="The demonstration">
         <div className={styles.wrap}>
           <span className={`${styles.k} ${styles.rv}`}>The demonstration</span>
           <h2 className={`${styles.big} ${styles.rv} ${styles.d1}`} style={{ marginTop: 24 }}>
@@ -305,8 +346,55 @@ export default function SignalPage() {
         </div>
       </section>
 
+      {/* SCENE 3.5 · THE RECORD (live session log) */}
+      <section className={styles.scene} data-sec data-label="The record">
+        <div className={styles.wrap}>
+          <span className={`${styles.k} ${styles.rv}`}>The record</span>
+          <h2 className={`${styles.big} ${styles.rv} ${styles.d1}`} style={{ marginTop: 24 }}>
+            We&apos;ve been watching
+            <br />
+            <span className={styles.or}>since you got here.</span>
+          </h2>
+          <p className={`${styles.sub} ${styles.rv} ${styles.d2}`} style={{ marginTop: 18 }}>
+            Not a mockup. This is your actual session, logged in order as it happened. Every line below was written
+            by something you did on this page.
+          </p>
+          <div className={`${styles.record} ${styles.rv} ${styles.d3}`} aria-label="Your live session log">
+            <div className={styles.recHead}>
+              <span>
+                <span className={styles.pulse} style={{ display: "inline-block", marginRight: 7 }} />
+                SESSION LOG · LIVE
+              </span>
+              <span>{logEvents.length} EVENTS</span>
+            </div>
+            <div className={styles.logFeed} aria-live="polite">
+              {logEvents.length === 0 ? (
+                <div className={styles.logRow}>
+                  <span className={styles.logTime}>0:00</span>
+                  <span className={styles.logText}>session opened — listening…</span>
+                </div>
+              ) : (
+                logEvents.map((e, i) => (
+                  <div
+                    key={`${e.time}-${e.text}`}
+                    className={`${styles.logRow} ${i === logEvents.length - 1 ? styles.fresh : ""}`}
+                  >
+                    <span className={styles.logTime}>{e.time}</span>
+                    <span className={styles.logText}>{e.text}</span>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className={styles.recFoot}>
+              Anonymous, client-side, nothing stored. Signal does exactly this to every real visitor — then attaches
+              a name, a company, and the searches that brought them in.
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SCENE 4 · THE TURN */}
-      <section className={styles.scene} data-sec>
+      <section className={styles.scene} data-sec data-label="The product">
         <div className={styles.wrap}>
           <span className={`${styles.k} ${styles.rv}`}>The product</span>
           <h2 className={`${styles.big} ${styles.rv} ${styles.d1}`} style={{ marginTop: 24 }}>
@@ -349,8 +437,60 @@ export default function SignalPage() {
         </div>
       </section>
 
+      {/* SCENE 4.5 · THE RANKINGS (SEO) */}
+      <section className={styles.scene} data-sec data-label="The rankings">
+        <div className={styles.wrap}>
+          <span className={`${styles.k} ${styles.rv}`}>The rankings</span>
+          <h2 className={`${styles.big} ${styles.rv} ${styles.d1}`} style={{ marginTop: 24 }}>
+            The demand you&apos;re
+            <br />
+            <span className={styles.or}>not ranking for.</span>
+          </h2>
+          <p className={`${styles.sub} ${styles.rv} ${styles.d2}`} style={{ marginTop: 18 }}>
+            Signal maps the searches your resolved buyers actually run — then checks where you land. This is what a
+            typical SaaS account sees: real volume, real positions, real money walking to competitors.
+          </p>
+          <div className={`${styles.ranks} ${styles.rv} ${styles.d3}`} aria-label="Keyword ranking gaps">
+            <div className={styles.rHead}>
+              <span>KEYWORD</span>
+              <span className={styles.rVol}>VOLUME</span>
+              <span className={styles.rPos}>YOU RANK</span>
+            </div>
+            <div className={styles.rRow}>
+              <span>customer retention software</span>
+              <span className={styles.rVol}>2,400/mo</span>
+              <span className={`${styles.rPos} ${styles.miss}`}>not ranking</span>
+            </div>
+            <div className={styles.rRow}>
+              <span>appointment booking platform</span>
+              <span className={styles.rVol}>1,900/mo</span>
+              <span className={`${styles.rPos} ${styles.weak}`}>page 4</span>
+            </div>
+            <div className={styles.rRow}>
+              <span>pricing automation software</span>
+              <span className={styles.rVol}>1,300/mo</span>
+              <span className={`${styles.rPos} ${styles.miss}`}>not ranking</span>
+            </div>
+            <div className={styles.rRow}>
+              <span>best scheduling tool for clinics</span>
+              <span className={styles.rVol}>880/mo</span>
+              <span className={`${styles.rPos} ${styles.weak}`}>page 2</span>
+            </div>
+            <div className={styles.rRow}>
+              <span>your brand name</span>
+              <span className={styles.rVol}>510/mo</span>
+              <span className={`${styles.rPos} ${styles.ok}`}>#1</span>
+            </div>
+            <div className={styles.rFoot}>
+              You win the searches for your own name. You lose every search where a buyer doesn&apos;t know you yet —
+              which is where the pipeline actually lives.
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SCENE 5 · EXECUTE */}
-      <section className={styles.scene} data-sec>
+      <section className={styles.scene} data-sec data-label="The engine">
         <div className={styles.wrap}>
           <span className={`${styles.k} ${styles.rv}`}>The engine</span>
           <h2 className={`${styles.big} ${styles.rv} ${styles.d1}`} style={{ marginTop: 24 }}>
@@ -406,7 +546,7 @@ export default function SignalPage() {
       </section>
 
       {/* SCENE 6 · THE NUMBER */}
-      <section className={styles.scene} data-sec>
+      <section className={styles.scene} data-sec data-label="The number">
         <div className={styles.wrap}>
           <span className={`${styles.k} ${styles.rv}`}>The number</span>
           <h2 className={`${styles.big} ${styles.rv} ${styles.d1}`} style={{ marginTop: 24 }}>
@@ -456,7 +596,7 @@ export default function SignalPage() {
       </section>
 
       {/* SCENE 7 · CLOSE */}
-      <section className={`${styles.scene} ${styles.close}`} id="close" data-sec>
+      <section className={`${styles.scene} ${styles.close}`} id="close" data-sec data-label="Your turn">
         <div className={styles.wrap}>
           <span className={`${styles.k} ${styles.rv}`}>Your turn</span>
           <h2 className={`${styles.huge} ${styles.rv} ${styles.d1}`} style={{ marginTop: 24 }}>
