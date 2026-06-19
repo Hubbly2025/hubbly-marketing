@@ -73,12 +73,8 @@ export function HeroSection() {
           Drop your website in. <span className="text-accent">Hubbly goes to work.</span>
         </h1>
 
-        <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/60 leading-relaxed italic">
-          Analyzes your business. Maps your market. Builds campaigns. Runs outreach. Places calls. Books meetings.
-        </p>
-
         <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
-          Give Hubbly your website. Hubbly learns what you sell, who your best customers are, who you compete with, and what messages should move the market. Then its 12 agents turn that intelligence into action — building campaigns, finding buyers, sending outreach, placing calls, qualifying replies, booking meetings, and feeding every result back into the system.
+          Hubbly learns what you sell and who buys it, then puts 12 agents to work — building campaigns, finding buyers, running outreach, placing calls, and booking meetings.
         </p>
 
         <p className="mt-4 font-mono text-xs md:text-sm text-accent tracking-wide">
@@ -94,32 +90,10 @@ export function HeroSection() {
             <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
           </a>
           <a
-            href="/waitlist"
+            href="/architecture"
             className="font-mono text-xs md:text-sm uppercase tracking-widest text-foreground/70 hover:text-foreground transition-colors duration-200 border border-border/50 px-5 py-3 md:px-6 md:py-4 text-center min-h-[48px] flex items-center justify-center"
           >
-            Join Waitlist & Get 30 Days Free →
-          </a>
-        </div>
-
-        {/* Quick navigation links */}
-        <div className="mt-6 flex flex-wrap items-center gap-4 md:gap-6">
-          <a
-            href="/architecture"
-            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
-          >
-            See the Full Architecture →
-          </a>
-          <a
-            href="#how-it-works"
-            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
-          >
-            See How →
-          </a>
-          <a
-            href="#audit"
-            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
-          >
-            Start Your Free Audit →
+            See Architecture →
           </a>
         </div>
       </div>
