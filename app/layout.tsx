@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { IBM_Plex_Sans, IBM_Plex_Mono, Bebas_Neue } from "next/font/google"
+import { IBM_Plex_Sans, IBM_Plex_Mono, Bebas_Neue, Space_Grotesk, JetBrains_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SmoothScroll } from "@/components/smooth-scroll"
 import { StructuredData } from "@/components/structured-data"
@@ -26,6 +26,18 @@ const bebasNeue = Bebas_Neue({
   variable: "--font-bebas",
   display: "swap",
   preload: true,
+})
+const spaceGrotesk = Space_Grotesk({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+})
+const jetbrainsMono = JetBrains_Mono({
+  weight: ["400", "500"],
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
 })
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://hubbly.io"
@@ -128,7 +140,7 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body
-        className={`${ibmPlexSans.variable} ${bebasNeue.variable} ${ibmPlexMono.variable} font-sans antialiased overflow-x-hidden`}
+        className={`${ibmPlexSans.variable} ${bebasNeue.variable} ${ibmPlexMono.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased overflow-x-hidden`}
       >
         <div className="noise-overlay" aria-hidden="true" />
         <SmoothScroll>{children}</SmoothScroll>
