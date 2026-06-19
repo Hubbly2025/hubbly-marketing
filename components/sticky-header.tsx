@@ -68,6 +68,12 @@ export function StickyHeader() {
               Signal
             </a>
             <a
+              href="/voice"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Voice
+            </a>
+            <a
               href="/architecture"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
