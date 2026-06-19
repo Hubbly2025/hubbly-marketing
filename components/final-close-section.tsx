@@ -109,16 +109,9 @@ export function FinalCloseSection() {
           </button>
         </form>
 
-        {/* Secondary Actions */}
+        {/* Secondary Action */}
         <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mb-12 md:mb-20">
           <span className="font-mono text-xs text-muted-foreground">or</span>
-          <a
-            href="/waitlist"
-            className="font-mono text-xs uppercase tracking-widest text-foreground hover:text-accent transition-colors duration-200 py-2"
-          >
-            JOIN WAITLIST & GET 30 DAYS FREE →
-          </a>
-          <span className="text-muted-foreground/40 hidden sm:inline">·</span>
           <a
             href="/#how-it-works"
             className="font-mono text-xs uppercase tracking-widest text-foreground hover:text-accent transition-colors duration-200 py-2"
