@@ -7,6 +7,7 @@ export function StickyHeader() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,12 +62,18 @@ export function StickyHeader() {
             >
               Architecture
             </a>
-            <button
-              onClick={() => scrollToSection("how-it-works")}
+            <a
+              href="/autopilot"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
-              How It Works
-            </button>
+              Autopilot
+            </a>
+            <a
+              href="/signal"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Signal
+            </a>
             <a
               href="/waitlist"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
@@ -81,15 +88,65 @@ export function StickyHeader() {
             </button>
           </div>
 
-          {/* Mobile CTA */}
-          <button
-            onClick={() => scrollToSection("audit")}
-            className="md:hidden font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
-          >
-            Free Audit
-          </button>
+          {/* Mobile actions */}
+          <div className="md:hidden flex items-center gap-3">
+            <button
+              onClick={() => scrollToSection("audit")}
+              className="font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
+            >
+              Free Audit
+            </button>
+            <button
+              onClick={() => setIsMenuOpen((open) => !open)}
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMenuOpen}
+              className="flex flex-col justify-center gap-1.5 p-1.5 text-foreground"
+            >
+              <span
+                className={cn(
+                  "block h-px w-5 bg-current transition-transform duration-200",
+                  isMenuOpen && "translate-y-[7px] rotate-45"
+                )}
+              />
+              <span
+                className={cn(
+                  "block h-px w-5 bg-current transition-opacity duration-200",
+                  isMenuOpen && "opacity-0"
+                )}
+              />
+              <span
+                className={cn(
+                  "block h-px w-5 bg-current transition-transform duration-200",
+                  isMenuOpen && "-translate-y-[7px] -rotate-45"
+                )}
+              />
+            </button>
+          </div>
         </nav>
       </div>
+
+      {/* Mobile menu panel */}
+      {isMenuOpen && (
+        <div className="md:hidden border-t border-border/30 bg-background/95 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col">
+            {[
+              { label: "Architecture", href: "/architecture" },
+              { label: "Autopilot", href: "/autopilot" },
+              { label: "Signal", href: "/signal" },
+              { label: "Join Waitlist", href: "/waitlist" },
+            ].map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsMenuOpen(false)}
+                className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-border/20 last:border-b-0"
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </header>
   )
 }
