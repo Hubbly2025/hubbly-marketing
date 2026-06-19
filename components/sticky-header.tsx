@@ -74,6 +74,12 @@ export function StickyHeader() {
               Voice
             </a>
             <a
+              href="/send"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Send
+            </a>
+            <a
               href="/architecture"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
