@@ -213,7 +213,9 @@ export default function SignalPage() {
   return (
     <div className={styles.page} ref={rootRef}>
       <nav className={styles.nav}>
-        <span className={styles.logo}>HUBBLY SIGNAL</span>
+        <a className={styles.logo} href="/" aria-label="Hubbly home">
+          HUBBLY SIGNAL
+        </a>
         <a className={styles.cta} href="#close">
           RUN FREE AUDIT
         </a>

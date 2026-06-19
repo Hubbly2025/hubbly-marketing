@@ -22,7 +22,13 @@ export default function V2ComparePage() {
     <main className="bg-background text-foreground">
       {/* Intro */}
       <div className="mx-auto max-w-6xl px-6 md:px-8 py-16">
-        <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-accent">Internal preview</p>
+        <a
+          href="/"
+          className="font-mono text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+        >
+          ← Back to home
+        </a>
+        <p className="mt-8 font-mono text-[11px] uppercase tracking-[0.3em] text-accent">Internal preview</p>
         <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl leading-none tracking-tight">
           Hubbly.ioV2 — Two Directions
         </h1>

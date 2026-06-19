@@ -47,12 +47,13 @@ export function StickyHeader() {
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <nav className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
-          <button 
-            onClick={() => scrollToSection("hero")}
+          <a
+            href="/"
+            aria-label="Hubbly home"
             className="font-mono text-sm md:text-base font-bold tracking-wider text-foreground hover:text-accent transition-colors"
           >
             HUBBLY<span className="text-accent">.</span>
-          </button>
+          </a>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6 lg:gap-8">
