@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { HeroSection } from "@/components/hero-section"
 import { ProofStripSection } from "@/components/proof-strip-section"
+import { EarlyProofBand } from "@/components/early-proof-band"
 import { EngineSection } from "@/components/engine-section"
 import { HowItWorksSection } from "@/components/how-it-works-section"
 import { ModulesSection } from "@/components/modules-section"
@@ -111,6 +112,7 @@ export default function Page() {
           <TickerTape />
           <HeroSection />
           <ProofStripSection />
+          <EarlyProofBand />
           <EngineSection />
           <HowItWorksSection />
           <ModulesSection />
