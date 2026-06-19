@@ -3,6 +3,13 @@
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
+const navLinks = [
+  { label: "Product", href: "/#how-it-works" },
+  { label: "Architecture", href: "/architecture" },
+  { label: "Industries", href: "/#verticals" },
+  { label: "Proof", href: "/#proof" },
+]
+
 export function StickyHeader() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
@@ -12,14 +19,14 @@ export function StickyHeader() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      
+
       // Show/hide based on scroll direction
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsVisible(false)
       } else {
         setIsVisible(true)
       }
-      
+
       // Add background after scrolling
       setIsScrolled(currentScrollY > 50)
       setLastScrollY(currentScrollY)
@@ -28,13 +35,6 @@ export function StickyHeader() {
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [lastScrollY])
-
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
-  }
 
   return (
     <header
@@ -57,40 +57,31 @@ export function StickyHeader() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            {navLinks.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {item.label}
+              </a>
+            ))}
             <a
-              href="/architecture"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Architecture
-            </a>
-            <a
-              href="/autopilot"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Autopilot
-            </a>
-            <a
-              href="/signal"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Signal
-            </a>
-            <button
-              onClick={() => scrollToSection("audit")}
+              href="/#audit"
               className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
             >
               Run Free Audit
-            </button>
+            </a>
           </div>
 
           {/* Mobile actions */}
           <div className="md:hidden flex items-center gap-3">
-            <button
-              onClick={() => scrollToSection("audit")}
+            <a
+              href="/#audit"
               className="font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
             >
               Free Audit
-            </button>
+            </a>
             <button
               onClick={() => setIsMenuOpen((open) => !open)}
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -124,11 +115,7 @@ export function StickyHeader() {
       {isMenuOpen && (
         <div className="md:hidden border-t border-border/30 bg-background/95 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col">
-            {[
-              { label: "Architecture", href: "/architecture" },
-              { label: "Autopilot", href: "/autopilot" },
-              { label: "Signal", href: "/signal" },
-            ].map((item) => (
+            {navLinks.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
