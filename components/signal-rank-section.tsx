@@ -87,7 +87,7 @@ export function SignalRankSection() {
 
       <div ref={headerRef} className="mb-12 md:mb-16 max-w-4xl">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
-          08 / SIGNAL RANK
+          09 / SIGNAL RANK
         </span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-5xl md:text-8xl tracking-tight">
           Signal Rank
