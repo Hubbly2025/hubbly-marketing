@@ -1,0 +1,88 @@
+/* Scoped V2 design system — only applies inside .v2scope so it never leaks
+   into the live site. Mirrors the tokens used by the uploaded Claude build. */
+.v2scope {
+  --bg: #0e0e0e;
+  --surface: #161616;
+  --text: #f5f3ef;
+  --muted: #a8a39b;
+  --dim: #6e6a63;
+  --accent: #ff6b35;
+  --border: #2a2a2a;
+  --border-soft: #1e1e1e;
+  --display: var(--font-bebas), "Bebas Neue", sans-serif;
+  --mono: var(--font-mono), "IBM Plex Mono", monospace;
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+.v2scope .wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 30px;
+}
+
+/* Eyebrow / kicker */
+.v2scope .k {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Buttons */
+.v2scope .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--accent);
+  color: #0a0a0a;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 11px;
+  padding: 14px 22px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.v2scope .btn:hover {
+  opacity: 0.9;
+}
+.v2scope .btn.sm {
+  padding: 9px 15px;
+  font-size: 11px;
+}
+.v2scope .btn.lg {
+  padding: 17px 26px;
+  font-size: 13px;
+}
+
+/* Reveal animations */
+.v2scope .rv {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.v2scope .in .rv {
+  opacity: 1;
+  transform: none;
+}
+.v2scope .in .rv.d1 {
+  transition-delay: 0.08s;
+}
+.v2scope .in .rv.d2 {
+  transition-delay: 0.16s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v2scope .rv {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
