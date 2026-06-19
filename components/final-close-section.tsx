@@ -73,29 +73,36 @@ export function FinalCloseSection() {
         </h2>
 
         <p className="max-w-xl mx-auto font-mono text-xs md:text-sm text-muted-foreground mb-8 md:mb-12">
-          Drop your website in and see what Hubbly would build — your ICP, competitors, campaign opportunities, and pipeline gaps. No credit card required.
+          Drop your website in and see what Hubbly would build — your ICP, competitors, campaign opportunities, and pipeline gaps.
         </p>
 
         {/* URL Input Form */}
         <form
           action="/api/audit/form"
           method="post"
-          className="flex flex-col sm:flex-row items-stretch justify-center gap-3 mb-6 md:mb-10 max-w-2xl mx-auto"
+          aria-label="Run a free revenue audit"
+          className="flex flex-col sm:flex-row items-stretch justify-center gap-3 mb-5 md:mb-6 max-w-2xl mx-auto"
         >
           <div className="relative flex-1 w-full">
+            <label htmlFor="audit-url" className="sr-only">
+              Your website URL
+            </label>
             <input
               ref={inputRef}
+              id="audit-url"
               name="url"
               type="text"
               inputMode="url"
+              autoComplete="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="yourcompany.com"
               required
+              aria-describedby="audit-url-help"
               className="w-full bg-background border border-border/50 px-4 md:px-5 py-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[52px]"
             />
-            <p className="mt-3 text-left font-mono text-[11px] text-muted-foreground">
-              We'll analyze your site, your competitors, and your active buyers.
+            <p id="audit-url-help" className="mt-3 text-left font-mono text-[11px] text-muted-foreground">
+              {"We'll analyze your site, your competitors, and your active buyers."}
             </p>
           </div>
           <button
@@ -103,11 +110,23 @@ export function FinalCloseSection() {
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent px-6 md:px-8 py-4 font-mono text-xs uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200 whitespace-nowrap min-h-[52px] active:scale-[0.98]"
           >
             Run Free Audit
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M7 17L17 7M17 7H7M17 7V17" />
             </svg>
           </button>
         </form>
+
+        {/* Trust cues */}
+        <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-12 md:mb-16 font-mono text-[11px] uppercase tracking-widest text-muted-foreground/80">
+          {["No credit card required", "Results in ~60 seconds", "Private & secure"].map((cue) => (
+            <li key={cue} className="inline-flex items-center gap-2">
+              <svg className="w-3 h-3 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+              {cue}
+            </li>
+          ))}
+        </ul>
 
         {/* Secondary Action */}
         <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mb-12 md:mb-20">
