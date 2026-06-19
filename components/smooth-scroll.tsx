@@ -22,14 +22,20 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   const scrollToHash = (hash: string, immediate = false) => {
+    // Respect users who prefer reduced motion: jump instantly, no easing.
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const behavior: ScrollBehavior = immediate || prefersReduced ? "auto" : "smooth"
+
     if (!hash) {
-      window.scrollTo({ top: 0, behavior: immediate ? "auto" : "smooth" })
+      window.scrollTo({ top: 0, behavior })
       return
     }
     const target = document.getElementById(hash)
     if (!target) return
     const top = target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET
-    window.scrollTo({ top, behavior: immediate ? "auto" : "smooth" })
+    window.scrollTo({ top, behavior })
   }
 
   // On route change, jump to the current target (or top) without animation.

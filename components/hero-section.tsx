@@ -19,6 +19,9 @@ export function HeroSection() {
   useEffect(() => {
     if (!sectionRef.current || !contentRef.current) return
 
+    // Respect users who prefer reduced motion: no scroll-linked fade.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
     const ctx = gsap.context(() => {
       gsap.to(contentRef.current, {
         y: -100,
@@ -27,7 +30,8 @@ export function HeroSection() {
           trigger: sectionRef.current,
           start: "top top",
           end: "bottom top",
-          scrub: 1,
+          // Low scrub keeps the fade tied to scroll without momentum lag.
+          scrub: 0.3,
         },
       })
     }, sectionRef)

@@ -22,6 +22,12 @@ export function HighlightText({ children, className = "", parallaxSpeed = 0.3 }:
   useEffect(() => {
     if (!containerRef.current || !highlightRef.current || !textRef.current) return
 
+    // Respect users who prefer reduced motion: show highlight, skip animation.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(highlightRef.current, { scaleX: 1, transformOrigin: "left center" })
+      return
+    }
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -55,7 +61,7 @@ export function HighlightText({ children, className = "", parallaxSpeed = 0.3 }:
           trigger: containerRef.current,
           start: "top bottom",
           end: "bottom top",
-          scrub: 1,
+          scrub: 0.3,
         },
       })
     }, containerRef)
