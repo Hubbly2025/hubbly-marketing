@@ -2,84 +2,48 @@
 
 import type React from "react"
 
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import { usePathname } from "next/navigation"
-import Lenis from "lenis"
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger)
-}
+// Height of the sticky header so anchored sections aren't hidden beneath it.
+const HEADER_OFFSET = 88
 
+/**
+ * Native-scroll provider.
+ *
+ * We intentionally do NOT hijack the wheel/trackpad (no Lenis / smooth-wheel).
+ * Hijacked scrolling made the page feel "stuck", broke expected scroll physics
+ * for keyboard / trackpad / mobile users, and ignored programmatic scrolling.
+ *
+ * This component now only handles in-page anchor navigation (e.g. "#audit")
+ * using the browser's native smooth scroll, with an offset for the fixed header.
+ */
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const lenisRef = useRef<Lenis | null>(null)
-  const rafRef = useRef<((time: number) => void) | null>(null)
 
+  const scrollToHash = (hash: string, immediate = false) => {
+    if (!hash) {
+      window.scrollTo({ top: 0, behavior: immediate ? "auto" : "smooth" })
+      return
+    }
+    const target = document.getElementById(hash)
+    if (!target) return
+    const top = target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET
+    window.scrollTo({ top, behavior: immediate ? "auto" : "smooth" })
+  }
+
+  // On route change, jump to the current target (or top) without animation.
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: "vertical",
-      smoothWheel: true,
-    })
-
-    lenisRef.current = lenis
-
-    // Connect Lenis to GSAP ScrollTrigger
-    lenis.on("scroll", ScrollTrigger.update)
-
-    const raf = (time: number) => {
-      lenis.raf(time * 1000)
-    }
-
-    rafRef.current = raf
-    gsap.ticker.add(raf)
-
-    gsap.ticker.lagSmoothing(0)
-
-    return () => {
-      lenis.destroy()
-      if (rafRef.current) {
-        gsap.ticker.remove(rafRef.current)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    const scrollToCurrentTarget = () => {
-      const hash = window.location.hash.replace("#", "")
-
-      if (!hash) {
-        lenisRef.current?.scrollTo(0, { immediate: true })
-        window.scrollTo(0, 0)
-        return
-      }
-
-      const target = document.getElementById(hash)
-      if (target) {
-        lenisRef.current?.scrollTo(target, { offset: 0 })
-      }
-    }
-
-    const timeout = window.setTimeout(scrollToCurrentTarget, 80)
-
+    const hash = window.location.hash.replace("#", "")
+    const timeout = window.setTimeout(() => scrollToHash(hash, true), 80)
     return () => window.clearTimeout(timeout)
   }, [pathname])
 
+  // Smoothly scroll when the hash changes during navigation on the same page.
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.replace("#", "")
-      const target = hash ? document.getElementById(hash) : null
-
-      if (target) {
-        lenisRef.current?.scrollTo(target, { offset: 0 })
-      } else if (!hash) {
-        lenisRef.current?.scrollTo(0)
-      }
+      scrollToHash(window.location.hash.replace("#", ""))
     }
-
     window.addEventListener("hashchange", handleHashChange)
     return () => window.removeEventListener("hashchange", handleHashChange)
   }, [])

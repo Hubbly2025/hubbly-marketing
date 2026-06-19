@@ -85,6 +85,17 @@
     scrollbar-width: thin;
     scrollbar-color: hsl(0, 0%, 24%) hsl(0, 0%, 8%);
   }
+  /* Offset anchored sections so the fixed header doesn't cover them */
+  section[id],
+  [id] {
+    scroll-margin-top: 88px;
+  }
+  /* Respect users who prefer reduced motion: no smooth-scroll easing */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
   body {
     @apply bg-background text-foreground;
     overflow-x: hidden;
