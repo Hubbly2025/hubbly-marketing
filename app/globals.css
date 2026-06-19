@@ -264,3 +264,30 @@
   border-color: #ff6b35;
   box-shadow: 0 0 0 1px #ff6b35;
 }
+
+/* Contact form inputs - dark theme variant */
+.contact-input {
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--background);
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.contact-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.contact-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+textarea.contact-input {
+  min-height: auto;
+}

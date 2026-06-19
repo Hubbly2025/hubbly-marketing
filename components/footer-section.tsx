@@ -65,9 +65,9 @@ export function FooterSection() {
         <div>
           <h4 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Company</h4>
           <ul className="space-y-3">
-            <li><a href="https://twitter.com/hubblyio" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Twitter</a></li>
-            <li><a href="https://www.linkedin.com/company/hubbly-io" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">LinkedIn</a></li>
-            <li><a href="mailto:hello@hubbly.io" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Contact us</a></li>
+            <li><a href="/about" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">About</a></li>
+            <li><a href="/integrations" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Integrations</a></li>
+            <li><a href="/contact" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Contact us</a></li>
             <li><a href="/demo" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Book a demo</a></li>
           </ul>
         </div>
