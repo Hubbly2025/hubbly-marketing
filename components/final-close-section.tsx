@@ -116,7 +116,7 @@ export function FinalCloseSection() {
             href="/waitlist"
             className="font-mono text-xs uppercase tracking-widest text-foreground hover:text-accent transition-colors duration-200 py-2"
           >
-            JOIN WAITLIST & GET 30 DAYS FREE →
+            JOIN WAITLIST →
           </a>
           <span className="text-muted-foreground/40 hidden sm:inline">·</span>
           <a
@@ -129,7 +129,7 @@ export function FinalCloseSection() {
 
         {/* Bottom tagline */}
         <p className="font-mono text-xs md:text-sm text-muted-foreground/60 mb-4">
-          From website input to coordinated growth execution — in one autonomous growth engine.
+          From website to coordinated execution — in one autonomous growth engine.
         </p>
         <p className="font-mono text-lg md:text-xl tracking-[0.3em] text-muted-foreground/30 uppercase">
           THE OPERATING SYSTEM FOR GROWTH
