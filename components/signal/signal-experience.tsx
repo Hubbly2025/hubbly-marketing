@@ -227,16 +227,16 @@ export function SignalExperience() {
             <b className="font-medium text-foreground">{facts.language}</b>
           </BootLine>
           <BootLine show={bootStep >= 4}>
-            identity <b className="font-medium text-accent">unresolved</b> — like 97% of the traffic on your site
+            identity <b className="font-medium text-accent">unresolved</b> — like most of the traffic on your site
           </BootLine>
           <h1
             className={`mt-12 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.04] tracking-tight transition-all duration-700 ${
               showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
             }`}
           >
-            We started reading you
+            See who is already
             <br />
-            the moment you arrived.
+            showing intent.
           </h1>
         </div>
         <div className="absolute bottom-9 left-1/2 -translate-x-1/2 animate-[pulse_2.4s_infinite] font-mono text-[10px] tracking-[0.3em] text-muted-foreground/50">
@@ -252,16 +252,16 @@ export function SignalExperience() {
           </Reveal>
           <Reveal delay={120}>
             <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.04] tracking-tight">
-              97% of your traffic
+              Most website demand
               <br />
-              does exactly this.
+              never gets identified.
             </h2>
           </Reveal>
           <Reveal delay={240}>
             <p className="mt-5 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-medium leading-[1.04] tracking-tight text-muted-foreground/50">
-              Reads. Decides. Leaves.
+              They arrive. Evaluate.
               <br />
-              Nameless.
+              Leave. Invisible.
             </p>
           </Reveal>
         </div>
@@ -275,13 +275,13 @@ export function SignalExperience() {
           </Reveal>
           <Reveal delay={120}>
             <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.04] tracking-tight">
-              We just watched you do it.
+              What intent looks like in session.
             </h2>
           </Reveal>
           <Reveal delay={240}>
             <p className="mt-5 max-w-[560px] font-mono text-[15px] leading-relaxed text-muted-foreground">
-              Everything below was measured on this page, in your browser, while you read. No server, no cookies — just
-              behavior. Now imagine it with a name attached.
+              Everything below was measured live on this page in your browser while you read. On its own, behavior is
+              interesting. Resolved identity plus intent is what turns traffic into pipeline.
             </p>
           </Reveal>
           <Reveal delay={360}>
@@ -300,7 +300,8 @@ export function SignalExperience() {
               <MirrorRow label="revisited a section" value={metrics.back ? "yes — re-read something" : "no"} />
               <MirrorRow label="engagement score" value={String(metrics.score)} accent />
               <p className="mt-4 text-[10.5px] leading-relaxed text-muted-foreground/60">
-                Measured client-side on this page only. Nothing stored, nothing sent. People lie. The data doesn&apos;t.
+                Measured client-side on this page only. Nothing stored, nothing sent. Behavior is a signal. Identity
+                makes it actionable.
               </p>
             </div>
           </Reveal>
@@ -315,15 +316,15 @@ export function SignalExperience() {
           </Reveal>
           <Reveal delay={120}>
             <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.04] tracking-tight">
-              Signal does this to your traffic.
+              Signal turns anonymous visits
               <br />
-              <span className="text-accent">With names.</span>
+              <span className="text-accent">into buyer intelligence.</span>
             </h2>
           </Reveal>
           <Reveal delay={240}>
             <p className="mt-5 max-w-[560px] font-mono text-[15px] leading-relaxed text-muted-foreground">
-              A lightweight pixel resolves anonymous sessions against an identity graph — person, company, title, work
-              email — and scores intent from behavior and the searches that brought them in.
+              A lightweight pixel connects session behavior to company, role, work email, and search-driven intent so
+              your team can prioritize real buyers while they are still active.
             </p>
           </Reveal>
           <Reveal delay={360}>
@@ -363,29 +364,34 @@ export function SignalExperience() {
       <section ref={registerSection} className="flex min-h-screen items-center px-6 py-28 md:px-8">
         <div className="mx-auto w-full max-w-[1060px]">
           <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-            The engine
+            The system
           </Reveal>
           <Reveal delay={120}>
             <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.04] tracking-tight">
-              Then it acts.
+              Then the system moves.
             </h2>
           </Reveal>
           <Reveal delay={240}>
             <p className="mt-5 max-w-[560px] font-mono text-[15px] leading-relaxed text-muted-foreground">
-              Autopilot turns what your buyers search into pages you own — drafted, fixed, structured, and shipped on
-              approval. Every change snapshotted. Every priority scored against the real buyers Signal identifies.
+              Signal identifies who is in-market. The rest of Hubbly turns that demand into search visibility, content,
+              conversion fixes, outreach, and follow-up — all with approvals built in.
             </p>
           </Reveal>
           <Reveal delay={360}>
             <div className="mt-12 max-w-[640px] font-mono text-[13px]" aria-label="Autopilot job queue">
-              <QueueLine n="01" action="CONTENT" desc="page drafted from live buyer demand" status="awaiting approval" />
-              <QueueLine n="02" action="TECHNICAL" desc="canonicals, internal links, speed fixes" status="snapshotted" />
-              <QueueLine n="03" action="AI SEARCH" desc="schema and citation-ready answers" status="queued" />
+              <QueueLine
+                n="01"
+                action="SEARCH VISIBILITY"
+                desc="pages built from live buyer demand"
+                status="awaiting approval"
+              />
+              <QueueLine n="02" action="TECHNICAL" desc="structure, links, speed, and site fixes" status="snapshotted" />
+              <QueueLine n="03" action="AI SEARCH" desc="schema and answer-ready content" status="queued" />
               <QueueLine n="04" action="CONVERSION" desc="fixes where identified buyers stall" status="queued" />
               <QueueLine
                 n="05"
                 action="OUTREACH"
-                desc="the same account contacts your buyers by name"
+                desc="the same accounts worked across the rest of Hubbly"
                 status="hubbly os"
               />
             </div>
@@ -399,7 +405,7 @@ export function SignalExperience() {
                   strokeWidth="1.2"
                 />
               </svg>
-              Approval-gated by default. You review, it ships. Reversible in one click.
+              Approval-gated by default. You review. Hubbly ships. Reversible in one click.
             </p>
           </Reveal>
         </div>
@@ -409,25 +415,25 @@ export function SignalExperience() {
       <section ref={registerSection} className="flex min-h-screen items-center px-6 py-28 md:px-8">
         <div className="mx-auto w-full max-w-[1060px]">
           <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-            The number
+            Simple pricing
           </Reveal>
           <Reveal delay={120}>
             <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.04] tracking-tight">
-              No seats. No retainers.
+              Pay for resolved demand,
               <br />
-              Pay for output.
+              not software overhead.
             </h2>
           </Reveal>
           <Reveal delay={240}>
             <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 min-[880px]:grid-cols-4">
-              <PriceCol name="FREE" price="$0" unit="/mo" desc="100 resolved leads a month. See who's on your site." />
-              <PriceCol name="SIGNAL" price="$98" unit="/mo" desc="250 resolved. Top 50 enriched with contact and intent." />
-              <PriceCol name="PRO" price="$298" unit="/mo" desc="1,000 resolved. Top 200 enriched. Custom verticals." />
+              <PriceCol name="FREE" price="$0" unit="/mo" desc="See who is already visiting." />
+              <PriceCol name="SIGNAL" price="$98" unit="/mo" desc="Resolve and enrich your highest-intent traffic." />
+              <PriceCol name="PRO" price="$298" unit="/mo" desc="Scale resolution, enrichment, and vertical intelligence." />
               <PriceCol
                 name="AUTOPILOT"
                 price="$498"
                 unit="/mo"
-                desc="Pro + the engine: pages weekly, technical fixes, AI-search placement. You approve, it ships."
+                desc="Add the execution engine across search, AI answers, and conversion."
                 hot
               />
             </div>
@@ -451,15 +457,15 @@ export function SignalExperience() {
           </Reveal>
           <Reveal delay={120}>
             <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.04] tracking-tight">
-              This page read you.
+              See who your market
               <br />
-              <span className="text-accent">Signal reads your market.</span>
+              <span className="text-accent">already is.</span>
             </h2>
           </Reveal>
           <Reveal delay={240}>
             <p className="mx-auto mt-6 max-w-[560px] font-mono text-[15px] leading-relaxed text-muted-foreground">
-              One URL. Your buyers, your rankings, the demand you&apos;re losing, and the task list to win it back — in
-              about 15 seconds.
+              Drop in your URL to see the buyers already visiting your site, the demand you are missing, and the actions
+              Hubbly would take next.
             </p>
           </Reveal>
           <Reveal delay={360}>
@@ -488,7 +494,7 @@ export function SignalExperience() {
           </Reveal>
           <Reveal delay={360}>
             <p className="mt-4 font-mono text-[11px] tracking-[0.06em] text-muted-foreground/60">
-              FREE · NO CREDIT CARD · NOTHING FROM THIS PAGE WAS STORED
+              FREE · NO CREDIT CARD
             </p>
           </Reveal>
         </div>
