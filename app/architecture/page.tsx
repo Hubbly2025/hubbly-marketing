@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Hubbly Architecture — The Autonomous Revenue OS",
+  title: "Hubbly Architecture — The Autonomous Growth Engine",
   description: "See how Hubbly's 12-agent revenue system uses shared memory, approval gates, and coordinated execution to turn a website into pipeline.",
   alternates: { canonical: "https://hubbly.io/architecture" },
 }
@@ -83,8 +83,8 @@ const faqJsonLd = {
 const productJsonLd = {
   "@context": "https://schema.org",
   "@type": "Product",
-  name: "Hubbly Autonomous Revenue OS",
-  description: "An autonomous revenue operating system with 12 specialized AI agents, shared memory architecture, and human-in-the-loop oversight.",
+  name: "Hubbly Autonomous Growth Engine",
+  description: "An autonomous growth engine with 12 specialized AI agents, shared memory architecture, and human-in-the-loop oversight.",
   brand: {
     "@type": "Brand",
     name: "Hubbly",

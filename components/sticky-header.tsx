@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
-export function StickyHeader() {
+export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
@@ -46,8 +46,9 @@ export function StickyHeader() {
 
   return (
     <header
+      style={{ top: withTicker && !isScrolled ? "2.5rem" : "0" }}
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed left-0 right-0 z-50 transition-all duration-300",
         isScrolled ? "bg-background/90 backdrop-blur-md border-b border-border/30" : "bg-transparent",
         isVisible ? "translate-y-0" : "-translate-y-full"
       )}
