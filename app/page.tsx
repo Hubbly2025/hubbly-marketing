@@ -3,7 +3,6 @@ import { HeroSection } from "@/components/hero-section"
 import { ProofStripSection } from "@/components/proof-strip-section"
 import { EngineSection } from "@/components/engine-section"
 import { HowItWorksSection } from "@/components/how-it-works-section"
-import { ModulesSection } from "@/components/modules-section"
 import { WhyItWinsSection } from "@/components/why-it-wins-section"
 import { StackReplacementSection } from "@/components/stack-replacement-section"
 import { AcquireSection } from "@/components/acquire-section"
@@ -113,7 +112,6 @@ export default function Page() {
           <ProofStripSection />
           <EngineSection />
           <HowItWorksSection />
-          <ModulesSection />
           <WhyItWinsSection />
           <StackReplacementSection />
           <AcquireSection />
