@@ -8,7 +8,7 @@ import { Reveal } from "@/components/autopilot/reveal"
 export const metadata: Metadata = {
   title: "Hubbly Send — Cold email, built in",
   description:
-    "Send is the outbound email agent inside Hubbly OS. Leads, copy, and deliverability arrive already attached from the pipeline — no list uploads, no separate tool.",
+    "Send is the outbound email agent inside the growth engine. Leads, copy, and deliverability arrive already attached from the pipeline — no list uploads, no separate tool.",
   alternates: { canonical: "https://hubbly.io/send" },
 }
 
@@ -92,7 +92,7 @@ export default function SendPage() {
         <div className="mx-auto w-full max-w-5xl px-6 pt-28 pb-20 md:pt-32 md:pb-24">
           <Reveal>
             <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              <span className="text-accent">Send</span> · outbound email agent
+              <span className="text-accent">Send</span> · the outbound layer
             </p>
           </Reveal>
           <Reveal delay={60}>
@@ -104,9 +104,9 @@ export default function SendPage() {
           </Reveal>
           <Reveal delay={120}>
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-              Instantly and Smartlead make you bring the leads and write the copy.{" "}
+              Most sending tools make you bring the leads and write the copy.{" "}
               <strong className="font-medium text-foreground">Send already has both</strong> — fed
-              straight from the Hubbly pipeline, with deliverability handled.
+              straight from the pipeline, with deliverability handled.
             </p>
           </Reveal>
           <Reveal delay={180}>
@@ -287,7 +287,7 @@ export default function SendPage() {
                 <div className="px-6 py-4 text-sm font-semibold text-accent">
                   Send
                   <span className="mt-0.5 block font-mono text-[10px] font-normal text-muted-foreground">
-                    inside Hubbly OS
+                    inside the growth engine
                   </span>
                 </div>
                 <div className="px-6 py-4 text-sm font-semibold">Instantly / Smartlead</div>
