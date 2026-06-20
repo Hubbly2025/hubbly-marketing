@@ -94,32 +94,10 @@ export function HeroSection() {
             <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
           </a>
           <a
-            href="/waitlist"
+            href="#how-it-works"
             className="font-mono text-xs md:text-sm uppercase tracking-widest text-foreground/70 hover:text-foreground transition-colors duration-200 border border-border/50 px-5 py-3 md:px-6 md:py-4 text-center min-h-[48px] flex items-center justify-center"
           >
-            Join Waitlist & Get 30 Days Free →
-          </a>
-        </div>
-
-        {/* Quick navigation links */}
-        <div className="mt-6 flex flex-wrap items-center gap-4 md:gap-6">
-          <a
-            href="/architecture"
-            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
-          >
-            See the Full Architecture →
-          </a>
-          <a
-            href="#how-it-works"
-            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
-          >
-            See How →
-          </a>
-          <a
-            href="#audit"
-            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
-          >
-            Start Your Free Audit →
+            See How It Works →
           </a>
         </div>
       </div>

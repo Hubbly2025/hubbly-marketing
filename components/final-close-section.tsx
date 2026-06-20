@@ -132,7 +132,7 @@ export function FinalCloseSection() {
           From website to coordinated execution — in one autonomous growth engine.
         </p>
         <p className="font-mono text-lg md:text-xl tracking-[0.3em] text-muted-foreground/30 uppercase">
-          THE OPERATING SYSTEM FOR GROWTH
+          THE AUTONOMOUS GROWTH ENGINE.
         </p>
       </div>
     </section>
