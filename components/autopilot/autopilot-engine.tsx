@@ -13,10 +13,10 @@ type QueueItem = {
 const QUEUE: QueueItem[] = [
   { cat: "STRATEGY", txt: "plan rebuilt from rankings + live demand", status: "continuous" },
   { cat: "KEYWORDS", txt: "14 targets scored by pipeline relevance", status: "continuous" },
-  { cat: "CONTENT", txt: "roof-financing-options.html drafted", status: "awaiting approval", awaiting: true },
+  { cat: "CONTENT", txt: "fleet-electrification-rollout.html drafted", status: "awaiting approval", awaiting: true },
   { cat: "TECHNICAL", txt: "canonical + 6 internal links applied", status: "snapshotted" },
   { cat: "AI SEARCH", txt: "FAQ schema + entity markup added", status: "queued" },
-  { cat: "CONVERSION", txt: "quote form moved above the fold", status: "queued" },
+  { cat: "CONVERSION", txt: "contact flow moved above the fold", status: "queued" },
   { cat: "LOCAL", txt: "3 service-area pages refreshed", status: "monitored" },
   { cat: "PIPELINE", txt: "7 changes traced to 312 buyers", status: "logged" },
 ]
@@ -28,7 +28,8 @@ const CODE: CodeLine[] = [
     num: "1",
     node: (
       <>
-        <span className="text-[#d98c6a]">{"<title>"}</span>Roof Financing Options in Austin | Acme
+        <span className="text-[#d98c6a]">{"<title>"}</span>Fleet Electrification Rollout for Enterprise Teams |
+        Helios Motors
         <span className="text-[#d98c6a]">{"</title>"}</span>
       </>
     ),
@@ -40,7 +41,7 @@ const CODE: CodeLine[] = [
         <span className="text-[#d98c6a]">{"<meta"}</span> <span className="text-muted-foreground">name</span>=
         <span className="text-green-500">{'"description"'}</span>{" "}
         <span className="text-muted-foreground">content</span>=
-        <span className="text-green-500">{'"Compare roof financing..."'}</span>
+        <span className="text-green-500">{'"Evaluate pilot fleet electrification..."'}</span>
         <span className="text-[#d98c6a]">{">"}</span>
       </>
     ),
@@ -53,7 +54,7 @@ const CODE: CodeLine[] = [
       <>
         <span className="text-[#d98c6a]">{"<link"}</span> <span className="text-muted-foreground">rel</span>=
         <span className="text-green-500">{'"canonical"'}</span> <span className="text-muted-foreground">href</span>=
-        <span className="text-green-500">{'"/roof-financing-options"'}</span>
+        <span className="text-green-500">{'"/fleet-electrification-rollout"'}</span>
         <span className="text-[#d98c6a]">{">"}</span>
       </>
     ),
@@ -64,7 +65,8 @@ const CODE: CodeLine[] = [
     num: "8",
     node: (
       <>
-        <span className="text-[#d98c6a]">{"<h1>"}</span>How much does roof financing cost?
+        <span className="text-[#d98c6a]">{"<h1>"}</span>How does fleet electrification rollout work for enterprise
+        teams?
         <span className="text-[#d98c6a]">{"</h1>"}</span>
       </>
     ),
@@ -177,7 +179,7 @@ export function AutopilotEngine() {
       </Panel>
 
       {/* Code build */}
-      <Panel title="drafting — roof-financing-options.html" liveLabel="BUILDING">
+      <Panel title="drafting — fleet-electrification-rollout.html" liveLabel="BUILDING">
         <div className="font-mono text-[11.5px] leading-[1.9]">
           {CODE.map((line, i) => (
             <div
