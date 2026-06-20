@@ -52,7 +52,7 @@ export function StickyHeader() {
         isVisible ? "translate-y-0" : "-translate-y-full"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <div className="max-w-7xl mx-auto px-4 md:pl-24 md:pr-6">
         <nav className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <button 
