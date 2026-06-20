@@ -102,12 +102,6 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
             >
               How It Works
             </button>
-            <a
-              href="/waitlist"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Join Waitlist
-            </a>
             <button
               onClick={() => scrollToSection("audit")}
               className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"

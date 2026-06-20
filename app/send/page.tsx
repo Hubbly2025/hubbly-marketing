@@ -345,13 +345,13 @@ export default function SendPage() {
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                 <a
-                  href="/#waitlist"
+                  href="/#audit"
                   className="inline-flex items-center gap-2 bg-accent px-5 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-accent-foreground transition-colors hover:bg-accent/90"
                 >
                   Start free
                 </a>
                 <a
-                  href="/#waitlist"
+                  href="/demo"
                   className="inline-flex items-center gap-2 border border-border px-5 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-foreground transition-colors hover:border-muted-foreground"
                 >
                   Talk to us
