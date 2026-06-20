@@ -9,46 +9,38 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
 }
 
-const agents = [
+const configurations = [
   {
-    name: "RILEY",
-    vertical: "Life Insurance",
-    description: "Knows term, whole, IUL, and final expense compliance.",
+    name: "B2B",
+    description: "For teams selling into accounts, operators, and longer, multi-threaded buying cycles.",
   },
   {
-    name: "MORGAN",
-    vertical: "Mortgage",
-    description: "Fluent in conventional, FHA, VA, jumbo, and refi cycles.",
+    name: "B2C",
+    description: "For companies that win on timing, volume, and speed to lead.",
   },
   {
-    name: "FINCHAL",
-    vertical: "Financial Services",
-    description: "Built for wealth management and advisory conversations.",
+    name: "GLOBAL TEAMS",
+    description: "Built for companies operating across regions, markets, and time zones.",
   },
   {
-    name: "GRACE",
-    vertical: "Final Expense",
-    description: "Empathetic, compliant, and senior-friendly.",
+    name: "74 LANGUAGES",
+    description: "Supports multilingual outreach, voice, and follow-up across your buyer markets.",
   },
   {
-    name: "MEDI",
-    vertical: "Medicare",
-    description: "AEP-aware, dual-eligible-aware, plan-fluent.",
+    name: "REGULATED CATEGORIES",
+    description: "For industries where compliance and message precision are not optional.",
   },
   {
-    name: "TALENT SCOUT",
-    vertical: "Recruiting",
-    description: "Sources, qualifies, and books candidate calls.",
+    name: "HIGH-CONSIDERATION PURCHASES",
+    description: "For offers that require education, trust, and more than one touch to convert.",
   },
   {
-    name: "SAAS SCOUT",
-    vertical: "B2B SaaS",
-    description: "Knows ICPs, MEDDIC, and modern sales cadences.",
+    name: "INBOUND & OUTBOUND",
+    description: "For teams running search, paid, email, voice, and follow-up from one system.",
   },
   {
-    name: "REALTY",
-    vertical: "Real Estate",
-    description: "Buyer and seller workflows for residential and commercial.",
+    name: "CUSTOM CONFIGURATIONS",
+    description: "For companies with workflows, buyers, or constraints that do not fit a template.",
   },
 ]
 
@@ -90,36 +82,33 @@ export function VerticalsSection() {
   return (
     <section ref={sectionRef} id="verticals" className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-12 md:mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">09 / INDUSTRIES</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">08 / CONFIGURATION</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Pre-built for your vertical.
+          Built for B2B, B2C, and global teams.
         </h2>
         <p className="mt-4 font-mono text-sm text-muted-foreground max-w-3xl leading-relaxed">
-          Eight vertical specialists ship with Hubbly. Each is a pre-configured persona that runs on top of the 12-agent system. Pick yours at signup.
+          Hubbly is one growth engine for companies selling to businesses, consumers, or both. It adapts to your market, buying cycle, channels, compliance requirements, and language — without changing the core system.
         </p>
       </div>
 
       <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        {agents.map((agent, index) => (
+        {configurations.map((config, index) => (
           <div
             key={index}
             className="border border-border/50 bg-card/30 p-5 md:p-6 hover:border-accent/50 transition-colors duration-300"
           >
-            <h3 className="font-[var(--font-bebas)] text-xl md:text-2xl tracking-tight text-foreground mb-1">
-              {agent.name}
+            <h3 className="font-[var(--font-bebas)] text-lg md:text-2xl tracking-tight text-accent mb-3 text-balance">
+              {config.name}
             </h3>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent mb-3">
-              {agent.vertical}
-            </p>
             <p className="font-mono text-xs text-muted-foreground leading-relaxed">
-              {agent.description}
+              {config.description}
             </p>
           </div>
         ))}
       </div>
 
       <p className="mt-10 md:mt-12 text-center font-mono text-sm text-muted-foreground">
-        Don&apos;t see your vertical? Hubbly supports custom verticals on Pro tier and above.
+        One growth engine, configured across markets and languages.
       </p>
     </section>
   )

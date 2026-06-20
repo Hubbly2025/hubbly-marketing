@@ -13,22 +13,27 @@ const steps = [
   {
     number: "01",
     title: "Analyze the business",
-    description: "Hubbly ingests your website, offer, market, and positioning to understand what you sell and who should buy.",
+    description: "Hubbly ingests your website, offer, market, and positioning to understand what you sell, where you fit, and what should drive demand.",
   },
   {
     number: "02",
-    title: "Build the ICP",
-    description: "It maps your best-fit buyer profile, filters low-intent prospects, and identifies the accounts worth pursuing.",
+    title: "Map the market",
+    description: "It identifies your best-fit buyers, scouts competitors, benchmarks strengths and weaknesses, and reads the search landscape to find where you can win.",
   },
   {
     number: "03",
-    title: "Launch execution",
-    description: "Hubbly writes copy, enriches contacts, sends email, places voice calls, and adapts sequences from live signals.",
+    title: "Build the strategy",
+    description: "Hubbly turns that intelligence into ICP logic, campaign direction, SEO opportunities, creative recommendations, and workflow priorities.",
   },
   {
     number: "04",
-    title: "Book and learn",
-    description: "Meetings, replies, objections, and conversion patterns feed back into the system so every cycle gets sharper.",
+    title: "Launch execution",
+    description: "Specialized agents coordinate outreach, voice, replies, booking, and optimization from the approved strategy.",
+  },
+  {
+    number: "05",
+    title: "Learn and improve",
+    description: "Meetings, replies, objections, and conversion data feed back into the system so every cycle becomes sharper than the last.",
   },
 ]
 
@@ -105,14 +110,14 @@ export function HowItWorksSection() {
       {/* Pull quote */}
       <div className="mb-8 border-l-2 border-accent pl-4 md:pl-6 max-w-3xl">
         <p className="font-mono text-xs md:text-sm text-foreground uppercase tracking-widest">
-          You approve. Hubbly executes. No agents running wild in the background.
+          You approve the strategy. Hubbly runs the work.
         </p>
       </div>
 
       {/* Header */}
       <div className="how-header mb-12 md:mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">04 / AGENT PATHS</span>
-        <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">URL in. Pipeline out.</h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">04 / HOW IT WORKS</span>
+        <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">From market intelligence to coordinated execution.</h2>
       </div>
 
       {/* Two-Row Flow Diagram */}
@@ -273,7 +278,7 @@ export function HowItWorksSection() {
       {/* Closing statement */}
       <div className="mt-10 border-l-2 border-accent pl-6 max-w-2xl">
         <p className="font-mono text-sm text-foreground uppercase tracking-widest">
-          You step in when there is a real conversation to have. Not before.
+          Five approval gates between intelligence and execution. Your team stays in control.
         </p>
       </div>
     </section>

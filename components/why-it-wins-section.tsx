@@ -11,24 +11,24 @@ if (typeof window !== "undefined") {
 
 const cards = [
   {
-    title: "Verified, not guessed",
-    description: "Every lead is verified against 498M records and 43K intent topics before it touches your pipeline. No list spray. No guessing. No waste.",
+    title: "Built on signal, not static lists",
+    description: "Hubbly identifies in-market buyers from verified records, intent signals, search behavior, and competitor context before anything touches your pipeline.",
   },
   {
     title: "Coordinated, not fragmented",
-    description: "Email, voice, inbox, and booking all run from the same memory. When a buyer replies, every agent already knows the full history.",
+    description: "SEO, outbound, voice, replies, booking, and CRM sync operate from the same memory, so every function acts on the same intelligence.",
   },
   {
-    title: "Systematic, not manual",
-    description: "Your reps stop juggling Apollo, Clay, Instantly, Smartlead, Aircall, and Calendly. Hubbly replaces all of it with one interface.",
+    title: "Strategic, not generic",
+    description: "Hubbly does not just automate tasks. It builds a growth thesis from your market, then executes against it.",
   },
   {
-    title: "Priced for outcome, not seats",
-    description: "Pay for leads and voice minutes, not per-seat licenses. Your team can grow without your bill exploding.",
+    title: "Governed, not chaotic",
+    description: "Human approvals sit between intelligence and execution, so your team controls what goes live and how the system behaves.",
   },
   {
-    title: "Approved, not autonomous",
-    description: "Five approval gates between intelligence and execution. You review the company profile, the ICP, the strategy, the creative — then Hubbly runs. No agents talking to agents in the background. No surprises. You stay in control of every campaign that goes live.",
+    title: "Built for outcomes, not tool sprawl",
+    description: "Instead of adding another point solution, Hubbly consolidates growth work into one operating layer.",
   },
 ]
 
@@ -80,9 +80,9 @@ export function WhyItWinsSection() {
   return (
     <section ref={sectionRef} id="why-it-wins" className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-12 md:mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">06 / REPLACEMENT</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">05 / WHY HUBBLY</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Built for <HighlightText>signal</HighlightText>. Not list spray.
+          Everything required to turn <HighlightText>market intelligence</HighlightText> into pipeline.
         </h2>
       </div>
 

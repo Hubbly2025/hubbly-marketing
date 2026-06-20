@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
-export function StickyHeader() {
+export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
@@ -35,26 +35,61 @@ export function StickyHeader() {
     }
   }
 
+  const goHome = () => {
+    const hero = document.getElementById("hero")
+    if (window.location.pathname === "/" && hero) {
+      hero.scrollIntoView({ behavior: "smooth" })
+    } else {
+      window.location.href = "/"
+    }
+  }
+
   return (
     <header
+      style={{ top: withTicker && !isScrolled ? "2.5rem" : "0" }}
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed left-0 right-0 z-50 transition-all duration-300",
         isScrolled ? "bg-background/90 backdrop-blur-md border-b border-border/30" : "bg-transparent",
         isVisible ? "translate-y-0" : "-translate-y-full"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <div className="max-w-7xl mx-auto px-4 md:pl-24 md:pr-6">
         <nav className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <button 
-            onClick={() => scrollToSection("hero")}
+            onClick={goHome}
+            aria-label="Go to home page"
             className="font-mono text-sm md:text-base font-bold tracking-wider text-foreground hover:text-accent transition-colors"
           >
-            HUBBLY<span className="text-accent">.</span>
+            HUBBLY<span className="text-accent tracking-normal -ml-1">.io</span>
           </button>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            <a
+              href="/autopilot"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              SEO on Autopilot
+            </a>
+            <a
+              href="/signal"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Signal
+            </a>
+            <a
+              href="/voice"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Voice
+            </a>
+            <a
+              href="/send"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Send
+            </a>
             <a
               href="/architecture"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
@@ -67,12 +102,6 @@ export function StickyHeader() {
             >
               How It Works
             </button>
-            <a
-              href="/waitlist"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Join Waitlist
-            </a>
             <button
               onClick={() => scrollToSection("audit")}
               className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
@@ -84,7 +113,7 @@ export function StickyHeader() {
           {/* Mobile CTA */}
           <button
             onClick={() => scrollToSection("audit")}
-            className="md:hidden font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
+            className="md:hidden inline-flex items-center min-h-[40px] font-mono text-[11px] uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
           >
             Free Audit
           </button>

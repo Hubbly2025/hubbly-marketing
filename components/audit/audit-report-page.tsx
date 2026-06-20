@@ -1,73 +1,27 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-
-type Persona = {
-  title?: string
-  company_size?: string
-  pain_point?: string
-  trigger?: string
-}
-
-type Competitor = {
-  name?: string
-  their_angle?: string
-  their_weakness?: string
-  your_opening?: string
-}
-
-type SampleEmail = {
-  subject?: string
-  body?: string
-}
-
-type Audit = {
-  id: string
-  url: string
-  status: "processing" | "complete" | "failed"
-  error_message?: string | null
-  created_at?: string
-  completed_at?: string
-  analysis?: {
-    company_name?: string
-    product?: string
-    industry?: string
-    icp?: {
-      primary?: Persona
-      secondary?: Persona
-      emerging?: Persona
-    }
-    competitors?: Competitor[]
-    gtm_gaps?: string[]
-    outreach_angle?: string
-    sample_email?: SampleEmail
-    error?: string
-  }
-  competitors?: Competitor[]
-  intent_data?: {
-    monthly?: number
-    weekly?: number
-    highIntent?: number
-    high_intent?: number
-    label?: string
-    top_signals?: string[]
-    geographies?: Array<{ region?: string; count?: number }>
-  }
-  gtm_plan?: {
-    week_1?: Record<string, unknown>
-    week_2_3?: Record<string, unknown>
-    week_4?: Record<string, unknown>
-  }
-  sample_email?: SampleEmail
-}
-
-const A16Z_WRONG_EMAIL_BODY =
-  "Saw your team led the 'No Man Left Behind' piece on American tech values. We're building autonomous targeting systems that put US warfighters first while competitors focus on commercial applications. Our defense contracts are growing 40% MoM but we need strategic guidance navigating Pentagon procurement while scaling commercial dual-use. Would 15 minutes next week work to discuss if American Dynamism invests at our stage?"
-
-const A16Z_CORRECTED_EMAIL: Required<SampleEmail> = {
-  subject: "American Dynamism + your defense AI momentum",
-  body: "Noticed your team's defense AI work putting US warfighters first while competitors chase commercial applications. Your 40% MoM contract growth and Pentagon procurement focus aligns with American Dynamism's mandate - backing founders rebuilding America's defense industrial base. We've helped portfolio companies navigate DoD procurement while scaling dual-use commercial applications. Worth 15 minutes to explore if we're a fit for your next round?",
-}
+import type { Audit } from "./types"
+import {
+  A16Z_CORRECTED_EMAIL,
+  formatDate,
+  formatNumber,
+  getDomain,
+  isAndreessenHorowitzReport,
+  replacePlanEmailPov,
+} from "./audit-utils"
+import {
+  ChecklistItem,
+  CorrectionNote,
+  FailedState,
+  HubblyLogo,
+  MetricCard,
+  PersonaCard,
+  PlanColumn,
+  ProcessingState,
+  ReportSection,
+  SnapshotRow,
+} from "./report-parts"
 
 export function AuditReportPage({ auditId }: { auditId: string }) {
   const [audit, setAudit] = useState<Audit | null>(null)
@@ -120,42 +74,6 @@ export function AuditReportPage({ auditId }: { auditId: string }) {
   return <CompleteReport audit={audit} />
 }
 
-function ProcessingState() {
-  return (
-    <main className="min-h-screen bg-[#0A0A0A] px-6 py-12 text-white">
-      <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-xl flex-col items-center justify-center text-center">
-        <HubblyLogo />
-        <div className="mt-10 h-3 w-3 animate-pulse rounded-full bg-[#FF6B35]" />
-        <h1 className="mt-6 font-[var(--font-bebas)] text-4xl tracking-tight md:text-6xl">
-          Your report is almost ready...
-        </h1>
-      </div>
-    </main>
-  )
-}
-
-function FailedState({ message }: { message?: string | null }) {
-  return (
-    <main className="min-h-screen bg-[#0A0A0A] px-6 py-12 text-white">
-      <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-xl flex-col items-center justify-center text-center">
-        <HubblyLogo />
-        <h1 className="mt-10 font-[var(--font-bebas)] text-4xl tracking-tight md:text-6xl">
-          We couldn't analyze that site.
-        </h1>
-        <p className="mt-4 max-w-lg font-mono text-sm leading-6 text-white/60">
-          {message || "It may block automated tools or require JavaScript. Try a different URL or enter your company details manually."}
-        </p>
-        <a
-          href="/#close"
-          className="mt-8 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-colors duration-200 hover:opacity-90"
-        >
-          Try a different URL →
-        </a>
-      </div>
-    </main>
-  )
-}
-
 function CompleteReport({ audit }: { audit: Audit }) {
   const analysis = audit.analysis ?? {}
   const domain = useMemo(() => getDomain(audit.url), [audit.url])
@@ -168,14 +86,6 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const isA16zReport = isAndreessenHorowitzReport(audit, companyName, domain)
   const sampleEmail = isA16zReport ? A16Z_CORRECTED_EMAIL : audit.sample_email ?? analysis.sample_email ?? {}
   const displayedGtmPlan = isA16zReport ? replacePlanEmailPov(audit.gtm_plan) : audit.gtm_plan
-  const waitlistUrl = `/waitlist?${new URLSearchParams({
-    audit_id: audit.id,
-    url: audit.url,
-    prospects: String(monthly || ""),
-    competitors: String((competitors ?? []).length || ""),
-    score: String(intent.highIntent || intent.high_intent || ""),
-    source: "audit_report",
-  }).toString()}`
   const generatedDate = formatDate(audit.completed_at || audit.created_at)
 
   return (
@@ -333,7 +243,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
                   identifiable visitors per month for companies in {analysis.industry || "this industry"}.
                 </p>
                 <a
-                  href={waitlistUrl}
+                  href="/demo"
                   className="mt-6 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-5 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
                 >
                   Install the Hubbly Pixel — Free →
@@ -417,14 +327,8 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </div>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <a
-                href={waitlistUrl}
-                className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
-              >
-                Join the Waitlist →
-              </a>
-              <a
                 href="/demo"
-                className="inline-flex min-h-12 items-center justify-center border border-white/25 px-6 font-mono text-xs uppercase tracking-widest text-white transition-colors duration-200 hover:border-[#FF6B35] hover:text-[#FF6B35]"
+                className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
               >
                 Book a Demo →
               </a>
@@ -434,202 +338,4 @@ function CompleteReport({ audit }: { audit: Audit }) {
       </div>
     </main>
   )
-}
-
-function ReportSection({
-  eyebrow,
-  title,
-  children,
-}: {
-  eyebrow: string
-  title: string
-  children: React.ReactNode
-}) {
-  return (
-    <section className="border-t border-[#FF6B35]/50 pt-6">
-      <div className="mb-8 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF6B35]">{eyebrow}</p>
-        <h2 className="font-[var(--font-bebas)] text-4xl leading-none tracking-tight text-white md:text-6xl">
-          {title}
-        </h2>
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function CorrectionNote({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mb-5 border border-[#FF6B35]/30 bg-[#FF6B35]/[0.06] p-3 font-mono text-xs leading-6 text-[#FFB199]">
-      {children}
-    </p>
-  )
-}
-
-function SnapshotRow({ label, value }: { label: string; value?: string }) {
-  return (
-    <div className="border border-white/10 bg-white/[0.03] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF6B35]">{label}</p>
-      <p className="mt-3 text-sm leading-6 text-white/78">{value || "Not enough public data to determine confidently"}</p>
-    </div>
-  )
-}
-
-function PersonaCard({ label, persona }: { label: string; persona?: Persona }) {
-  return (
-    <div className="border border-white/10 bg-white/[0.03] p-5">
-      <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#FF6B35]">{label}</p>
-      <h3 className="mt-4 text-xl font-semibold text-white">{persona?.title || "Buyer title unavailable"}</h3>
-      <dl className="mt-5 space-y-4 text-sm">
-        <Detail label="Company size" value={persona?.company_size} />
-        <Detail label="Pain point" value={persona?.pain_point} />
-        <Detail label="Trigger" value={persona?.trigger} />
-      </dl>
-    </div>
-  )
-}
-
-function Detail({ label, value }: { label: string; value?: string }) {
-  return (
-    <div>
-      <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">{label}</dt>
-      <dd className="mt-1 leading-6 text-white/72">{value || "Unavailable"}</dd>
-    </div>
-  )
-}
-
-function MetricCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border border-white/10 bg-[#0A0A0A]/50 p-5">
-      <p className="font-[var(--font-bebas)] text-5xl leading-none text-white">{value}</p>
-      <p className="mt-2 font-mono text-xs uppercase tracking-[0.14em] text-white/50">{label}</p>
-    </div>
-  )
-}
-
-function ChecklistItem({ complete = false, label }: { complete?: boolean; label: string }) {
-  return (
-    <div className="flex items-center gap-3 border border-white/10 bg-white/[0.03] p-4">
-      <span className={complete ? "text-emerald-400" : "text-red-400"}>{complete ? "✓" : "✗"}</span>
-      <span className="text-sm text-white/76">{label}</span>
-    </div>
-  )
-}
-
-function PlanColumn({ title, items }: { title: string; items?: Record<string, unknown> }) {
-  return (
-    <div className="border border-white/10 bg-white/[0.03] p-5">
-      <h3 className="font-mono text-xs uppercase tracking-[0.2em] text-[#FF6B35]">{title}</h3>
-      <div className="mt-5 space-y-4">
-        {Object.entries(items ?? {}).map(([key, value]) => (
-          <div key={key}>
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/40">
-              {key.replace(/_/g, " ")}
-            </p>
-            <p className="mt-1 text-sm leading-6 text-white/72">{formatPlanValue(value)}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function HubblyLogo() {
-  return (
-    <a href="/" className="inline-flex items-center gap-3" aria-label="Hubbly home">
-      <span className="flex h-9 w-9 items-center justify-center border border-[#FF6B35] text-[#FF6B35]">
-        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" />
-          <path d="M8.5 9.5L12 7.5L15.5 9.5V14.5L12 16.5L8.5 14.5V9.5Z" />
-        </svg>
-      </span>
-      <span className="font-mono text-xs uppercase tracking-[0.3em] text-white">Hubbly</span>
-    </a>
-  )
-}
-
-function getDomain(url: string) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "")
-  } catch {
-    return url
-  }
-}
-
-function formatDate(value?: string) {
-  if (!value) return new Date().toLocaleDateString()
-
-  return new Date(value).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
-
-function formatNumber(value: number) {
-  return new Intl.NumberFormat("en-US").format(value)
-}
-
-function formatPlanValue(value: unknown): string {
-  if (!value) return "Unavailable"
-
-  if (typeof value === "string" || typeof value === "number") {
-    return String(value)
-  }
-
-  if (typeof value === "object") {
-    return Object.entries(value as Record<string, unknown>)
-      .map(([key, entry]) => `${key.replace(/_/g, " ")}: ${String(entry)}`)
-      .join(" · ")
-  }
-
-  return String(value)
-}
-
-function isAndreessenHorowitzReport(audit: Audit, companyName: string, domain: string) {
-  const haystack = [
-    audit.url,
-    domain,
-    companyName,
-    audit.analysis?.company_name,
-    audit.analysis?.product,
-    audit.analysis?.industry,
-    audit.analysis?.outreach_angle,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase()
-
-  return (
-    haystack.includes("andreessen") ||
-    haystack.includes("a16z") ||
-    haystack.includes("american dynamism")
-  )
-}
-
-function replacePlanEmailPov(plan: Audit["gtm_plan"]): Audit["gtm_plan"] {
-  if (!plan) return plan
-
-  return replaceNestedValue(plan) as Audit["gtm_plan"]
-}
-
-function replaceNestedValue(value: unknown): unknown {
-  if (typeof value === "string") {
-    return value.replace(A16Z_WRONG_EMAIL_BODY, A16Z_CORRECTED_EMAIL.body)
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((entry) => replaceNestedValue(entry))
-  }
-
-  if (value && typeof value === "object") {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
-        key,
-        replaceNestedValue(entry),
-      ]),
-    )
-  }
-
-  return value
 }

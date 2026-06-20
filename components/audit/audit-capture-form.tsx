@@ -93,7 +93,9 @@ export function AuditCaptureForm({ auditId }: { auditId: string }) {
               <path d="M8.5 9.5L12 7.5L15.5 9.5V14.5L12 16.5L8.5 14.5V9.5Z" />
             </svg>
           </span>
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-foreground">Hubbly</span>
+          <span className="font-mono text-xs uppercase tracking-[0.3em] text-foreground">
+            Hubbly<span className="text-accent">.io</span>
+          </span>
         </a>
 
         <section className="w-full border border-border/40 bg-card/30 p-6 md:p-10">

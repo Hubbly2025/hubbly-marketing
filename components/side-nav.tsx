@@ -67,15 +67,6 @@ export function SideNav() {
               )}
               aria-hidden="true"
             />
-            <span
-              className={cn(
-                "absolute left-6 font-mono text-[9px] uppercase tracking-widest opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:left-8 whitespace-nowrap",
-                activeSection === id ? "text-accent" : "text-muted-foreground",
-              )}
-              aria-hidden="true"
-            >
-              {label}
-            </span>
           </button>
         ))}
       </div>

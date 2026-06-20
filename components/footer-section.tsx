@@ -38,44 +38,44 @@ export function FooterSection() {
         <div>
           <h4 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Product</h4>
           <ul className="space-y-3">
-            <li><a href="/architecture" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Architecture</a></li>
-            <li><a href="#how-it-works" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">How Hubbly works</a></li>
-            <li><a href="/platform" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Platform</a></li>
-            <li><a href="#faq" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">FAQ</a></li>
-            <li><a href="/demo" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Get pricing</a></li>
+            <li><a href="/architecture" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Architecture</a></li>
+            <li><a href="#how-it-works" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">How Hubbly works</a></li>
+            <li><a href="/platform" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Platform</a></li>
+            <li><a href="#faq" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">FAQ</a></li>
+            <li><a href="/demo" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Get pricing</a></li>
           </ul>
         </div>
         <div>
           <h4 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Use Cases</h4>
           <ul className="space-y-3">
-            <li><a href="/use-cases/ai-sales-automation" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">AI sales automation</a></li>
-            <li><a href="/use-cases/autonomous-outbound" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Autonomous outbound</a></li>
-            <li><a href="/use-cases/lead-generation-automation" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Lead generation</a></li>
+            <li><a href="/use-cases/ai-sales-automation" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">AI sales automation</a></li>
+            <li><a href="/use-cases/autonomous-outbound" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Autonomous outbound</a></li>
+            <li><a href="/use-cases/lead-generation-automation" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Lead generation</a></li>
           </ul>
         </div>
         <div>
           <h4 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Industries</h4>
           <ul className="space-y-3">
-            <li><a href="/industries/insurance" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Insurance</a></li>
-            <li><a href="/industries/mortgage" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Mortgage</a></li>
-            <li><a href="/industries/agencies" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Agencies</a></li>
-            <li><a href="/industries/financial-services" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Financial services</a></li>
+            <li><a href="/industries/insurance" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Insurance</a></li>
+            <li><a href="/industries/mortgage" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Mortgage</a></li>
+            <li><a href="/industries/agencies" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Agencies</a></li>
+            <li><a href="/industries/financial-services" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Financial services</a></li>
           </ul>
         </div>
         <div>
           <h4 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Company</h4>
           <ul className="space-y-3">
-            <li><a href="https://twitter.com/hubblyio" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Twitter</a></li>
-            <li><a href="https://www.linkedin.com/company/hubbly-io" target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">LinkedIn</a></li>
-            <li><a href="mailto:hello@hubbly.io" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Contact us</a></li>
-            <li><a href="/demo" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Book a demo</a></li>
+            <li><a href="https://twitter.com/hubblyio" target="_blank" rel="noopener noreferrer" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Twitter</a></li>
+            <li><a href="https://www.linkedin.com/company/hubbly-io" target="_blank" rel="noopener noreferrer" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">LinkedIn</a></li>
+            <li><a href="mailto:hello@hubbly.io" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Contact us</a></li>
+            <li><a href="/demo" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Book a demo</a></li>
           </ul>
         </div>
         <div>
           <h4 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Legal</h4>
           <ul className="space-y-3">
-            <li><a href="/privacy-policy" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Privacy policy</a></li>
-            <li><a href="/terms-of-service" className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Terms of service</a></li>
+            <li><a href="/privacy-policy" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Privacy policy</a></li>
+            <li><a href="/terms-of-service" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Terms of service</a></li>
           </ul>
         </div>
       </div>
@@ -101,7 +101,7 @@ export function FooterSection() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <span className="font-mono text-sm text-muted-foreground">Austin, Texas</span>
           <span className="hidden sm:inline text-muted-foreground/40">|</span>
-          <span className="font-mono text-sm text-muted-foreground">Hubbly is the autonomous revenue operating system for modern growth teams.</span>
+          <span className="font-mono text-sm text-muted-foreground">Hubbly is the autonomous growth engine for modern enterprise teams.</span>
         </div>
         <p className="font-mono text-sm text-muted-foreground">
           © 2026 Hubbly. All rights reserved.

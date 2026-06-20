@@ -43,11 +43,11 @@ export function ProductSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Hubbly Autonomous Revenue Operating System",
+    name: "Hubbly Autonomous Growth Engine",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "Hubbly is an autonomous revenue operating system that turns a website, offer, and market position into a live pipeline engine through 12 specialized revenue agents, shared memory, and human approval gates.",
+      "Hubbly is an autonomous growth engine that turns a website, offer, and market position into a live pipeline engine through 12 specialized agents, shared memory, and human approval gates.",
     url: siteUrl,
     brand: {
       "@type": "Brand",

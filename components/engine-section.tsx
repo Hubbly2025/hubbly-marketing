@@ -264,12 +264,12 @@ export function EngineSection() {
   return (
     <section ref={sectionRef} id="engine" className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-12 md:mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">03 / FUNNEL</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">03 / SYSTEM</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Twelve agents. One memory. Zero handoff loss.
+          A coordinated agent system, built on shared memory.
         </h2>
         <p className="mt-4 font-mono text-sm text-muted-foreground max-w-3xl">
-          Every agent has a defined role. Every action feeds the same operating memory. No disconnected tools. No lost context.
+          Every agent has a role. Every workflow runs from the same context. Research, targeting, messaging, voice, replies, booking, and optimization stay aligned because every agent learns from the same system.
         </p>
       </div>
 
@@ -277,27 +277,30 @@ export function EngineSection() {
       <div ref={visualRef}>
         <div className="flex items-center justify-center gap-3 mb-6">
           <div className="h-[1px] w-8 bg-accent/40" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Understand · Execute · Improve</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">One memory across intelligence, execution, and improvement</span>
           <div className="h-[1px] w-8 bg-accent/40" />
         </div>
         <AgentNetwork />
         <div className="mt-6 text-center">
           <span className="font-mono text-xs text-muted-foreground">
-            12 agents organized in 3 layers, sharing one operating memory.
+            12 specialized agents. 3 operating layers. 1 shared memory.
           </span>
         </div>
       </div>
 
       <div ref={contentRef} className="max-w-3xl mt-12 md:mt-16">
         <p className="font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
-          Every agent in Hubbly works from the same shared context, so research, scoring, copy, voice, and booking stay aligned from first signal to scheduled meeting.
+          Every agent in Hubbly works from the same shared context, so market analysis, scoring, copy, voice, and booking stay connected from first signal to scheduled meeting.
         </p>
         <a
           href="/architecture"
           className="inline-block mt-6 font-mono text-xs uppercase tracking-widest text-accent hover:text-accent/80 transition-colors"
         >
-          Explore the 12-agent system and shared memory layer →
+          Explore the system architecture →
         </a>
+        <p className="mt-8 font-mono text-xs md:text-sm text-foreground uppercase tracking-widest border-l-2 border-accent pl-4 md:pl-6">
+          You approve the strategy. Hubbly runs the work.
+        </p>
       </div>
     </section>
   )

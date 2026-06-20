@@ -44,14 +44,14 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Hubbly — Autonomous Revenue OS",
+    default: "Hubbly — Autonomous Growth Engine",
     template: "%s | Hubbly",
   },
   description:
-    "Drop your website in and Hubbly goes to work — analyzing your business, mapping your market, building campaigns, running outreach, placing calls, and booking meetings. 12 agents. 3 layers. 1 autonomous revenue OS.",
+    "Drop your website in and Hubbly goes to work — analyzing your business, mapping your market, building campaigns, running outreach, placing calls, and booking meetings. 12 agents. 3 layers. 1 autonomous growth engine.",
   applicationName: "Hubbly",
   keywords: [
-    "autonomous revenue OS",
+    "autonomous growth engine",
     "AI sales automation",
     "autonomous outbound",
     "AI SDR platform",
@@ -70,15 +70,15 @@ export const metadata: Metadata = {
     url: `${siteUrl}/`,
     siteName: "Hubbly",
     locale: "en_US",
-    title: "Hubbly — Autonomous Revenue OS",
+    title: "Hubbly — Autonomous Growth Engine",
     description:
-      "Drop your website in. Hubbly goes to work. 12 agents. 3 layers. 1 autonomous revenue OS.",
+      "Drop your website in. Hubbly goes to work. 12 agents. 3 layers. 1 autonomous growth engine.",
     images: [
       {
         url: "/og/hubbly-og.png",
         width: 1200,
         height: 630,
-        alt: "Hubbly — Autonomous Revenue OS",
+        alt: "Hubbly — Autonomous Growth Engine",
       },
     ],
   },
@@ -88,8 +88,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@hubblyio",
     creator: "@hubblyio",
-    title: "Hubbly — Autonomous Revenue OS",
-    description: "Drop your website in. Hubbly goes to work. 12 agents. 3 layers. 1 autonomous revenue OS.",
+    title: "Hubbly — Autonomous Growth Engine",
+    description: "Drop your website in. Hubbly goes to work. 12 agents. 3 layers. 1 autonomous growth engine.",
     images: ["/og/hubbly-og.png"],
   },
 
