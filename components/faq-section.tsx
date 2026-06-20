@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     question: "Who is Hubbly for?",
-    answer: "Hubbly is built for growth teams, agencies, insurance organizations, mortgage teams, financial services businesses, and B2B SaaS operators that want more output with less fragmentation.",
+    answer: "Hubbly is for B2B and B2C companies that want one system to understand their market, find buyers, and coordinate growth across channels.",
   },
   {
     question: "What does Hubbly replace?",
@@ -32,7 +32,11 @@ const faqs = [
   },
   {
     question: "Does Hubbly support industry-specific workflows?",
-    answer: "Yes. Hubbly supports verticalized workflows across industries such as insurance, mortgage, financial services, agencies, and B2B SaaS.",
+    answer: "Yes. The core engine stays the same. The language, approvals, workflows, and compliance logic adapt to your market.",
+  },
+  {
+    question: "Does Hubbly support international and multilingual workflows?",
+    answer: "Yes. Hubbly supports international teams and operates across 74 languages for outreach, voice, follow-up, and reporting.",
   },
   {
     question: "Does Hubbly work with our existing CRM and tools?",
