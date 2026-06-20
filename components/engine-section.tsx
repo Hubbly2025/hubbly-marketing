@@ -266,10 +266,10 @@ export function EngineSection() {
       <div ref={headerRef} className="mb-12 md:mb-16">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">03 / SYSTEM</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          A coordinated agent system with shared memory.
+          A coordinated agent system, built on shared memory.
         </h2>
         <p className="mt-4 font-mono text-sm text-muted-foreground max-w-3xl">
-          Every agent has a defined role. Every workflow runs from the same operating context. Research, targeting, messaging, voice, replies, booking, and optimization stay aligned because the system learns across every step instead of breaking across tools.
+          Every agent has a role. Every workflow runs from the same context. Research, targeting, messaging, voice, replies, booking, and optimization stay aligned because every agent learns from the same system.
         </p>
       </div>
 
@@ -283,7 +283,7 @@ export function EngineSection() {
         <AgentNetwork />
         <div className="mt-6 text-center">
           <span className="font-mono text-xs text-muted-foreground">
-            12 agents organized in 3 layers, sharing one operating memory.
+            12 specialized agents. 3 operating layers. 1 shared memory.
           </span>
         </div>
       </div>
