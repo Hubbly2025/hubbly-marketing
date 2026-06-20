@@ -172,7 +172,13 @@ export function SignalExperience() {
     <div className="bg-background text-foreground">
       {/* NAV */}
       <nav className="fixed inset-x-0 top-0 z-[90] flex items-center justify-between px-6 py-5 mix-blend-difference md:px-8">
-        <span className="font-mono text-sm font-bold tracking-[0.04em] text-foreground">HUBBLY SIGNAL</span>
+        <a
+          href="/"
+          aria-label="Go to Hubbly home page"
+          className="font-mono text-sm font-bold tracking-[0.04em] text-foreground transition-opacity hover:opacity-70"
+        >
+          HUBBLY SIGNAL
+        </a>
         <a
           href="#close"
           className="rounded-full border border-current px-4 py-2 font-mono text-[11px] tracking-[0.16em] text-foreground transition-opacity hover:opacity-70"

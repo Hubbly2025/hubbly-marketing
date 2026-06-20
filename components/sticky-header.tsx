@@ -35,6 +35,15 @@ export function StickyHeader() {
     }
   }
 
+  const goHome = () => {
+    const hero = document.getElementById("hero")
+    if (window.location.pathname === "/" && hero) {
+      hero.scrollIntoView({ behavior: "smooth" })
+    } else {
+      window.location.href = "/"
+    }
+  }
+
   return (
     <header
       className={cn(
@@ -47,7 +56,8 @@ export function StickyHeader() {
         <nav className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <button 
-            onClick={() => scrollToSection("hero")}
+            onClick={goHome}
+            aria-label="Go to home page"
             className="font-mono text-sm md:text-base font-bold tracking-wider text-foreground hover:text-accent transition-colors"
           >
             HUBBLY<span className="text-accent">.</span>
