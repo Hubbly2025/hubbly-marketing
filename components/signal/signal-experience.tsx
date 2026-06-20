@@ -244,6 +244,23 @@ export function SignalExperience() {
             <br />
             the moment you arrived.
           </h1>
+          <p
+            className={`mt-8 max-w-xl font-mono text-sm leading-relaxed text-muted-foreground transition-all duration-700 md:text-base ${
+              showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
+            }`}
+            style={{ transitionDelay: "150ms" }}
+          >
+            That&apos;s <span className="text-accent">Signal</span>. It turns anonymous visitors into named, in-market
+            buyers — the same way, on your site, in real time.
+          </p>
+          <p
+            className={`mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 transition-all duration-700 ${
+              showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
+            }`}
+            style={{ transitionDelay: "300ms" }}
+          >
+            Privacy-safe · Nothing from this demo is stored
+          </p>
           <div className="mt-10 font-[var(--font-bebas)] text-[clamp(20px,3vw,34px)] font-normal leading-[1.18] tracking-[0.01em] text-foreground/55">
             {["Hubbly Signal detects intent.", "Resolves identity.", "Sets the rest of Hubbly in motion."].map(
               (line, i) => (
