@@ -85,6 +85,36 @@ export function HeroSection() {
           12 specialized agents. 3 operating layers. 1 autonomous growth engine.
         </p>
 
+        <div className="mt-8 md:mt-10 grid grid-cols-1 sm:grid-cols-3 gap-px border border-border/40 bg-border/40 max-w-4xl">
+          {[
+            {
+              number: "01",
+              title: "Plug in your website.",
+              description: "Hubbly reads your market, competitors, and demand in minutes.",
+            },
+            {
+              number: "02",
+              title: "Autopilot for growth.",
+              description: "It plans who to target, what to say, and when to launch.",
+            },
+            {
+              number: "03",
+              title: "Control when you want it.",
+              description: "You approve the plan. Hubbly runs outreach, voice, and booking.",
+            },
+          ].map((point) => (
+            <div key={point.number} className="flex flex-col bg-background p-4 md:p-5">
+              <span className="font-mono text-[10px] tracking-[0.3em] text-accent">{point.number}</span>
+              <h2 className="mt-3 font-[var(--font-bebas)] text-lg md:text-xl tracking-wide text-foreground text-balance">
+                {point.title}
+              </h2>
+              <p className="mt-2 font-mono text-[11px] md:text-xs text-foreground/55 leading-relaxed text-pretty">
+                {point.description}
+              </p>
+            </div>
+          ))}
+        </div>
+
         <div className="mt-8 md:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6">
           <a
             href="#audit"
