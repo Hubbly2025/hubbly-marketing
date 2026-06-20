@@ -78,7 +78,7 @@ export function HeroSection() {
         </p>
 
         <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
-          Give Hubbly your website. Hubbly learns what you sell, who your best customers are, who you compete with, and what messages should move the market. Then its 12 agents turn that intelligence into action — building campaigns, finding buyers, sending outreach, placing calls, qualifying replies, booking meetings, and feeding every result back into the system.
+          Give Hubbly your website. It learns what you sell, who your best buyers are, who you compete against, and what messages will move your market. Then its agents turn that intelligence into action — building campaigns, finding buyers, running outreach, placing calls, qualifying replies, booking meetings, and feeding every result back into the system.
         </p>
 
         <p className="mt-4 font-mono text-xs md:text-sm text-accent tracking-wide">
