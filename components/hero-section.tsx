@@ -70,7 +70,7 @@ export function HeroSection() {
         </h1>
 
         <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/60 leading-relaxed italic">
-          Hubbly analyzes your market, scouts competitors, maps your strengths and gaps, and reads search demand. Then specialized agents coordinate SEO, outbound, voice, and booking — on autopilot, with your team in control.
+          Hubbly analyzes your market, scouts competitors, and activates growth through specialized agents running on autopilot — with your team in control.
         </p>
 
         <p className="mt-3 max-w-2xl font-mono text-[10px] md:text-xs uppercase tracking-[0.15em] text-foreground/45 leading-relaxed">
@@ -78,7 +78,7 @@ export function HeroSection() {
         </p>
 
         <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
-          Give Hubbly your website. It learns what you sell, who your best buyers are, who you compete against, and what messages will move your market. Then its agents turn that intelligence into action — building campaigns, finding buyers, running outreach, placing calls, qualifying replies, booking meetings, and feeding every result back into the system.
+          Give Hubbly your website. It learns your market, identifies where you can win, and turns that intelligence into coordinated execution.
         </p>
 
         <p className="mt-4 font-mono text-xs md:text-sm text-accent tracking-wide">

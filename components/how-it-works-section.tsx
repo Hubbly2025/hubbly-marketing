@@ -110,7 +110,7 @@ export function HowItWorksSection() {
       {/* Pull quote */}
       <div className="mb-8 border-l-2 border-accent pl-4 md:pl-6 max-w-3xl">
         <p className="font-mono text-xs md:text-sm text-foreground uppercase tracking-widest">
-          You approve. Hubbly executes. No agents running wild in the background.
+          You approve the strategy. Hubbly runs the work.
         </p>
       </div>
 
