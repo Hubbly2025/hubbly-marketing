@@ -200,13 +200,13 @@ export default function SendPage() {
           <Reveal>
             <div className="max-w-2xl">
               <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                The standalone tax
+                Why standalone tools break the flow
               </p>
               <h2 className="mt-3.5 font-display text-4xl uppercase leading-tight tracking-tight text-balance md:text-5xl">
-                A sending tool is one piece of five.
+                Sending is one layer. The system is the whole workflow.
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                Instantly and Smartlead are good at the send. The problem is everything you bolt onto
+                Most standalone sending tools handle delivery well. The problem is everything you bolt onto
                 them to get there — and the fact that none of it shares a record.
               </p>
             </div>
@@ -337,7 +337,7 @@ export default function SendPage() {
               }}
             >
               <h2 className="mx-auto max-w-xl font-display text-4xl uppercase leading-[1.05] tracking-tight text-balance md:text-5xl">
-                Stop wiring a sending tool to everything else.
+                Stop stitching outbound together by hand.
               </h2>
               <p className="mx-auto mt-4 max-w-md text-lg text-muted-foreground">
                 Turn on Send and the pipeline feeds it. Leads, copy, and the meeting on the other end —
