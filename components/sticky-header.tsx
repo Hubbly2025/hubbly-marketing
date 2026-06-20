@@ -61,7 +61,7 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
             aria-label="Go to home page"
             className="font-mono text-sm md:text-base font-bold tracking-wider text-foreground hover:text-accent transition-colors"
           >
-            HUBBLY<span className="text-accent">.io</span>
+            HUBBLY<span className="text-accent tracking-normal -ml-1">.io</span>
           </button>
 
           {/* Desktop Navigation */}
