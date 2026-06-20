@@ -77,20 +77,9 @@ export function HeroSection() {
           The strategy of a top firm. The autonomy of a built system. The simplicity of one input.
         </p>
 
-        <div className="mt-6 md:mt-8 grid grid-cols-1 sm:grid-cols-3 gap-px max-w-2xl border border-border/40 bg-border/40">
-          {[
-            { step: "01", label: "Learns your market" },
-            { step: "02", label: "Builds your strategy" },
-            { step: "03", label: "Launches your growth" },
-          ].map((item) => (
-            <div key={item.step} className="bg-background px-4 py-4 md:py-5">
-              <span className="font-mono text-[10px] md:text-xs tracking-[0.2em] text-accent">{item.step}</span>
-              <p className="mt-2 font-[var(--font-bebas)] text-xl md:text-2xl tracking-wide text-foreground leading-none">
-                {item.label}
-              </p>
-            </div>
-          ))}
-        </div>
+        <p className="mt-4 md:mt-6 max-w-2xl font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
+          Give Hubbly your website. It learns what you sell, who your best buyers are, who you compete against, and what messages will move your market. Then its agents turn that intelligence into action — building campaigns, finding buyers, running outreach, placing calls, qualifying replies, booking meetings, and feeding every result back into the system.
+        </p>
 
         <p className="mt-4 font-mono text-xs md:text-sm text-accent tracking-wide">
           12 specialized agents. 3 operating layers. 1 autonomous growth engine.
@@ -109,6 +98,28 @@ export function HeroSection() {
             className="font-mono text-xs md:text-sm uppercase tracking-widest text-foreground/70 hover:text-foreground transition-colors duration-200 border border-border/50 px-5 py-3 md:px-6 md:py-4 text-center min-h-[48px] flex items-center justify-center"
           >
             Join Waitlist & Get 30 Days Free →
+          </a>
+        </div>
+
+        {/* Quick navigation links */}
+        <div className="mt-6 flex flex-wrap items-center gap-4 md:gap-6">
+          <a
+            href="/architecture"
+            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
+          >
+            See the Full Architecture →
+          </a>
+          <a
+            href="#how-it-works"
+            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
+          >
+            See How →
+          </a>
+          <a
+            href="#audit"
+            className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
+          >
+            Start Your Free Audit →
           </a>
         </div>
       </div>
