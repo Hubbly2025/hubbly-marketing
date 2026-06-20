@@ -96,7 +96,7 @@ export default function AutopilotPage() {
           <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-28 pb-16 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                Autopilot · the execution engine
+                Autopilot · the execution layer
               </Reveal>
               <Reveal delay={120}>
                 <h1 className="mt-6 font-[var(--font-bebas)] text-5xl leading-[0.95] tracking-tight sm:text-7xl lg:text-[92px]">
@@ -310,9 +310,8 @@ export default function AutopilotPage() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-4 max-w-[640px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Signal sees your buyers. Autopilot wins the search and AI demand they represent. And where SEO tools
-                  stop, Hubbly keeps going — the same account writes the outreach, places the calls, and books the
-                  meetings.
+                  Autopilot owns the demand. The rest of the growth engine acts on it — Signal finds the buyers, Voice
+                  and Send reach them, and every result feeds back into one shared system.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -321,7 +320,7 @@ export default function AutopilotPage() {
                     SEE THE PLATFORM →
                   </a>
                   <a href="/" className="border-b border-accent/40 pb-[2px] text-accent transition-colors hover:text-accent/80">
-                    SEE THE FULL OS →
+                    SEE THE FULL GROWTH ENGINE →
                   </a>
                 </div>
               </Reveal>
