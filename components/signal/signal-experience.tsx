@@ -268,20 +268,20 @@ export function SignalExperience() {
       </section>
 
       {/* SCENE 2 · THESIS */}
-      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-28 md:px-8">
+      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-32 md:px-8 md:py-44">
         <div className="mx-auto w-full max-w-[1060px]">
           <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
             The problem
           </Reveal>
           <Reveal delay={120}>
-            <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.04] tracking-tight">
+            <h2 className="mt-7 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.02] tracking-tight text-foreground/90">
               Most website demand
               <br />
               never gets identified.
             </h2>
           </Reveal>
           <Reveal delay={240}>
-            <p className="mt-5 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-medium leading-[1.04] tracking-tight text-muted-foreground/50">
+            <p className="mt-8 font-[var(--font-bebas)] text-[clamp(24px,3.4vw,40px)] font-normal leading-[1.12] tracking-tight text-muted-foreground/45">
               They arrive. Evaluate.
               <br />
               Leave. Invisible.
@@ -291,18 +291,18 @@ export function SignalExperience() {
       </section>
 
       {/* SCENE 3 · MIRROR */}
-      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-28 md:px-8">
+      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-32 md:px-8 md:py-44">
         <div className="mx-auto w-full max-w-[1060px]">
           <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
             The demonstration
           </Reveal>
           <Reveal delay={120}>
-            <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.04] tracking-tight">
+            <h2 className="mt-7 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.02] tracking-tight text-foreground/90">
               What intent looks like in session.
             </h2>
           </Reveal>
           <Reveal delay={240}>
-            <p className="mt-5 max-w-[560px] font-mono text-[15px] leading-relaxed text-muted-foreground">
+            <p className="mt-6 max-w-[480px] font-mono text-[14px] leading-relaxed text-muted-foreground/70">
               Everything below was measured live on this page in your browser while you read. On its own, behavior is
               interesting. Resolved identity plus intent is what turns traffic into pipeline.
             </p>
@@ -312,8 +312,11 @@ export function SignalExperience() {
               className="mt-12 max-w-[520px] rounded-2xl border border-border bg-card p-7 font-mono"
               aria-label="Your measured session"
             >
-              <div className="mb-5 flex items-center justify-between text-[10px] tracking-[0.18em] text-accent">
-                <span>SESSION · YOU</span>
+              <div className="mb-5 flex items-center justify-between border-b border-border pb-4 text-[9.5px] tracking-[0.2em] text-muted-foreground/60">
+                <span className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 animate-[pulse_1.6s_infinite] rounded-full bg-accent" />
+                  SESSION · YOU
+                </span>
                 <span>VISITOR #UNRESOLVED</span>
               </div>
               <MirrorRow label="time on page" value={metrics.elapsed} />
@@ -332,27 +335,27 @@ export function SignalExperience() {
       </section>
 
       {/* SCENE 4 · THE TURN */}
-      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-28 md:px-8">
+      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-32 md:px-8 md:py-44">
         <div className="mx-auto w-full max-w-[1060px]">
           <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
             The product
           </Reveal>
           <Reveal delay={120}>
-            <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.04] tracking-tight">
+            <h2 className="mt-7 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.02] tracking-tight text-foreground/90">
               Signal turns anonymous visits
               <br />
               <span className="text-accent">into buyer intelligence.</span>
             </h2>
           </Reveal>
           <Reveal delay={240}>
-            <p className="mt-5 max-w-[560px] font-mono text-[15px] leading-relaxed text-muted-foreground">
+            <p className="mt-6 max-w-[480px] font-mono text-[14px] leading-relaxed text-muted-foreground/70">
               A lightweight pixel connects session behavior to company, role, work email, and search-driven intent so
               your team can prioritize real buyers while they are still active.
             </p>
           </Reveal>
           <Reveal delay={360}>
             <div
-              className="relative mt-12 max-w-[520px] rounded-2xl border border-accent/35 bg-card p-7"
+              className="relative mt-12 max-w-[520px] rounded-2xl border border-accent/35 bg-card p-8 md:p-9"
               aria-label="Sample resolved visitor"
             >
               <span className="absolute -top-2.5 left-6 rounded-md border border-accent/35 bg-background px-2.5 py-1 font-mono text-[9px] tracking-[0.2em] text-accent">
@@ -384,18 +387,18 @@ export function SignalExperience() {
       </section>
 
       {/* SCENE 5 · EXECUTE */}
-      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-28 md:px-8">
+      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-32 md:px-8 md:py-44">
         <div className="mx-auto w-full max-w-[1060px]">
           <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
             The system
           </Reveal>
           <Reveal delay={120}>
-            <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.04] tracking-tight">
+            <h2 className="mt-7 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.02] tracking-tight text-foreground/90">
               Then the system moves.
             </h2>
           </Reveal>
           <Reveal delay={240}>
-            <p className="mt-5 max-w-[560px] font-mono text-[15px] leading-relaxed text-muted-foreground">
+            <p className="mt-6 max-w-[480px] font-mono text-[14px] leading-relaxed text-muted-foreground/70">
               Signal identifies who is in-market. The rest of Hubbly turns that demand into search visibility, content,
               conversion fixes, outreach, and follow-up — all with approvals built in.
             </p>
@@ -435,20 +438,20 @@ export function SignalExperience() {
       </section>
 
       {/* SCENE 6 · THE NUMBER */}
-      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-28 md:px-8">
+      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-32 md:px-8 md:py-44">
         <div className="mx-auto w-full max-w-[1060px]">
           <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
             Simple pricing
           </Reveal>
           <Reveal delay={120}>
-            <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.04] tracking-tight">
+            <h2 className="mt-7 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.02] tracking-tight text-foreground/90">
               Pay for resolved demand,
               <br />
               not software overhead.
             </h2>
           </Reveal>
           <Reveal delay={240}>
-            <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 min-[880px]:grid-cols-4">
+            <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 min-[880px]:grid-cols-4">
               <PriceCol name="FREE" price="$0" unit="/mo" desc="See who is already visiting." />
               <PriceCol name="SIGNAL" price="$98" unit="/mo" desc="Resolve and enrich your highest-intent traffic." />
               <PriceCol name="PRO" price="$298" unit="/mo" desc="Scale resolution, enrichment, and vertical intelligence." />
@@ -462,9 +465,9 @@ export function SignalExperience() {
             </div>
           </Reveal>
           <Reveal delay={360}>
-            <p className="mt-5 font-mono text-[11px] text-muted-foreground/60">
+            <p className="mt-6 font-mono text-[10.5px] tracking-[0.04em] text-muted-foreground/45">
               Every paid tier starts with 14 days uncapped. Full outbound agent team →{" "}
-              <a href="https://hubbly.io" className="border-b border-border text-muted-foreground hover:text-accent">
+              <a href="https://hubbly.io" className="border-b border-border/60 text-muted-foreground/70 hover:text-accent">
                 Hubbly OS
               </a>
             </p>
@@ -473,20 +476,20 @@ export function SignalExperience() {
       </section>
 
       {/* SCENE 7 · CLOSE */}
-      <section ref={registerSection} id="close" className="flex min-h-screen items-center px-6 py-28 text-center md:px-8">
+      <section ref={registerSection} id="close" className="flex min-h-screen items-center px-6 py-32 text-center md:px-8 md:py-44">
         <div className="mx-auto w-full max-w-[1060px]">
           <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
             Your turn
           </Reveal>
           <Reveal delay={120}>
-            <h2 className="mt-6 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.04] tracking-tight">
+            <h2 className="mt-7 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.02] tracking-tight text-foreground/90">
               See who your market
               <br />
               <span className="text-accent">already is.</span>
             </h2>
           </Reveal>
           <Reveal delay={240}>
-            <p className="mx-auto mt-6 max-w-[560px] font-mono text-[15px] leading-relaxed text-muted-foreground">
+            <p className="mx-auto mt-7 max-w-[440px] font-mono text-[14px] leading-relaxed text-muted-foreground/70">
               Drop in your URL to see the buyers already visiting your site, the demand you are missing, and the actions
               Hubbly would take next.
             </p>
@@ -586,11 +589,11 @@ function SampleQuery({ query, volume }: { query: string; volume: string }) {
 
 function QueueLine({ n, action, desc, status }: { n: string; action: string; desc: string; status: string }) {
   return (
-    <div className="flex flex-wrap items-baseline gap-3.5 border-t border-border py-3.5 text-muted-foreground last:border-b last:border-border">
-      <span className="min-w-[28px] text-muted-foreground/60">{n}</span>
-      <span className="min-w-[110px] tracking-[0.06em] text-accent md:min-w-[150px]">{action}</span>
-      <span>{desc}</span>
-      <span className="ml-auto text-[11px] text-[oklch(0.78_0.08_150)]">{status}</span>
+    <div className="flex flex-wrap items-baseline gap-3.5 border-t border-border/70 py-4 text-muted-foreground/70 last:border-b last:border-border/70">
+      <span className="min-w-[28px] text-muted-foreground/40">{n}</span>
+      <span className="min-w-[110px] tracking-[0.08em] text-foreground/80 md:min-w-[160px]">{action}</span>
+      <span className="text-[12.5px]">{desc}</span>
+      <span className="ml-auto text-[10.5px] tracking-[0.04em] text-[oklch(0.78_0.08_150)]">{status}</span>
     </div>
   )
 }
@@ -610,18 +613,20 @@ function PriceCol({
 }) {
   return (
     <div
-      className={`flex min-h-[240px] flex-col p-7 ${
-        hot ? "bg-[linear-gradient(180deg,oklch(0.7_0.2_45_/_0.1),transparent_70%),var(--background)]" : "bg-background"
+      className={`flex min-h-[248px] flex-col p-8 ${
+        hot ? "bg-[linear-gradient(180deg,oklch(0.7_0.2_45_/_0.08),transparent_65%),var(--background)]" : "bg-background"
       }`}
     >
-      <span className={`font-mono text-[10px] tracking-[0.2em] ${hot ? "text-accent" : "text-muted-foreground/60"}`}>
+      <span className={`font-mono text-[10px] tracking-[0.22em] ${hot ? "text-accent" : "text-muted-foreground/55"}`}>
         {name}
       </span>
-      <div className="mb-1 mt-3.5 text-[clamp(26px,3vw,36px)] font-bold">
+      <div className="mb-1 mt-4 font-[var(--font-bebas)] text-[clamp(30px,3.4vw,40px)] font-semibold leading-none tracking-tight text-foreground/90">
         {price}
-        <small className="text-[13px] font-normal text-muted-foreground/60">{unit}</small>
+        <small className="ml-0.5 font-mono text-[12px] font-normal tracking-normal text-muted-foreground/55">
+          {unit}
+        </small>
       </div>
-      <p className="mt-auto text-[13px] leading-relaxed text-muted-foreground">{desc}</p>
+      <p className="mt-auto pt-5 text-[12.5px] leading-relaxed text-muted-foreground/70">{desc}</p>
     </div>
   )
 }
