@@ -230,7 +230,7 @@ export function SignalExperience() {
             identity <b className="font-medium text-accent">unresolved</b> — like most of the traffic on your site
           </BootLine>
           <h1
-            className={`mt-12 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.04] tracking-tight transition-all duration-700 ${
+            className={`mt-12 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.04] tracking-tight text-foreground/95 transition-all duration-700 ${
               showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
             }`}
           >
@@ -238,7 +238,7 @@ export function SignalExperience() {
             <br />
             the moment you arrived.
           </h1>
-          <div className="mt-8 font-[var(--font-bebas)] text-[clamp(22px,3.4vw,40px)] font-semibold leading-[1.12] tracking-tight">
+          <div className="mt-10 font-[var(--font-bebas)] text-[clamp(20px,3vw,34px)] font-normal leading-[1.18] tracking-[0.01em] text-foreground/55">
             {["Hubbly Signal detects intent.", "Resolves identity.", "Sets the rest of Hubbly in motion."].map(
               (line, i) => (
                 <p
@@ -254,7 +254,7 @@ export function SignalExperience() {
             )}
           </div>
           <p
-            className={`mt-6 max-w-2xl font-mono text-sm leading-relaxed text-muted-foreground transition-all duration-700 md:text-base ${
+            className={`mt-7 max-w-md font-mono text-xs leading-relaxed text-muted-foreground/75 transition-all duration-700 md:text-sm ${
               showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
             }`}
             style={{ transitionDelay: "950ms" }}
