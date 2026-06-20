@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Reveal } from "@/components/autopilot/reveal"
 import {
-  BootLine,
+  TerminalBoot,
   HudRow,
   MirrorRow,
   PriceCol,
@@ -11,12 +11,14 @@ import {
   SampleQuery,
   TOTAL_SECTIONS,
   formatElapsed,
+  type BootSegment,
   type Metrics,
 } from "./signal-parts"
 
 export function SignalExperience() {
-  // Boot scene staggered reveal
-  const [bootStep, setBootStep] = useState(0)
+  // Boot scene: facts resolve client-side, then the terminal types them out
+  const [factsReady, setFactsReady] = useState(false)
+  const [reduceMotion, setReduceMotion] = useState(false)
   const [showHeadline, setShowHeadline] = useState(false)
 
   // Session facts (resolved client-side)
@@ -56,8 +58,9 @@ export function SignalExperience() {
   useEffect(() => {
     t0Ref.current = Date.now()
 
-    const reduceMotion =
+    const prefersReducedMotion =
       typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    setReduceMotion(prefersReducedMotion)
 
     // Resolve real session facts
     const device = /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop"
@@ -75,17 +78,8 @@ export function SignalExperience() {
       openedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     })
 
-    // Boot scene stagger
-    const timers: number[] = []
-    if (reduceMotion) {
-      setBootStep(4)
-      setShowHeadline(true)
-    } else {
-      for (let i = 1; i <= 4; i++) {
-        timers.push(window.setTimeout(() => setBootStep(i), 500 + i * 620))
-      }
-      timers.push(window.setTimeout(() => setShowHeadline(true), 500 + 5 * 620))
-    }
+    // Facts resolved — let the terminal begin typing them out live
+    setFactsReady(true)
 
     // Scroll + pointer measurement
     const onScroll = () => {
@@ -148,7 +142,6 @@ export function SignalExperience() {
     }, 1000)
 
     return () => {
-      timers.forEach((t) => clearTimeout(t))
       window.clearInterval(interval)
       window.removeEventListener("scroll", onScroll)
       window.removeEventListener("pointermove", onMove)
@@ -160,6 +153,32 @@ export function SignalExperience() {
   const registerSection = (el: HTMLElement | null) => {
     if (el && !sectionRefs.current.includes(el)) sectionRefs.current.push(el)
   }
+
+  // Session read, typed out live by the terminal once facts resolve
+  const bootLines: BootSegment[][] = [
+    [
+      { t: "signal", c: "text-accent" },
+      { t: " \u00b7 session opened " },
+      { t: facts.openedAt, c: "font-medium text-foreground" },
+    ],
+    [
+      { t: "device " },
+      { t: facts.device, c: "font-medium text-foreground" },
+      { t: " \u00b7 viewport " },
+      { t: facts.viewport, c: "font-medium text-foreground" },
+    ],
+    [
+      { t: "arrived from " },
+      { t: facts.referrer, c: "font-medium text-foreground" },
+      { t: " \u00b7 language " },
+      { t: facts.language, c: "font-medium text-foreground" },
+    ],
+    [
+      { t: "identity " },
+      { t: "unresolved", c: "font-medium text-accent" },
+      { t: " \u2014 like most of the traffic on your site" },
+    ],
+  ]
 
   return (
     <div className="bg-background text-foreground">
@@ -213,21 +232,12 @@ export function SignalExperience() {
         className="relative flex min-h-screen items-center px-6 py-28 md:px-8"
       >
         <div className="mx-auto w-full max-w-[1060px]">
-          <BootLine show={bootStep >= 1}>
-            <span className="text-accent">signal</span> · session opened{" "}
-            <b className="font-medium text-foreground">{facts.openedAt}</b>
-          </BootLine>
-          <BootLine show={bootStep >= 2}>
-            device <b className="font-medium text-foreground">{facts.device}</b> · viewport{" "}
-            <b className="font-medium text-foreground">{facts.viewport}</b>
-          </BootLine>
-          <BootLine show={bootStep >= 3}>
-            arrived from <b className="font-medium text-foreground">{facts.referrer}</b> · language{" "}
-            <b className="font-medium text-foreground">{facts.language}</b>
-          </BootLine>
-          <BootLine show={bootStep >= 4}>
-            identity <b className="font-medium text-accent">unresolved</b> — like most of the traffic on your site
-          </BootLine>
+          <TerminalBoot
+            lines={bootLines}
+            start={factsReady}
+            reduceMotion={reduceMotion}
+            onComplete={() => setShowHeadline(true)}
+          />
           <h1
             className={`mt-12 font-[var(--font-bebas)] text-[clamp(44px,8vw,104px)] font-semibold leading-[1.04] tracking-tight text-foreground/95 transition-all duration-700 ${
               showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"

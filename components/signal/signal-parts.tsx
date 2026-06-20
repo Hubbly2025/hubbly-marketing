@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState, type ReactNode } from "react"
+
 export type Metrics = {
   elapsed: string
   depth: number
@@ -25,7 +27,7 @@ export function HudRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-export function BootLine({ show, children }: { show: boolean; children: React.ReactNode }) {
+export function BootLine({ show, children }: { show: boolean; children: ReactNode }) {
   return (
     <div
       className={`font-mono text-[clamp(13px,1.5vw,15px)] leading-[2.3] text-muted-foreground transition-all duration-400 ${
@@ -33,6 +35,122 @@ export function BootLine({ show, children }: { show: boolean; children: React.Re
       }`}
     >
       {children}
+    </div>
+  )
+}
+
+/** A single styled run of text within a terminal line. */
+export type BootSegment = { t: string; c?: string }
+
+/** Reveal the first `count` characters across a line's styled segments. */
+function revealSegments(segments: BootSegment[], count: number) {
+  let remaining = count
+  const out: ReactNode[] = []
+  for (let i = 0; i < segments.length; i++) {
+    if (remaining <= 0) break
+    const seg = segments[i]
+    out.push(
+      <span key={i} className={seg.c}>
+        {seg.t.slice(0, remaining)}
+      </span>,
+    )
+    remaining -= seg.t.length
+  }
+  return out
+}
+
+/**
+ * TerminalBoot types each line out character-by-character with a blinking
+ * accent caret that flows from line to line — making the session read feel
+ * live instead of static. Calls `onComplete` once the final line finishes.
+ */
+export function TerminalBoot({
+  lines,
+  start,
+  reduceMotion = false,
+  onComplete,
+}: {
+  lines: BootSegment[][]
+  start: boolean
+  reduceMotion?: boolean
+  onComplete?: () => void
+}) {
+  const [pos, setPos] = useState<{ line: number; char: number }>({ line: 0, char: 0 })
+  const [done, setDone] = useState(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
+
+  const lineLengths = lines.map((segs) => segs.reduce((n, s) => n + s.t.length, 0))
+
+  useEffect(() => {
+    if (!start) return
+
+    if (reduceMotion) {
+      setPos({ line: lines.length - 1, char: lineLengths[lines.length - 1] ?? 0 })
+      setDone(true)
+      onCompleteRef.current?.()
+      return
+    }
+
+    setPos({ line: 0, char: 0 })
+    setDone(false)
+
+    let line = 0
+    let char = 0
+    let timer = 0
+
+    const tick = () => {
+      const len = lineLengths[line] ?? 0
+      if (char < len) {
+        char++
+        setPos({ line, char })
+        timer = window.setTimeout(tick, 15 + Math.random() * 26)
+      } else if (line < lines.length - 1) {
+        line++
+        char = 0
+        setPos({ line, char })
+        timer = window.setTimeout(tick, 360)
+      } else {
+        setDone(true)
+        onCompleteRef.current?.()
+      }
+    }
+
+    timer = window.setTimeout(tick, 300)
+    return () => window.clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [start, reduceMotion])
+
+  return (
+    <div className="min-h-[8.5em]">
+      {lines.map((segs, li) => {
+        const fullyTyped = done || li < pos.line
+        const isActive = !done && li === pos.line
+        const started = fullyTyped || isActive
+        const reveal = fullyTyped ? lineLengths[li] : isActive ? pos.char : 0
+        const fullText = segs.map((s) => s.t).join("")
+        const showCaret = isActive || (done && li === lines.length - 1)
+        return (
+          <div
+            key={li}
+            className={`flex items-baseline font-mono text-[clamp(13px,1.5vw,15px)] leading-[2.3] text-muted-foreground transition-opacity duration-300 ${
+              started ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <span aria-hidden="true" className="mr-2 flex-none select-none text-accent/55">
+              {"\u203a"}
+            </span>
+            <span aria-hidden="true">{revealSegments(segs, reveal)}</span>
+            <span className="sr-only">{fullText}</span>
+            {showCaret ? (
+              <span
+                aria-hidden="true"
+                className="animate-signal-caret ml-0.5 inline-block h-[1.05em] w-[0.55ch] translate-y-[0.16em] bg-accent"
+              />
+            ) : null}
+          </div>
+        )
+      })}
     </div>
   )
 }
