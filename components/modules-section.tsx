@@ -123,15 +123,15 @@ export function ModulesSection() {
       {/* Pull quote */}
       <div className="mb-12 md:mb-16 border-l-2 border-accent pl-4 md:pl-6 max-w-3xl">
         <p className="font-mono text-xs md:text-sm text-foreground uppercase tracking-widest">
-          Five approval gates between intelligence and execution. You stay in control.
+          Every function acts on the same intelligence. Nothing breaks across tools.
         </p>
       </div>
 
       <div ref={headerRef} className="mb-12 md:mb-16 flex items-end justify-between">
         <div>
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">05 / WHY IT WINS</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">05 / CAPABILITIES</span>
           <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight max-w-4xl">
-            Everything required to turn a URL into revenue.
+            Everything Hubbly runs from one system.
           </h2>
         </div>
         <p className="hidden md:block max-w-xs font-mono text-sm text-muted-foreground text-right leading-relaxed">

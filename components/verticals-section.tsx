@@ -92,10 +92,10 @@ export function VerticalsSection() {
       <div ref={headerRef} className="mb-12 md:mb-16">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">09 / INDUSTRIES</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Pre-built for your vertical.
+          Configured for markets where precision matters.
         </h2>
         <p className="mt-4 font-mono text-sm text-muted-foreground max-w-3xl leading-relaxed">
-          Eight vertical specialists ship with Hubbly. Each is a pre-configured persona that runs on top of the 12-agent system. Pick yours at signup.
+          Hubbly supports industries where compliance, buyer timing, and message quality directly affect conversion. Each market runs on the same core system, tuned to the workflows and language of that category.
         </p>
       </div>
 
@@ -119,7 +119,7 @@ export function VerticalsSection() {
       </div>
 
       <p className="mt-10 md:mt-12 text-center font-mono text-sm text-muted-foreground">
-        Don&apos;t see your vertical? Hubbly supports custom verticals on Pro tier and above.
+        Need a custom market? Hubbly supports custom vertical configurations on Pro tier and above.
       </p>
     </section>
   )

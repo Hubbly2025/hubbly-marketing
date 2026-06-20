@@ -12,31 +12,31 @@ if (typeof window !== "undefined") {
 const faqs = [
   {
     question: "What is Hubbly?",
-    answer: "Hubbly is an autonomous revenue operating system that turns a website, offer, and market position into a live pipeline engine. It combines research, ICP building, enrichment, outreach, voice, booking, and optimization in one shared system.",
+    answer: "Hubbly is an autonomous growth engine that turns a website, offer, and market position into coordinated execution across SEO, outbound, voice, booking, and optimization.",
   },
   {
     question: "How does Hubbly work?",
-    answer: "Hubbly analyzes the business, maps the best-fit buyer profile, builds targeting logic, writes and launches outreach, places voice calls, books meetings, and learns from replies and conversions over time.",
+    answer: "Hubbly analyzes the business, maps the market, builds the strategy, launches specialized workflows, and improves over time from replies, meetings, and conversion signals.",
   },
   {
     question: "Who is Hubbly for?",
-    answer: "Hubbly is built for growth teams, agencies, insurance organizations, mortgage teams, financial services businesses, and B2B SaaS operators that need more pipeline without adding fragmented tools and manual overhead.",
+    answer: "Hubbly is built for growth teams, agencies, insurance organizations, mortgage teams, financial services businesses, and B2B SaaS operators that want more output with less fragmentation.",
   },
   {
     question: "What does Hubbly replace?",
-    answer: "Hubbly replaces disconnected outbound stacks that often include lead data vendors, enrichment tools, sequencing products, dialers, booking tools, AI copy tools, spreadsheet glue, and reporting dashboards.",
+    answer: "Hubbly replaces disconnected growth stacks that often include data vendors, enrichment tools, sequencing products, dialers, booking tools, AI copy tools, spreadsheet glue, and reporting dashboards.",
   },
   {
-    question: "Is Hubbly an AI SDR platform?",
-    answer: "Hubbly includes AI SDR-style capabilities, but it is broader than a single SDR product because it combines intelligence, execution, memory, and optimization in one operating system.",
+    question: "Is Hubbly just an AI SDR platform?",
+    answer: "No. Hubbly includes AI SDR-style capabilities, but it is broader than outbound because it combines intelligence, execution, memory, and optimization in one system.",
   },
   {
-    question: "Does Hubbly support specific industries?",
-    answer: "Yes. Hubbly supports verticals such as insurance, mortgage, agencies, financial services, and B2B SaaS, with tailored workflows and specialized go-to-market logic.",
+    question: "Does Hubbly support industry-specific workflows?",
+    answer: "Yes. Hubbly supports verticalized workflows across industries such as insurance, mortgage, financial services, agencies, and B2B SaaS.",
   },
   {
-    question: "Does Hubbly work with our existing CRM and sales tools?",
-    answer: "Yes. Hubbly is designed to layer on top of the systems you already use or replace parts of your stack over time. It connects with major CRMs and existing tools, so teams can start with their current setup, keep their process running, and then consolidate into Hubbly where it makes sense.",
+    question: "Does Hubbly work with our existing CRM and tools?",
+    answer: "Yes. Hubbly is designed to integrate with existing systems or replace parts of the stack over time, depending on how your team wants to adopt it.",
   },
 ]
 

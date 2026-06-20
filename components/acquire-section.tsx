@@ -11,15 +11,15 @@ if (typeof window !== "undefined") {
 const features = [
   {
     title: "Built on Creative",
-    description: "The Creative agent generates your ad copy, static images via FLUX 1.1 Pro, and 30-second video ads via HeyGen — all branded to your vertical. Acquire takes the approved assets and runs them.",
+    description: "Approved creative flows directly into paid campaigns without breaking context or introducing another team handoff.",
   },
   {
     title: "Compliant by default",
-    description: "TCPA-compliant consent language. DNC list scrubbing. TrustedForm certificates. CAPI deduplication. Compliance is a property of the system, not a checklist you maintain.",
+    description: "Consent language, scrubbing, certificates, and tracking controls are built into the workflow rather than managed as separate process debt.",
   },
   {
     title: "One pipeline",
-    description: "Every Meta lead flows into the same shared memory as your outbound. Score ranks it. Write personalizes follow-up. Call dials it. Book schedules it. No fragmentation between paid and outbound.",
+    description: "Every paid lead enters the same memory, scoring, follow-up, and booking system as outbound.",
   },
 ]
 
@@ -68,12 +68,12 @@ export function AcquireSection() {
   return (
     <section ref={sectionRef} id="acquire" className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-12 md:mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">08 / BUSINESS TIER</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">08 / PAID ACQUISITION</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Meta ads. Done for you.
+          Paid acquisition, governed by the same system.
         </h2>
         <p className="mt-6 font-mono text-sm md:text-base text-muted-foreground max-w-3xl leading-relaxed">
-          At Business tier, the Acquire agent runs your Meta Lead Ads end-to-end. Campaign creation, audience targeting, creative upload, CAPI tracking, TCPA + DNC + TrustedForm compliance, and lead ingestion — straight into the same shared memory as your outbound. Same buyer. One conversation.
+          At Business tier, Hubbly extends the same shared intelligence and approval model into paid acquisition. Campaign creation, audience targeting, creative, compliance, tracking, and lead ingestion all run from the same buyer context as outbound.
         </p>
       </div>
 

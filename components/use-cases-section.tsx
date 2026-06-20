@@ -11,24 +11,20 @@ if (typeof window !== "undefined") {
 
 const verticals = [
   {
-    title: "Insurance",
-    description: "Reach buyers while they are actively researching coverage.",
+    title: "Sales and outbound",
+    description: "Find buyers earlier, prioritize the right accounts, and automate outreach with stronger context.",
   },
   {
-    title: "Mortgage",
-    description: "Identify borrowers and homeowners before competitors do.",
+    title: "SEO and demand capture",
+    description: "Identify search opportunities, competitor gaps, and content angles your market is already signaling.",
   },
   {
-    title: "Financial / Wealth",
-    description: "Target prospects showing real intent around high-value financial decisions.",
+    title: "Voice and follow-up",
+    description: "Run calling and reply handling from the same buyer context so conversations feel informed, not scripted.",
   },
   {
-    title: "Agencies",
-    description: "Run outreach, reporting, and pipeline generation across multiple client accounts.",
-  },
-  {
-    title: "B2B SaaS",
-    description: "Find companies already evaluating your category and start the conversation first.",
+    title: "Growth operations",
+    description: "Unify research, targeting, execution, and learning without stitching together another stack.",
   },
 ]
 
@@ -95,7 +91,7 @@ export function UseCasesSection() {
       <div ref={headerRef} className="mb-12 md:mb-16">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">10 / USE CASES</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Built for markets where timing matters.
+          Built for markets where timing and relevance drive conversion.
         </h2>
       </div>
 

@@ -79,12 +79,12 @@ export function StackReplacementSection() {
   return (
     <section ref={sectionRef} id="replacement" className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-12 md:mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">07 / STACK</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">07 / CONSOLIDATION</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Replace fragmented tools with one operating system.
+          Replace fragmented GTM operations with one governed system.
         </h2>
         <p className="mt-4 font-mono text-sm text-muted-foreground leading-relaxed max-w-3xl">
-          Most teams stitch together lead data, enrichment, sequencing, dialers, CRMs, AI copy tools, and reporting dashboards. Hubbly brings research, execution, memory, and optimization into one system with human oversight where it matters.
+          Most teams stitch together lead data, enrichment, sequencing, dialers, booking tools, copy tools, CRM sync, and reporting dashboards. Hubbly brings research, execution, memory, and optimization into one coordinated system with human oversight where it matters.
         </p>
       </div>
 
@@ -108,7 +108,7 @@ export function StackReplacementSection() {
             ))}
           </div>
           <p className="mt-6 font-mono text-xs text-red-400/80">
-            ~$1,840/mo combined · 4 reps to operate · constant handoff failures
+            Multiple tools · repeated context · manual operations · constant handoff loss
           </p>
         </div>
 
@@ -119,21 +119,21 @@ export function StackReplacementSection() {
           </h3>
           <div className="stack-item flex-1 border-2 border-accent bg-accent/5 p-8 md:p-12 flex flex-col items-center justify-center text-center min-h-[300px]">
             <span className="font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight text-accent mb-2">
-              Hubbly OS
+              Hubbly
             </span>
             <span className="font-mono text-xs text-muted-foreground">
-              One system. 12 agents. 3 layers. Shared memory.
+              One coordinated growth engine with shared memory, specialized agents, and approval controls.
             </span>
           </div>
           <p className="mt-6 font-mono text-xs text-accent">
-            From $98/mo · 0 operators needed · built for scale
+            Lower operational overhead · faster launch · one operating context
           </p>
         </div>
       </div>
 
       <div ref={closingRef} className="mt-12 md:mt-20 text-center max-w-3xl mx-auto">
         <p className="font-mono text-sm text-foreground">
-          Pro saves $1,542/month vs. the average 8-tool stack, saves 30 hours of ops time per week, and gets you live in 15 minutes instead of 6 weeks.
+          Launch faster, reduce tool sprawl, and give every growth function the same operating context.
         </p>
       </div>
     </section>

@@ -101,7 +101,7 @@ export function FooterSection() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <span className="font-mono text-sm text-muted-foreground">Austin, Texas</span>
           <span className="hidden sm:inline text-muted-foreground/40">|</span>
-          <span className="font-mono text-sm text-muted-foreground">Hubbly is the autonomous revenue operating system for modern growth teams.</span>
+          <span className="font-mono text-sm text-muted-foreground">Hubbly is the autonomous growth engine for modern enterprise teams.</span>
         </div>
         <p className="font-mono text-sm text-muted-foreground">
           © 2026 Hubbly. All rights reserved.

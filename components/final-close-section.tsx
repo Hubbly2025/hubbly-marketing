@@ -66,14 +66,14 @@ export function FinalCloseSection() {
   return (
     <section ref={sectionRef} id="audit" className="relative py-24 md:py-40 px-4 md:pl-28 md:pr-12 border-t border-border/30 bg-card/20">
       <div ref={contentRef} className="max-w-4xl mx-auto text-center">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent mb-4 md:mb-8 block">14 / RUN IT</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent mb-4 md:mb-8 block">14 / START</span>
         
         <h2 className="font-[var(--font-bebas)] text-3xl md:text-6xl lg:text-7xl tracking-tight mb-4 md:mb-8 text-balance">
-          Start your free revenue audit.
+          Start with your market.
         </h2>
 
         <p className="max-w-xl mx-auto font-mono text-xs md:text-sm text-muted-foreground mb-8 md:mb-12">
-          Drop your website in and see what Hubbly would build — your ICP, competitors, campaign opportunities, and pipeline gaps. No credit card required.
+          Drop in your website and see what Hubbly builds — your ICP, competitors, campaign opportunities, search intelligence, and pipeline gaps. No credit card required.
         </p>
 
         {/* URL Input Form */}
@@ -129,10 +129,10 @@ export function FinalCloseSection() {
 
         {/* Bottom tagline */}
         <p className="font-mono text-xs md:text-sm text-muted-foreground/60 mb-4">
-          From website to pipeline. In one autonomous revenue OS.
+          From website input to coordinated growth execution — in one autonomous growth engine.
         </p>
         <p className="font-mono text-lg md:text-xl tracking-[0.3em] text-muted-foreground/30 uppercase">
-          THE OPERATING SYSTEM FOR REVENUE
+          THE OPERATING SYSTEM FOR GROWTH
         </p>
       </div>
     </section>
