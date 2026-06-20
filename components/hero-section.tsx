@@ -108,7 +108,7 @@ export function HeroSection() {
               <h2 className="mt-3 font-[var(--font-bebas)] text-lg md:text-xl tracking-wide text-foreground text-balance">
                 {point.title}
               </h2>
-              <p className="mt-2 font-mono text-[11px] md:text-xs text-foreground/55 leading-relaxed text-pretty">
+              <p className="mt-2 font-mono text-xs text-foreground/55 leading-relaxed text-pretty">
                 {point.description}
               </p>
             </div>

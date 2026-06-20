@@ -113,7 +113,7 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
           {/* Mobile CTA */}
           <button
             onClick={() => scrollToSection("audit")}
-            className="md:hidden font-mono text-[10px] uppercase tracking-widest bg-accent text-background px-3 py-1.5 hover:bg-accent/90 transition-colors"
+            className="md:hidden inline-flex items-center min-h-[40px] font-mono text-[11px] uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
           >
             Free Audit
           </button>
