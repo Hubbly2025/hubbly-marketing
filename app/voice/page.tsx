@@ -169,8 +169,8 @@ export default function VoicePage() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Voice reaches buyers, handles the conversation, logs the outcome, and sets the next approved step in
-                  motion — all from the same shared context as the rest of Hubbly.
+                  Voice reaches your buyers, handles the conversation, logs the outcome, and sets the next approved step
+                  in motion — all from the same shared context as the rest of the growth engine.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -343,7 +343,7 @@ export default function VoicePage() {
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
                   Voice is the conversation layer.
                   <br />
-                  The system is the whole OS.
+                  The growth engine is the whole system.
                 </h2>
               </Reveal>
               <Reveal delay={240}>
@@ -358,7 +358,7 @@ export default function VoicePage() {
                     SEE THE ARCHITECTURE →
                   </a>
                   <a href="/" className="border-b border-accent/40 pb-[2px] text-accent transition-colors hover:text-accent/80">
-                    SEE THE FULL OS →
+                    SEE THE FULL GROWTH ENGINE →
                   </a>
                 </div>
               </Reveal>
