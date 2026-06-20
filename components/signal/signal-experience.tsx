@@ -238,13 +238,28 @@ export function SignalExperience() {
             <br />
             the moment you arrived.
           </h1>
+          <div className="mt-8 font-[var(--font-bebas)] text-[clamp(22px,3.4vw,40px)] font-semibold leading-[1.12] tracking-tight">
+            {["Hubbly Signal detects intent.", "Resolves identity.", "Sets the rest of Hubbly in motion."].map(
+              (line, i) => (
+                <p
+                  key={line}
+                  className={`transition-all duration-700 ${
+                    showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
+                  }`}
+                  style={{ transitionDelay: `${250 + i * 220}ms` }}
+                >
+                  {line}
+                </p>
+              ),
+            )}
+          </div>
           <p
-            className={`mt-6 max-w-2xl font-mono text-sm leading-relaxed text-muted-foreground transition-all delay-150 duration-700 md:text-base ${
+            className={`mt-6 max-w-2xl font-mono text-sm leading-relaxed text-muted-foreground transition-all duration-700 md:text-base ${
               showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
             }`}
+            style={{ transitionDelay: "950ms" }}
           >
-            Hubbly Signal turns anonymous traffic into buyer intelligence — then connects that intelligence to search
-            visibility, outreach, and pipeline actions your team can approve.
+            Search visibility, outreach, and pipeline actions — with your team in control.
           </p>
         </div>
         <div className="absolute bottom-9 left-1/2 -translate-x-1/2 animate-[pulse_2.4s_infinite] font-mono text-[10px] tracking-[0.3em] text-muted-foreground/50">
