@@ -6,26 +6,27 @@ import { cn } from "@/lib/utils"
 type Turn = { who: "VOICE" | "LEAD"; txt: string }
 
 const SCRIPT: Turn[] = [
-  { who: "VOICE", txt: "Hi, is this Jordan? This is Riley calling from Acme Roofing." },
-  { who: "LEAD", txt: "Yeah, this is Jordan." },
-  { who: "VOICE", txt: "Great — you looked at roof financing on our site. Are you weighing a repair or a full replacement?" },
-  { who: "LEAD", txt: "Probably a replacement. The last storm did a number on it." },
   {
     who: "VOICE",
-    txt: "Got it. We can get an inspector out this week and walk you through financing options. Would Thursday morning work?",
+    txt: "Hi, is this Elan? This is Nova calling from Helios Motors. You were looking at our fleet electrification rollout earlier. Are you exploring a pilot or planning for a larger transition?",
+  },
+  { who: "LEAD", txt: "A pilot first. If the numbers hold up, we'll expand." },
+  {
+    who: "VOICE",
+    txt: "Perfect. I can get you in front of a fleet specialist to walk through infrastructure, range, and total cost. Does Thursday at 10:00 work?",
   },
   { who: "LEAD", txt: "Thursday works." },
-  { who: "VOICE", txt: "Perfect — I'll lock that in and send a confirmation now." },
+  { who: "VOICE", txt: "Locked in. Confirmation is on the way now." },
 ]
 
 type DispoRow = { label: string; value: string; tag?: boolean }
 
 const DISPO: DispoRow[] = [
   { label: "Outcome", value: "Interested" },
-  { label: "Intent score", value: "0.88" },
-  { label: "Topic", value: "roof replacement + financing" },
+  { label: "Intent score", value: "0.91" },
+  { label: "Topic", value: "fleet electrification + pilot rollout" },
   { label: "Logged", value: "call recording + transcript", tag: true },
-  { label: "Owner", value: "Riley · first contact wins" },
+  { label: "Owner", value: "Nova · first contact wins" },
 ]
 
 function PanelBar({ title, liveLabel }: { title: string; liveLabel: string }) {
@@ -156,7 +157,7 @@ export function VoiceCall() {
           >
             NEXT STEP · AUTO-SCHEDULED
             <br />
-            <b className="font-medium text-accent">→ Meeting booked: Thursday 9:00 AM</b> · confirmation sent · owner
+            <b className="font-medium text-accent">→ Meeting booked: Thursday 10:00 AM</b> · confirmation sent · owner
             notified
           </div>
         </div>
