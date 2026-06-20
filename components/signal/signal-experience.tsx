@@ -234,10 +234,18 @@ export function SignalExperience() {
               showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
             }`}
           >
-            See who is already
+            We started reading you
             <br />
-            showing intent.
+            the moment you arrived.
           </h1>
+          <p
+            className={`mt-6 max-w-2xl font-mono text-sm leading-relaxed text-muted-foreground transition-all delay-150 duration-700 md:text-base ${
+              showHeadline ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
+            }`}
+          >
+            Hubbly Signal turns anonymous traffic into buyer intelligence — then connects that intelligence to search
+            visibility, outreach, and pipeline actions your team can approve.
+          </p>
         </div>
         <div className="absolute bottom-9 left-1/2 -translate-x-1/2 animate-[pulse_2.4s_infinite] font-mono text-[10px] tracking-[0.3em] text-muted-foreground/50">
           SCROLL
