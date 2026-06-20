@@ -81,10 +81,10 @@ export function StackReplacementSection() {
       <div ref={headerRef} className="mb-12 md:mb-16">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">06 / CONSOLIDATION</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Replace fragmented GTM operations with one governed system.
+          Replace fragmented GTM operations with one coordinated agent system.
         </h2>
         <p className="mt-4 font-mono text-sm text-muted-foreground leading-relaxed max-w-3xl">
-          Most teams stitch together lead data, enrichment, sequencing, dialers, booking tools, copy tools, CRM sync, and reporting dashboards. Hubbly brings research, execution, memory, and optimization into one coordinated system with human oversight where it matters.
+          Most growth teams run disconnected tools for data, sequencing, voice, booking, and reporting. Hubbly replaces that stack with one agent system built for research, execution, and improvement — with approvals where they matter.
         </p>
       </div>
 
