@@ -9,16 +9,16 @@ import { Reveal } from "@/components/autopilot/reveal"
 export const metadata: Metadata = {
   title: "Hubbly Voice — Your calling team, running itself",
   description:
-    "The Voice agent runs your outbound calling cadences — dials, qualifies, logs the outcome, and schedules the follow-up. The work of a BDR desk, automated and approval-gated.",
+    "Voice is the conversation layer of Hubbly — it reaches buyers, handles the conversation, logs the outcome, and sets the next approved step in motion, from the same shared context as the rest of the system.",
   alternates: { canonical: "https://hubbly.io/voice" },
 }
 
 const cadence = [
-  { n: "STEP 01", title: "First call", copy: "Dials the new lead within minutes of assignment. Speed to lead, every time.", wait: "DAY 0" },
-  { n: "STEP 02", title: "Follow-up", copy: "No answer? It tries again at a better time, time-zone aware.", wait: "DAY 1" },
-  { n: "STEP 03", title: "Value touch", copy: "Connects and qualifies, or leaves the next step in the sequence.", wait: "DAY 3" },
-  { n: "STEP 04", title: "Persistence", copy: "Keeps working the lead on cadence until a clear outcome lands.", wait: "DAY 5" },
-  { n: "STEP 05", title: "Resolve", copy: "Qualified, booked, or closed out — every lead reaches a decision.", wait: "DAY 7" },
+  { n: "STEP 01", title: "First reach", copy: "Call quickly while intent is fresh.", wait: "DAY 0" },
+  { n: "STEP 02", title: "Retry intelligently", copy: "No answer becomes a smarter next attempt.", wait: "DAY 1" },
+  { n: "STEP 03", title: "Qualify live", copy: "The conversation determines fit, urgency, and next step.", wait: "DAY 3" },
+  { n: "STEP 04", title: "Persist with context", copy: "The sequence continues until the lead resolves.", wait: "DAY 5" },
+  { n: "STEP 05", title: "Close the loop", copy: "Booked, handed off, disqualified, or suppressed — every lead reaches a state.", wait: "DAY 7" },
 ]
 
 const dispositions: { label: string; win?: boolean }[] = [
@@ -34,8 +34,8 @@ const dispositions: { label: string; win?: boolean }[] = [
 
 const capabilities = [
   {
-    title: "Calls on a real conversation",
-    copy: "Natural-voice outbound that qualifies, handles objections, and reaches the outcome — not a robocall script.",
+    title: "Context-aware calling",
+    copy: "Conversations start with real buyer context, not cold generic scripts.",
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
@@ -48,8 +48,8 @@ const capabilities = [
     ),
   },
   {
-    title: "Logs the outcome for you",
-    copy: "Disposition, notes, and recording captured on every call. An auditable history with zero rep data entry.",
+    title: "Automatic outcome logging",
+    copy: "Every call records the result, notes, and transcript without rep admin work.",
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" strokeWidth="1.4" />
@@ -58,8 +58,8 @@ const capabilities = [
     ),
   },
   {
-    title: "Books the meeting",
-    copy: "An interested buyer gets a calendar invite on the spot, dropped straight onto the right rep's calendar.",
+    title: "Meeting booking",
+    copy: "Qualified buyers move directly into the right calendar flow.",
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.4" />
@@ -69,8 +69,8 @@ const capabilities = [
     ),
   },
   {
-    title: "Knows who owns the lead",
-    copy: "Round-robin assignment and first-contact-wins ownership, so the right rep gets credit and the buyer never hears from two people.",
+    title: "Ownership and routing",
+    copy: "Leads stay assigned correctly so follow-up stays coordinated.",
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle cx="9" cy="8" r="3.4" stroke="currentColor" strokeWidth="1.4" />
@@ -80,8 +80,8 @@ const capabilities = [
     ),
   },
   {
-    title: "Speed to lead, always",
-    copy: "Dials within minutes of a lead landing — the single biggest lever on contact rate, run automatically around the clock.",
+    title: "Always-on speed",
+    copy: "Voice reaches out while intent is still active, not hours later.",
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M12 3v18M5 8l7-5 7 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
@@ -90,8 +90,8 @@ const capabilities = [
     ),
   },
   {
-    title: "You stay in control",
-    copy: "Managers set the cadence and the script. Reps confirm outcomes. The agent runs the dialing, not the strategy.",
+    title: "Human control",
+    copy: "Your team sets the rules, reviews the workflow, and governs what goes live.",
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <rect x="3" y="11" width="18" height="9" rx="2" stroke="currentColor" strokeWidth="1.4" />
@@ -105,17 +105,17 @@ const kpis = [
   {
     value: "Speed to lead",
     label: "Minutes, not days",
-    desc: "Dials the moment a lead lands — the lever most teams miss because reps are busy.",
+    desc: "Voice reaches the buyer the moment intent is fresh — the lever most teams miss.",
   },
   {
     value: "Contact rate",
     label: "Every lead, every step",
-    desc: "Works the full cadence on schedule, so no lead is dropped after one attempt.",
+    desc: "The full sequence runs on schedule, so no lead is dropped after one attempt.",
   },
   {
     value: "Qualification rate",
-    label: "Outcome on every call",
-    desc: "A clean disposition on every dial means your pipeline reflects reality, not guesswork.",
+    label: "A real outcome on every call",
+    desc: "A clear outcome on every conversation means your pipeline reflects reality, not guesswork.",
   },
 ]
 
@@ -128,7 +128,7 @@ const faqJsonLd = {
       name: "What does Hubbly Voice do?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Voice runs your outbound calling cadences end to end — it dials the lead, qualifies on a real conversation, logs a sales-grade disposition, and schedules the next touch automatically.",
+        text: "Voice is the conversation layer of Hubbly. It reaches the buyer, handles the conversation with real context, logs a clear outcome, and sets the next approved step in motion — all from the same shared system as the rest of Hubbly.",
       },
     },
     {
@@ -136,7 +136,7 @@ const faqJsonLd = {
       name: "Will it dial without my approval?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "No. You approve the cadence and script before anything dials. Suppression and consent rules are enforced before the call, and every call is recorded and logged.",
+        text: "No. You approve the workflow before anything dials. Suppression, consent, and timing rules are enforced before the call, and every call is recorded and logged.",
       },
     },
   ],
@@ -158,7 +158,7 @@ export default function VoicePage() {
           <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-28 pb-16 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                Voice · the calling agent
+                Voice · the conversation layer
               </Reveal>
               <Reveal delay={120}>
                 <h1 className="mt-6 font-[var(--font-bebas)] text-5xl leading-[0.95] tracking-tight sm:text-7xl lg:text-[92px]">
@@ -169,9 +169,8 @@ export default function VoicePage() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  The Voice agent runs your outbound calling cadences end to end — dials the lead, qualifies on a real
-                  conversation, logs the outcome, and schedules the next touch. The work of a BDR desk, on a system that
-                  never skips a follow-up.
+                  Voice reaches buyers, handles the conversation, logs the outcome, and sets the next approved step in
+                  motion — all from the same shared context as the rest of Hubbly.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -184,7 +183,7 @@ export default function VoicePage() {
           <section className="px-4 py-24 md:py-32 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                Cadence, not one-off calls
+                Cadence, not one call
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
@@ -195,8 +194,8 @@ export default function VoicePage() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-4 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  A single call rarely closes a buyer. Voice runs the whole multi-step cadence on a schedule — and what
-                  happens on each call decides what happens next.
+                  A single call rarely creates an outcome. Voice runs the full follow-up sequence, and each result
+                  determines what happens next.
                 </p>
               </Reveal>
               <div className="mt-12 grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-5">
@@ -229,8 +228,8 @@ export default function VoicePage() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-4 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Voice logs a sales-grade disposition on every call — and the cadence reacts automatically. Interested
-                  books a meeting. No answer schedules a retry. Not a fit closes the lead. Nothing falls through.
+                  Voice logs a clear disposition on every conversation, and the workflow reacts automatically. Interested
+                  books. No answer retries. Not a fit closes cleanly.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -252,11 +251,11 @@ export default function VoicePage() {
           <section className="px-4 py-24 md:py-32 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                What it does
+                What Voice runs
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
-                  A BDR desk, in software.
+                  A conversation engine, inside the system.
                 </h2>
               </Reveal>
               <div className="mt-12 grid grid-cols-1 gap-[14px] sm:grid-cols-2 lg:grid-cols-3">
@@ -284,11 +283,10 @@ export default function VoicePage() {
                   </svg>
                   <div className="flex-1">
                     <b className="font-mono text-base font-semibold text-foreground">
-                      Compliance built in, not bolted on.
+                      Compliance built in.
                     </b>
                     <p className="mt-1 max-w-[540px] font-mono text-[13.5px] leading-relaxed text-muted-foreground">
-                      Suppression and consent rules are enforced before the dial, not after. The agent won&apos;t call a
-                      number it shouldn&apos;t.
+                      Suppression, consent, and timing rules are enforced before the call, not cleaned up after it.
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {["TCPA AWARE", "DNC SUPPRESSION", "TIME-ZONE SAFE", "CALL RECORDING"].map((b) => (
@@ -314,7 +312,7 @@ export default function VoicePage() {
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
-                  The numbers a calling team
+                  The numbers a calling workflow
                   <br />
                   is measured on.
                 </h2>
@@ -343,16 +341,15 @@ export default function VoicePage() {
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
-                  Voice is one agent.
+                  Voice is the conversation layer.
                   <br />
-                  The team is the whole OS.
+                  The system is the whole OS.
                 </h2>
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-4 max-w-[640px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Signal finds your buyers. Write sends the outreach. Voice makes the calls and books the meetings. Track
-                  learns from every outcome. One shared memory — so the call already knows what the email said, and the
-                  next cycle starts smarter.
+                  Signal identifies the buyer. SEO + AI Search captures the demand. Voice handles the conversation. The
+                  rest of Hubbly turns outcomes into the next coordinated action.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -383,8 +380,8 @@ export default function VoicePage() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mx-auto mt-5 max-w-xl font-mono text-xs leading-relaxed text-muted-foreground md:text-sm">
-                  Drop your URL and Hubbly maps your buyers, builds the cadence, and shows you the calls it would run —
-                  you approve before a single dial.
+                  Drop your URL and Hubbly maps your buyers, builds the calling workflow, and shows you the conversations
+                  it would run — before a single dial goes live.
                 </p>
               </Reveal>
               <Reveal delay={360}>
