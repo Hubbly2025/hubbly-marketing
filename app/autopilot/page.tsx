@@ -62,15 +62,11 @@ const readers = [
 ]
 
 const capabilities = [
-  { n: "01", title: "SEO strategy", copy: "A living plan rebuilt from your rankings, your buyers, and what they search — not a static audit PDF." },
-  { n: "02", title: "Keyword research", copy: "Targets scored by pipeline relevance — the queries your identified buyers actually ran." },
-  { n: "03", title: "Content", copy: "New pages and refreshes drafted weekly, briefed from live demand, queued for your approval." },
-  { n: "04", title: "Technical SEO", copy: "Crawl issues, canonicals, internal links, and speed — applied with snapshots, reversible in one click." },
-  { n: "05", title: "AI answer visibility", copy: "Schema, entities, and citation-ready content — optimized for the answer box and the AI answer in the same pass." },
-  { n: "06", title: "Authority", copy: "Internal link architecture and supporting content that compounds what already works on your site." },
-  { n: "07", title: "Conversion", copy: "Page-level fixes where identified buyers stall — forms, calls to action, proof, and layout." },
-  { n: "08", title: "Local", copy: "Profiles, citations, and service-area pages kept accurate, consistent, and working." },
-  { n: "09", title: "Pipeline", copy: "Every task traced from signal to published change to the buyers it reached." },
+  { n: "01", title: "Strategy", copy: "A living plan rebuilt from live rankings, buyer demand, and market changes — not a static audit PDF." },
+  { n: "02", title: "Content", copy: "New pages and refreshes drafted from what buyers actually search, queued for your approval." },
+  { n: "03", title: "Technical", copy: "Canonicals, internal links, speed, schema, and structural fixes — applied with snapshots, reversible in one click." },
+  { n: "04", title: "Visibility", copy: "Optimizations for both Google rankings and AI answer engines, shipped in the same pass." },
+  { n: "05", title: "Pipeline", copy: "Every change traced back to the buyers it reached — pipeline relevance first, traffic second." },
 ]
 
 const phases = [
@@ -96,7 +92,7 @@ export default function AutopilotPage() {
           <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-28 pb-16 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                SEO · the execution engine
+                SEO + AI Search · the execution engine
               </Reveal>
               <Reveal delay={120}>
                 <h1 className="mt-6 font-[var(--font-bebas)] text-5xl leading-[0.95] tracking-tight sm:text-7xl lg:text-[92px]">
@@ -107,8 +103,8 @@ export default function AutopilotPage() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Hubbly turns what your buyers search into pages you own — content, technical fixes, schema, and
-                  AI-answer visibility — with every change approval-gated, snapshotted, and reversible.
+                  Hubbly helps you rank on Google and show up in AI answers — through content, technical fixes, schema,
+                  and entity clarity — with every change approval-gated, snapshotted, and reversible.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -121,7 +117,7 @@ export default function AutopilotPage() {
           <div className="border-y border-border/60 bg-card py-[18px]" aria-label="Built for both scoreboards">
             <div className="mx-auto w-full max-w-[1060px] px-4 md:px-8">
               <p className="mb-3 text-center font-mono text-[9px] tracking-[0.3em] text-muted-foreground/60">
-BUILT FOR BOTH SEARCH SURFACES
+BUILT FOR RANKINGS AND ANSWERS
               </p>
               <div className="flex flex-wrap items-center justify-between gap-[18px]">
                 <div className="flex items-center gap-3 whitespace-nowrap font-mono text-[11.5px] tracking-[0.1em]">
@@ -164,7 +160,7 @@ BUILT FOR BOTH SEARCH SURFACES
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-4 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Buyers ask AI engines now. Every page Autopilot ships is structured for two readers — the crawler that
+                  Buyers ask AI engines now. Every page the engine ships is structured for two readers — the crawler that
                   ranks you and the model that cites you. Same pass, same page.
                 </p>
               </Reveal>
@@ -242,7 +238,7 @@ BUILT FOR BOTH SEARCH SURFACES
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-4 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Autonomy without discipline is a liability. Autopilot ships nothing you haven&apos;t approved, and can
+                  Autonomy without discipline is a liability. The engine ships nothing you haven&apos;t approved, and can
                   undo anything it ships.
                 </p>
               </Reveal>
@@ -302,14 +298,14 @@ BUILT FOR BOTH SEARCH SURFACES
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
-                  Autopilot owns the demand.
+                  Search captures the demand.
                   <br />
                   The rest of Hubbly acts on it.
                 </h2>
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-4 max-w-[640px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Autopilot owns the demand. The rest of the growth engine acts on it — Signal finds the buyers, Voice
+                  Search captures the demand. The rest of the growth engine acts on it — Signal finds the buyers, Voice
                   and Send reach them, and every result feeds back into one shared system.
                 </p>
               </Reveal>
@@ -334,15 +330,15 @@ BUILT FOR BOTH SEARCH SURFACES
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-5 font-[var(--font-bebas)] text-4xl leading-[0.95] tracking-tight md:text-7xl">
-                  See the task list
+                  See your SEO +
                   <br />
-                  <span className="text-accent">it would run for you.</span>
+                  <span className="text-accent">AI Search queue.</span>
                 </h2>
               </Reveal>
               <Reveal delay={240}>
                 <p className="mx-auto mt-5 max-w-xl font-mono text-xs leading-relaxed text-muted-foreground md:text-sm">
                   Drop your URL. Get the rankings you&apos;re losing, the AI answers you&apos;re missing, and the exact
-                  queue Autopilot would execute — free, in about 15 seconds.
+                  queue Hubbly would run for you — free, in about 15 seconds.
                 </p>
               </Reveal>
               <Reveal delay={360}>
