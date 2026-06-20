@@ -250,8 +250,9 @@ export function SignalExperience() {
             }`}
             style={{ transitionDelay: "150ms" }}
           >
-            That&apos;s <span className="text-accent">Signal</span>. It turns anonymous visitors into named, in-market
-            buyers — the same way, on your site, in real time.
+            <span className="text-accent">Hubbly Signal</span> identifies who is showing intent, resolves anonymous
+            traffic into real buyers, and sets the rest of Hubbly in motion — across search, outreach, and pipeline
+            actions — with your team in control.
           </p>
           <p
             className={`mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 transition-all duration-700 ${
