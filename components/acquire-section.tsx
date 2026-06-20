@@ -10,7 +10,7 @@ if (typeof window !== "undefined") {
 
 const features = [
   {
-    title: "Built on Creative",
+    title: "Built on creative",
     description: "Approved creative flows directly into paid campaigns without breaking context or introducing another team handoff.",
   },
   {
@@ -70,10 +70,10 @@ export function AcquireSection() {
       <div ref={headerRef} className="mb-12 md:mb-16">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">07 / PAID ACQUISITION</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-7xl tracking-tight">
-          Paid acquisition, extended from the same agent system.
+          Paid acquisition, governed by the same system.
         </h2>
         <p className="mt-6 font-mono text-sm md:text-base text-muted-foreground max-w-3xl leading-relaxed">
-          At Business tier, Hubbly extends the same system into paid acquisition. Creative, targeting, compliance, tracking, and lead flow stay connected to the same buyer context.
+          At Business tier, Hubbly extends the same system into paid acquisition. Campaign creation, audience targeting, creative, compliance, tracking, and lead ingestion stay connected to the same buyer context as outbound.
         </p>
       </div>
 
