@@ -96,7 +96,7 @@ export default function AutopilotPage() {
           <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-28 pb-16 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                Autopilot · the execution layer
+                SEO · the execution engine
               </Reveal>
               <Reveal delay={120}>
                 <h1 className="mt-6 font-[var(--font-bebas)] text-5xl leading-[0.95] tracking-tight sm:text-7xl lg:text-[92px]">
@@ -107,9 +107,8 @@ export default function AutopilotPage() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Autopilot turns what your buyers search into pages you own — content, technical fixes, schema, and
-                  AI-answer placement. The first 90 days build the foundation. Then the engine never stops. Every task
-                  approval-gated, every change snapshotted and reversible.
+                  Hubbly turns what your buyers search into pages you own — content, technical fixes, schema, and
+                  AI-answer visibility — with every change approval-gated, snapshotted, and reversible.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -122,7 +121,7 @@ export default function AutopilotPage() {
           <div className="border-y border-border/60 bg-card py-[18px]" aria-label="Built for both scoreboards">
             <div className="mx-auto w-full max-w-[1060px] px-4 md:px-8">
               <p className="mb-3 text-center font-mono text-[9px] tracking-[0.3em] text-muted-foreground/60">
-                BUILT FOR BOTH SCOREBOARDS
+BUILT FOR BOTH SEARCH SURFACES
               </p>
               <div className="flex flex-wrap items-center justify-between gap-[18px]">
                 <div className="flex items-center gap-3 whitespace-nowrap font-mono text-[11.5px] tracking-[0.1em]">
@@ -154,7 +153,7 @@ export default function AutopilotPage() {
           <section className="px-4 py-24 md:py-32 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                The shift
+                Search changed. The job didn&apos;t.
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
@@ -199,7 +198,7 @@ export default function AutopilotPage() {
           <section className="border-y border-border/30 bg-card/40 px-4 py-24 md:py-32 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                What it executes
+                What the engine runs
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
@@ -271,7 +270,7 @@ export default function AutopilotPage() {
           <section className="border-y border-border/30 bg-card/40 px-4 py-24 md:py-32 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                The first year
+                How SEO compounds
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
@@ -299,7 +298,7 @@ export default function AutopilotPage() {
           <section className="px-4 py-24 md:py-32 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                Where it fits
+                Where SEO fits in the system
               </Reveal>
               <Reveal delay={120}>
                 <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
