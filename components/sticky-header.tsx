@@ -69,7 +69,7 @@ export function StickyHeader() {
               href="/autopilot"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
-              SEO
+              SEO on Autopilot
             </a>
             <a
               href="/signal"

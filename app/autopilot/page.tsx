@@ -92,7 +92,7 @@ export default function AutopilotPage() {
           <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-28 pb-16 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                SEO + AI Search · the execution engine
+                SEO on Autopilot · the execution layer
               </Reveal>
               <Reveal delay={120}>
                 <h1 className="mt-6 font-[var(--font-bebas)] text-5xl leading-[0.95] tracking-tight sm:text-7xl lg:text-[92px]">
