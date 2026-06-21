@@ -32,82 +32,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://hubbly.io/" },
 }
 
-const orgJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Hubbly",
-  url: "https://hubbly.io",
-  logo: "https://hubbly.io/og/hubbly-logo.png",
-  sameAs: [
-    "https://twitter.com/hubblyio",
-    "https://www.linkedin.com/company/hubbly-io",
-  ],
-}
-
-const softwareJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "Hubbly",
-  applicationCategory: "BusinessApplication",
-  operatingSystem: "Web",
-  description:
-    "Autonomous growth engine with 12 AI agents organized in 3 layers (Understand, Execute, Improve) for ICP enrichment, autonomous outbound, AI voice calling, email sequencing, and booked meetings.",
-}
-
-const websiteJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  url: "https://hubbly.io",
-  name: "Hubbly",
-  potentialAction: {
-    "@type": "SearchAction",
-    target: "https://hubbly.io/search?q={search_term_string}",
-    "query-input": "required name=search_term_string",
-  },
-}
-
-const faqJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: [
-    {
-      "@type": "Question",
-      name: "What is Hubbly?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Hubbly is an autonomous growth engine. You drop in your website and Hubbly learns what you sell, who your best customers are, and what messages should move the market. Then its 12 agents turn that intelligence into action.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "How is Hubbly organized?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Hubbly uses 12 agents organized in 3 layers: Understand (Recon, ICP, Strategy), Execute (Scout, Score, Writer, Sender, Voice, Booker), and Improve (Track, Optimize, Advisor). All agents share one operating memory.",
-      },
-    },
-  ],
-}
-
 export default function Page() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
       <main className="relative min-h-screen">
         <StickyHeader withTicker />
         <SideNav />
