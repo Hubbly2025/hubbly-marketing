@@ -6,6 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
+    "test:audit": "node tests/audit/process-audit.test.js",
     "start": "next start"
   },
   "dependencies": {

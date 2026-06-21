@@ -21,7 +21,22 @@ const INTENT_ESTIMATES: Record<string, { monthly: number; weekly: number; highIn
   marketing_agency: { monthly: 2900, weekly: 750, highIntent: 210 },
   healthcare: { monthly: 6800, weekly: 1800, highIntent: 530 },
   finance: { monthly: 5500, weekly: 1400, highIntent: 440 },
-  default: { monthly: 3500, weekly: 900, highIntent: 280 },
+}
+
+type ProvenanceTag = "measured" | "inferred" | "estimated" | "recommendation"
+
+type SiteProfile = {
+  domain: string
+  scanned_at: string
+  business_model: string | null
+  buyer_type: string | null
+  industry: string | null
+  category: string | null
+  positioning: {
+    value: string | null
+    source_span: string | null
+  }
+  provenance: Record<string, ProvenanceTag>
 }
 
 type ScrapedPage = {
@@ -37,6 +52,15 @@ type AuditAnalysis = {
   company_name?: string
   product?: string
   industry?: string
+  business_model?: string
+  buyer_type?: string
+  category?: string
+  positioning?: {
+    value?: string | null
+    source_span?: string | null
+  }
+  site_profile?: SiteProfile
+  provenance?: Record<string, ProvenanceTag>
   icp?: Record<string, unknown>
   competitors?: Array<Record<string, unknown>>
   gtm_gaps?: string[]
@@ -145,7 +169,20 @@ export async function processAudit(auditId: string, url: string) {
         manual_review: manualReview,
       },
     }
-    const intentData = estimateIntentData(normalizedAnalysis.industry)
+    const siteProfile = buildSiteProfile({
+      domain: new URL(url).hostname.replace(/^www\./, ""),
+      scannedAt: new Date().toISOString(),
+      analysis: normalizedAnalysis,
+      scrapedContent,
+    })
+    normalizedAnalysis.business_model = siteProfile.business_model ?? undefined
+    normalizedAnalysis.buyer_type = siteProfile.buyer_type ?? undefined
+    normalizedAnalysis.category = siteProfile.category ?? undefined
+    normalizedAnalysis.positioning = siteProfile.positioning
+    normalizedAnalysis.provenance = siteProfile.provenance
+    normalizedAnalysis.site_profile = siteProfile
+
+    const intentData = estimateIntentData(siteProfile)
     const gtmPlan = buildGtmPlan(normalizedAnalysis, intentData, companyName)
 
     await markProgress("complete", 100, manualReview ? "Fallback report ready for manual review" : "Audit report complete")
@@ -443,6 +480,13 @@ Respond with JSON only. Be extremely specific — no generic answers.
   "company_name": "Extract the actual company name from the site",
   "product": "Exact one-sentence description of what this product does",
   "industry": "Specific industry — not just software or services",
+  "business_model": "Detected business model such as b2b_saas, b2b_services, local_service, b2c_ecommerce, marketplace, or other",
+  "buyer_type": "Detected primary buyer archetype: business or consumer",
+  "category": "Normalized specific category, lowercase snake_case",
+  "positioning": {
+    "value": "One sentence describing the site's positioning",
+    "source_span": "Exact copied source text from the website that supports the positioning"
+  },
   "icp": {
     "primary": {
       "title": "Exact job title of primary buyer",
@@ -675,47 +719,277 @@ function inferIndustryFromContent(content: string) {
   return "Revenue Technology"
 }
 
-function estimateIntentData(industry?: string) {
-  const category = detectIntentCategory(industry)
-  const base = INTENT_ESTIMATES[category] ?? INTENT_ESTIMATES.default
+function buildSiteProfile(params: {
+  domain: string
+  scannedAt: string
+  analysis: AuditAnalysis
+  scrapedContent: string
+}): SiteProfile {
+  const text = [
+    params.analysis.product,
+    params.analysis.industry,
+    params.analysis.category,
+    params.analysis.business_model,
+    params.analysis.buyer_type,
+    params.analysis.outreach_angle,
+    getPrimaryIcpTitle(params.analysis),
+    params.scrapedContent,
+  ].filter(Boolean).join(" ").toLowerCase()
+  const industry = normalizeText(params.analysis.industry)
+  const category = normalizeCategory(params.analysis.category) ?? detectCategoryFromSignals(text, industry)
+  const buyerType = normalizeBuyerType(params.analysis.buyer_type) ?? detectBuyerTypeFromSignals(text)
+  const businessModel = normalizeBusinessModel(params.analysis.business_model)
+    ?? detectBusinessModelFromSignals(text, buyerType, category)
+  const positioningValue = normalizeText(params.analysis.positioning?.value)
+    ?? normalizeText(params.analysis.outreach_angle)
+    ?? normalizeText(params.analysis.product)
+  const sourceSpan = normalizeText(params.analysis.positioning?.source_span)
+    ?? findSourceSpan(positioningValue, params.scrapedContent)
+
+  return {
+    domain: params.domain,
+    scanned_at: params.scannedAt,
+    business_model: businessModel,
+    buyer_type: buyerType,
+    industry,
+    category,
+    positioning: {
+      value: positioningValue,
+      source_span: sourceSpan,
+    },
+    provenance: {
+      domain: "measured",
+      scanned_at: "measured",
+      business_model: businessModel ? "inferred" : "estimated",
+      buyer_type: buyerType ? "inferred" : "estimated",
+      industry: industry ? "inferred" : "estimated",
+      category: category ? "inferred" : "estimated",
+      positioning: sourceSpan ? "inferred" : "estimated",
+    },
+  }
+}
+
+function estimateIntentData(siteProfile: SiteProfile) {
+  const category = siteProfile.category
+
+  if (!category) {
+    return {
+      status: "insufficient_signal",
+      category: null,
+      monthly: 0,
+      weekly: 0,
+      highIntent: 0,
+      high_intent: 0,
+      label: "Insufficient signal to estimate intent benchmarks for this site profile.",
+      top_signals: [],
+      geographies: [],
+      provenance: {
+        category: "estimated",
+        monthly: "estimated",
+        weekly: "estimated",
+        highIntent: "estimated",
+        top_signals: "estimated",
+        geographies: "estimated",
+      },
+    }
+  }
+
+  const base = INTENT_ESTIMATES[category]
+  if (!base) {
+    return {
+      status: "insufficient_signal",
+      category,
+      monthly: 0,
+      weekly: 0,
+      highIntent: 0,
+      high_intent: 0,
+      label: `Insufficient signal to estimate intent benchmarks for ${humanizeCategory(category)}.`,
+      top_signals: buildIntentSignals(siteProfile),
+      geographies: buildGeographies(siteProfile),
+      provenance: {
+        category: "inferred",
+        monthly: "estimated",
+        weekly: "estimated",
+        highIntent: "estimated",
+        top_signals: "inferred",
+        geographies: "estimated",
+      },
+    }
+  }
+
   const monthly = withVariance(base.monthly)
   const weekly = withVariance(base.weekly)
   const highIntent = withVariance(base.highIntent)
 
   return {
+    status: "estimated",
     category,
     monthly,
     weekly,
     highIntent,
     high_intent: highIntent,
-    label: `Estimated based on Hubbly Data category benchmarks for ${industry || category}.`,
-    top_signals: [
-      `${category.replace(/_/g, " ")} pricing 2026`,
-      `best ${category.replace(/_/g, " ")} for growing teams`,
-      `${category.replace(/_/g, " ")} reviews`,
-      `${category.replace(/_/g, " ")} alternatives`,
-      `${category.replace(/_/g, " ")} solution`,
-    ],
-    geographies: buildGeographies(monthly),
+    label: `Estimated from Hubbly category benchmarks for ${humanizeCategory(category)} anchored on ${siteProfile.buyer_type ?? "insufficient signal"}.`,
+    top_signals: buildIntentSignals(siteProfile),
+    geographies: buildGeographies(siteProfile),
+    provenance: {
+      category: "inferred",
+      monthly: "estimated",
+      weekly: "estimated",
+      highIntent: "estimated",
+      top_signals: "inferred",
+      geographies: "estimated",
+    },
   }
 }
 
-function detectIntentCategory(industry?: string) {
-  const value = (industry ?? "").toLowerCase()
+function normalizeText(value?: string | null) {
+  const normalized = typeof value === "string" ? value.replace(/\s+/g, " ").trim() : ""
+  return normalized || null
+}
 
-  if (/insurance/.test(value)) return "insurance"
-  if (/mortgage|lending|loan/.test(value)) return "mortgage"
-  if (/real estate|housing|property/.test(value)) return "real_estate"
-  if (/recruit|talent|staffing|hiring/.test(value)) return "recruiting"
-  if (/solar/.test(value)) return "solar"
-  if (/home service|roof|plumb|hvac|contractor/.test(value)) return "home_services"
-  if (/commerce|retail|shop|consumer brand/.test(value)) return "ecommerce"
-  if (/agency|marketing/.test(value)) return "marketing_agency"
-  if (/health|medical|clinic/.test(value)) return "healthcare"
-  if (/finance|wealth|bank|ira|investment/.test(value)) return "finance"
-  if (/saas|software|platform|devtool|analytics|crm/.test(value)) return "saas"
+function getPrimaryIcpTitle(analysis: AuditAnalysis) {
+  const primary = analysis.icp?.primary as { title?: string } | undefined
+  return primary?.title
+}
 
-  return "default"
+function normalizeCategory(value?: string | null) {
+  const normalized = normalizeText(value)?.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "")
+  return normalized || null
+}
+
+function normalizeBuyerType(value?: string | null) {
+  const normalized = normalizeText(value)?.toLowerCase()
+
+  if (!normalized) return null
+  if (/consumer|individual|household|diner|patient|homeowner/.test(normalized)) return "consumer"
+  if (/business|b2b|company|team|enterprise|merchant/.test(normalized)) return "business"
+
+  return null
+}
+
+function normalizeBusinessModel(value?: string | null) {
+  const normalized = normalizeCategory(value)
+
+  if (!normalized) return null
+  if (/b2b.*saas|saas|software/.test(normalized)) return "b2b_saas"
+  if (/b2b.*service|agency|consult/.test(normalized)) return "b2b_services"
+  if (/local.*service|restaurant|clinic/.test(normalized)) return "local_service"
+  if (/b2c.*ecommerce|ecommerce|commerce|retail/.test(normalized)) return "b2c_ecommerce"
+  if (/marketplace/.test(normalized)) return "marketplace"
+
+  return normalized
+}
+
+function detectCategoryFromSignals(value: string, industry?: string | null) {
+  const combined = `${industry ?? ""} ${value}`.toLowerCase()
+
+  if (/crab|seafood|restaurant|menu|reservation|dining/.test(combined)) return "seafood_restaurant"
+  if (/payment|checkout|merchant|billing|payout|financial infrastructure/.test(combined)) return "payments"
+  if (/insurance/.test(combined)) return "insurance"
+  if (/mortgage|lending|loan/.test(combined)) return "mortgage"
+  if (/real estate|housing|property/.test(combined)) return "real_estate"
+  if (/recruit|talent|staffing|hiring/.test(combined)) return "recruiting"
+  if (/solar/.test(combined)) return "solar"
+  if (/home service|roof|plumb|hvac|contractor/.test(combined)) return "home_services"
+  if (/commerce|retail|shop|consumer brand/.test(combined)) return "ecommerce"
+  if (/agency|marketing/.test(combined)) return "marketing_agency"
+  if (/health|medical|clinic/.test(combined)) return "healthcare"
+  if (/finance|wealth|bank|ira|investment/.test(combined)) return "finance"
+  if (/saas|software|platform|devtool|analytics|crm|api/.test(combined)) return "saas"
+
+  return null
+}
+
+function detectBuyerTypeFromSignals(value: string) {
+  if (/restaurant|menu|reservation|near me|family|diner|consumer|patient|homeowner|personal/.test(value)) {
+    return "consumer"
+  }
+
+  if (/business|company|team|enterprise|merchant|developer|revenue|marketing|sales|ops|head of|director|vp|cto|cfo|founder/.test(value)) {
+    return "business"
+  }
+
+  return null
+}
+
+function detectBusinessModelFromSignals(value: string, buyerType: string | null, category: string | null) {
+  if (category === "seafood_restaurant" || /restaurant|reservation|menu|dining/.test(value)) return "local_service"
+  if (category === "payments" || /api|platform|software|saas|infrastructure/.test(value)) return "b2b_saas"
+  if (/agency|consulting|services/.test(value) && buyerType === "business") return "b2b_services"
+  if (/marketplace/.test(value)) return "marketplace"
+  if (/shopify|storefront|ecommerce|retail/.test(value)) return "b2c_ecommerce"
+  if (buyerType === "business") return "b2b_services"
+
+  return buyerType === "consumer" ? "local_service" : null
+}
+
+function findSourceSpan(positioningValue: string | null, scrapedContent: string) {
+  if (!positioningValue) return null
+
+  const sentence = scrapedContent
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map((line) => line.trim())
+    .find((line) => {
+      const lower = line.toLowerCase()
+      return positioningValue
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((word) => word.length > 4)
+        .slice(0, 5)
+        .some((word) => lower.includes(word))
+    })
+
+  return sentence ? sentence.slice(0, 500) : null
+}
+
+function buildIntentSignals(siteProfile: SiteProfile) {
+  const category = siteProfile.category
+
+  if (!category) return []
+
+  if (category === "payments") {
+    return [
+      "payments infrastructure pricing",
+      "best payment API for online businesses",
+      "payment processing software reviews",
+      "Stripe alternatives for businesses",
+      "payments platform for growing teams",
+    ]
+  }
+
+  if (category === "seafood_restaurant") {
+    return [
+      "seafood restaurant near me",
+      "crab shack menu",
+      "seafood restaurant reservations",
+      "best crab restaurant nearby",
+      "family seafood restaurant",
+    ]
+  }
+
+  if (siteProfile.buyer_type === "consumer" || siteProfile.business_model === "local_service") {
+    const label = humanizeCategory(category)
+    return [
+      `${label} near me`,
+      `${label} pricing`,
+      `best ${label} nearby`,
+      `${label} reviews`,
+      `${label} booking`,
+    ]
+  }
+
+  const label = humanizeCategory(category)
+  return [
+    `${label} pricing`,
+    `best ${label} for ${siteProfile.buyer_type === "business" ? "businesses" : "buyers"}`,
+    `${label} reviews`,
+    `${label} alternatives`,
+    `${label} solution`,
+  ]
+}
+
+function humanizeCategory(category: string) {
+  return category.replace(/_/g, " ")
 }
 
 function withVariance(value: number) {
@@ -724,14 +998,12 @@ function withVariance(value: number) {
   return Math.round(value * factor)
 }
 
-function buildGeographies(monthly: number) {
-  const states = ["California", "Texas", "Florida", "New York", "Illinois"]
-  const weights = [0.21, 0.17, 0.14, 0.11, 0.08]
+function buildGeographies(siteProfile: SiteProfile) {
+  if (!siteProfile.buyer_type || !siteProfile.business_model || !siteProfile.category) {
+    return []
+  }
 
-  return states.map((state, index) => ({
-    region: state,
-    count: Math.max(1, Math.round(monthly * weights[index])),
-  }))
+  return []
 }
 
 function buildGtmPlan(analysis: AuditAnalysis, intentData: Record<string, unknown>, companyName: string) {
@@ -758,3 +1030,6 @@ function buildGtmPlan(analysis: AuditAnalysis, intentData: Record<string, unknow
     },
   }
 }
+
+export const buildSiteProfileForTest = buildSiteProfile
+export const estimateIntentDataForTest = estimateIntentData

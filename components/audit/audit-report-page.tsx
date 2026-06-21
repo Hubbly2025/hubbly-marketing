@@ -45,6 +45,8 @@ type Audit = {
   }
   competitors?: Competitor[]
   intent_data?: {
+    status?: "estimated" | "insufficient_signal"
+    category?: string | null
     monthly?: number
     weekly?: number
     highIntent?: number
@@ -165,6 +167,9 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const monthly = intent.monthly ?? 0
   const weekly = intent.weekly ?? 0
   const highIntent = intent.highIntent ?? intent.high_intent ?? 0
+  const intentSignals = intent.top_signals ?? []
+  const intentGeographies = intent.geographies ?? []
+  const hasIntentSignal = intent.status !== "insufficient_signal"
   const isA16zReport = isAndreessenHorowitzReport(audit, companyName, domain)
   const sampleEmail = isA16zReport ? A16Z_CORRECTED_EMAIL : audit.sample_email ?? analysis.sample_email ?? {}
   const displayedGtmPlan = isA16zReport ? replacePlanEmailPov(audit.gtm_plan) : audit.gtm_plan
@@ -255,11 +260,13 @@ function CompleteReport({ audit }: { audit: Audit }) {
           <ReportSection eyebrow="Section 4" title="People searching for you right now">
             <div className="border border-[#FF6B35]/60 bg-[#FF6B35]/[0.04] p-6 md:p-10">
               <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/65">In the last 30 days</p>
-              <div className="mt-4 font-[var(--font-bebas)] text-7xl leading-none text-[#FF6B35] md:text-9xl">
-                {formatNumber(monthly)}
+              <div className={`mt-4 font-[var(--font-bebas)] leading-none text-[#FF6B35] ${hasIntentSignal ? "text-7xl md:text-9xl" : "text-5xl md:text-7xl"}`}>
+                {hasIntentSignal ? formatNumber(monthly) : "Insufficient signal"}
               </div>
               <p className="mt-4 max-w-2xl text-xl text-white md:text-2xl">
-                people actively researched solutions like {companyName}.
+                {hasIntentSignal
+                  ? `people actively researched solutions like ${companyName}.`
+                  : "Hubbly could not resolve enough buyer/category signal to estimate demand honestly."}
               </p>
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <MetricCard label="Searched in the last 7 days" value={formatNumber(weekly)} />
@@ -276,11 +283,17 @@ function CompleteReport({ audit }: { audit: Audit }) {
                   Top intent signals detected
                 </h3>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  {(intent.top_signals ?? []).slice(0, 5).map((signal) => (
-                    <span key={signal} className="border border-[#FF6B35]/50 px-3 py-2 font-mono text-xs text-white/80">
-                      {signal}
-                    </span>
-                  ))}
+                  {intentSignals.length ? (
+                    intentSignals.slice(0, 5).map((signal) => (
+                      <span key={signal} className="border border-[#FF6B35]/50 px-3 py-2 font-mono text-xs text-white/80">
+                        {signal}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="font-mono text-xs leading-6 text-white/60">
+                      Insufficient signal to generate anchored intent signals.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -289,18 +302,24 @@ function CompleteReport({ audit }: { audit: Audit }) {
                   Top buyer geographies
                 </h3>
                 <div className="mt-4 space-y-3">
-                  {(intent.geographies ?? []).slice(0, 5).map((geo) => (
-                    <div key={geo.region} className="grid grid-cols-[110px_1fr_70px] items-center gap-3 font-mono text-xs">
-                      <span className="text-white/70">{geo.region}</span>
-                      <span className="h-2 bg-white/10">
-                        <span
-                          className="block h-2 bg-[#FF6B35]"
-                          style={{ width: `${Math.min(((geo.count ?? 0) / Math.max(monthly * 0.22, 1)) * 100, 100)}%` }}
-                        />
-                      </span>
-                      <span className="text-right text-white">{formatNumber(geo.count ?? 0)}</span>
-                    </div>
-                  ))}
+                  {intentGeographies.length ? (
+                    intentGeographies.slice(0, 5).map((geo) => (
+                      <div key={geo.region} className="grid grid-cols-[110px_1fr_70px] items-center gap-3 font-mono text-xs">
+                        <span className="text-white/70">{geo.region}</span>
+                        <span className="h-2 bg-white/10">
+                          <span
+                            className="block h-2 bg-[#FF6B35]"
+                            style={{ width: `${Math.min(((geo.count ?? 0) / Math.max(monthly * 0.22, 1)) * 100, 100)}%` }}
+                          />
+                        </span>
+                        <span className="text-right text-white">{formatNumber(geo.count ?? 0)}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="font-mono text-xs leading-6 text-white/60">
+                      Insufficient geographic signal; no hardcoded geo split applied.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
