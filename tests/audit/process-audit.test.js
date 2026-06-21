@@ -114,4 +114,25 @@ assertNoDefaultTerm(restaurantProfile)
 assertNoDefaultTerm(stripeIntent)
 assertNoDefaultTerm(restaurantIntent)
 
+const stripeWithIncidentalConsumerCopy = buildSiteProfileForTest({
+  domain: "stripe.example",
+  scannedAt,
+  analysis: {
+    company_name: "Stripe",
+    product: "Financial infrastructure for businesses.",
+    industry: "Payments infrastructure",
+    icp: {
+      primary: {
+        title: "Head of payments",
+      },
+    },
+    outreach_angle: "Businesses use Stripe to accept payments from consumers around the world.",
+  },
+  scrapedContent: "Businesses use Stripe APIs to accept payments from consumers, manage billing, and move money.",
+})
+
+assert.equal(stripeWithIncidentalConsumerCopy.business_model, "b2b_saas")
+assert.equal(stripeWithIncidentalConsumerCopy.category, "payments")
+assert.equal(stripeWithIncidentalConsumerCopy.buyer_type, "business")
+
 console.log("audit process helpers: 1 passed")

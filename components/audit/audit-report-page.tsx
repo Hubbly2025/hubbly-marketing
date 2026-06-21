@@ -280,7 +280,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
             <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
               <div>
                 <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
-                  Top intent signals detected
+                  Anchored intent signals
                 </h3>
                 <div className="mt-4 flex flex-wrap gap-3">
                   {intentSignals.length ? (

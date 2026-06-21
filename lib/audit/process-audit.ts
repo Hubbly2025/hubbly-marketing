@@ -737,9 +737,9 @@ function buildSiteProfile(params: {
   ].filter(Boolean).join(" ").toLowerCase()
   const industry = normalizeText(params.analysis.industry)
   const category = normalizeCategory(params.analysis.category) ?? detectCategoryFromSignals(text, industry)
-  const buyerType = normalizeBuyerType(params.analysis.buyer_type) ?? detectBuyerTypeFromSignals(text)
   const businessModel = normalizeBusinessModel(params.analysis.business_model)
-    ?? detectBusinessModelFromSignals(text, buyerType, category)
+    ?? detectBusinessModelFromSignals(text, normalizeBuyerType(params.analysis.buyer_type), category)
+  const buyerType = normalizeBuyerType(params.analysis.buyer_type) ?? detectBuyerTypeFromSignals(text, businessModel, category)
   const positioningValue = normalizeText(params.analysis.positioning?.value)
     ?? normalizeText(params.analysis.outreach_angle)
     ?? normalizeText(params.analysis.product)
@@ -900,7 +900,11 @@ function detectCategoryFromSignals(value: string, industry?: string | null) {
   return null
 }
 
-function detectBuyerTypeFromSignals(value: string) {
+function detectBuyerTypeFromSignals(value: string, businessModel: string | null, category: string | null) {
+  if (businessModel?.startsWith("b2b") || category === "payments") {
+    return "business"
+  }
+
   if (/restaurant|menu|reservation|near me|family|diner|consumer|patient|homeowner|personal/.test(value)) {
     return "consumer"
   }
