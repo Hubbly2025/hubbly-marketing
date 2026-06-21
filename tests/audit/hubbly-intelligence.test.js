@@ -28,6 +28,9 @@ function loadTsModule(relativePath) {
       if (specifier === "./hubbly-intelligence-config") {
         return loadTsModule("lib/audit/hubbly-intelligence-config.ts")
       }
+      if (specifier === "./scan-model-config") {
+        return loadTsModule("lib/audit/scan-model-config.ts")
+      }
       return require(specifier)
     },
     process,

@@ -1,0 +1,100 @@
+{
+  "audit": {
+    "id": "clean-measured",
+    "url": "https://stripe.example",
+    "status": "complete",
+    "analysis": {
+      "company_name": "Stripe",
+      "product": "Payments infrastructure for internet businesses.",
+      "industry": "Payments infrastructure",
+      "icp": {
+        "primary": {
+          "title": "Head of payments"
+        }
+      },
+      "site_profile": {
+        "domain": "stripe.example",
+        "scanned_at": "2026-06-21T12:00:00.000Z",
+        "business_model": "b2b_saas",
+        "buyer_type": "business",
+        "industry": "payments infrastructure",
+        "category": "payments",
+        "positioning": {
+          "value": "Payments infrastructure for internet businesses.",
+          "source_span": "Payments infrastructure for internet businesses."
+        },
+        "observed_evidence": {
+          "primary_cta_text": "Contact sales",
+          "h1": "Financial infrastructure to grow your revenue",
+          "key_headers": ["Financial infrastructure to grow your revenue"],
+          "detected_tech_stack": ["React"]
+        },
+        "provenance": {
+          "domain": "measured",
+          "scanned_at": "measured",
+          "business_model": "inferred",
+          "buyer_type": "inferred",
+          "industry": "inferred",
+          "category": "inferred",
+          "positioning": "inferred",
+          "observed_evidence": "measured",
+          "model": {
+            "provider": "anthropic",
+            "model": "claude-opus-4-8",
+            "version": "4.8",
+            "tier": "free",
+            "flippable_to": "claude-sonnet-4-6"
+          }
+        },
+        "model_provenance": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "version": "4.8",
+          "tier": "free",
+          "flippable_to": "claude-sonnet-4-6"
+        }
+      },
+      "provenance": {
+        "industry": "inferred",
+        "buyer_type": "inferred",
+        "observed_evidence": "measured",
+        "model": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "version": "4.8",
+          "tier": "free",
+          "flippable_to": "claude-sonnet-4-6"
+        }
+      },
+      "model_provenance": {
+        "provider": "anthropic",
+        "model": "claude-opus-4-8",
+        "version": "4.8",
+        "tier": "free",
+        "flippable_to": "claude-sonnet-4-6"
+      }
+    },
+    "intent_data": {
+      "status": "measured",
+      "category": "payments",
+      "monthly": 2000,
+      "highIntent": 2000,
+      "high_intent": 2000,
+      "label": "Measured by Hubbly Intelligence for payments.",
+      "top_signals": ["payments api pricing", "payment processing software"],
+      "keyword_volumes": [
+        { "keyword": "payments api pricing", "monthlyVolume": 1200 },
+        { "keyword": "payment processing software", "monthlyVolume": 800 }
+      ],
+      "geographies": [],
+      "provenance": {
+        "category": "inferred",
+        "monthly": "measured",
+        "highIntent": "measured",
+        "top_signals": "measured",
+        "keyword_volumes": "measured",
+        "geographies": "estimated"
+      }
+    }
+  }
+}

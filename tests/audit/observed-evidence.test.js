@@ -34,6 +34,32 @@ const sandbox = {
     if (specifier === "./hubbly-intelligence-config") {
       return { getHubblyIntelligenceConfig: () => ({ cadence: { free: "on_demand", autopilot: "weekly", workforce: "daily" } }) }
     }
+    if (specifier === "./scan-model-config") {
+      return {
+        getScanModelConfig: () => ({
+          provider: "anthropic",
+          model: "claude-opus-4-8",
+          version: "4.8",
+          tier: "free",
+          flippable_to: "claude-sonnet-4-6",
+        }),
+        SCAN_MODEL_POLICY: {
+          free: {
+            provider: "anthropic",
+            model: "claude-opus-4-8",
+            version: "4.8",
+            tier: "free",
+            flippable_to: "claude-sonnet-4-6",
+          },
+          paid: {
+            provider: "anthropic",
+            model: "claude-opus-4-8",
+            version: "4.8",
+            tier: "paid",
+          },
+        },
+      }
+    }
     return require(specifier)
   },
   process,

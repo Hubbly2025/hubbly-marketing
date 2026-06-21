@@ -1,0 +1,47 @@
+{
+  "audit": {
+    "id": "fabricated-intent",
+    "url": "https://example.invalid",
+    "status": "complete",
+    "analysis": {
+      "company_name": "Example",
+      "site_profile": {
+        "observed_evidence": {
+          "primary_cta_text": null,
+          "h1": null,
+          "key_headers": [],
+          "detected_tech_stack": []
+        },
+        "provenance": {
+          "observed_evidence": "measured"
+        }
+      },
+      "model_provenance": {
+        "model": "claude-opus-4-8",
+        "version": "4.8",
+        "tier": "free"
+      }
+    },
+    "intent_data": {
+      "status": "measured",
+      "monthly": 3973,
+      "highIntent": 1800,
+      "label": "Estimated based on Hubbly Data category benchmarks for software.",
+      "top_signals": ["default pricing 2026"],
+      "keyword_volumes": [],
+      "geographies": [
+        { "region": "California", "count": 900 },
+        { "region": "Texas", "count": 800 },
+        { "region": "Florida", "count": 700 },
+        { "region": "New York", "count": 600 },
+        { "region": "Illinois", "count": 500 }
+      ],
+      "provenance": {
+        "monthly": "measured",
+        "highIntent": "measured",
+        "top_signals": "measured",
+        "geographies": "estimated"
+      }
+    }
+  }
+}

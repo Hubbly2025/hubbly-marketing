@@ -21,6 +21,9 @@ type SampleEmail = {
   body?: string
 }
 
+type ProvenanceTag = "measured" | "inferred" | "estimated" | "recommendation"
+type ProvenanceValue = ProvenanceTag | Record<string, unknown> | undefined
+
 type Audit = {
   id: string
   url: string
@@ -42,8 +45,20 @@ type Audit = {
     outreach_angle?: string
     sample_email?: SampleEmail
     site_profile?: {
+      business_model?: string | null
+      buyer_type?: string | null
+      industry?: string | null
+      category?: string | null
+      positioning?: {
+        value?: string | null
+        source_span?: string | null
+      }
       observed_evidence?: ObservedEvidence
+      provenance?: Record<string, ProvenanceValue>
+      model_provenance?: Record<string, unknown>
     }
+    provenance?: Record<string, ProvenanceValue>
+    model_provenance?: Record<string, unknown>
     error?: string
   }
   competitors?: Competitor[]
@@ -58,6 +73,7 @@ type Audit = {
     top_signals?: string[]
     keyword_volumes?: Array<{ keyword?: string; monthlyVolume?: number }>
     geographies?: Array<{ region?: string; count?: number }>
+    provenance?: Record<string, ProvenanceValue>
   }
   gtm_plan?: {
     week_1?: Record<string, unknown>
@@ -182,6 +198,8 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const intentGeographies = intent.geographies ?? []
   const hasIntentSignal = intent.status !== "insufficient_signal"
   const observedEvidence = analysis.site_profile?.observed_evidence ?? {}
+  const siteProvenance = analysis.site_profile?.provenance ?? analysis.provenance ?? {}
+  const intentProvenance = intent.provenance ?? {}
   const primaryCta = observedEvidence.primary_cta_text || "not detected"
   const h1 = observedEvidence.h1 || "not detected"
   const keyHeaders = observedEvidence.key_headers?.length
@@ -230,28 +248,28 @@ function CompleteReport({ audit }: { audit: Audit }) {
           <ReportSection eyebrow="Section 1" title="What Hubbly found">
             <div className="grid gap-4 md:grid-cols-2">
               <SnapshotRow label="Product/service" value={analysis.product} />
-              <SnapshotRow label="Industry" value={analysis.industry} />
-              <SnapshotRow label="Target market" value={analysis.icp?.primary?.title} />
-              <SnapshotRow label="Current positioning" value={analysis.outreach_angle} />
-              <SnapshotRow label="H1" value={h1} />
-              <SnapshotRow label="Key headers" value={keyHeaders} />
-              <SnapshotRow label="Primary CTA" value={primaryCta} />
-              <SnapshotRow label="Tech stack" value={techStack} />
+              <SnapshotRow label="Industry" value={analysis.industry} provenance={siteProvenance.industry} />
+              <SnapshotRow label="Target market" value={analysis.icp?.primary?.title} provenance={siteProvenance.buyer_type} />
+              <SnapshotRow label="Current positioning" value={analysis.outreach_angle} provenance={siteProvenance.positioning} />
+              <SnapshotRow label="H1" value={h1} provenance={siteProvenance.observed_evidence} />
+              <SnapshotRow label="Key headers" value={keyHeaders} provenance={siteProvenance.observed_evidence} />
+              <SnapshotRow label="Primary CTA" value={primaryCta} provenance={siteProvenance.observed_evidence} />
+              <SnapshotRow label="Tech stack" value={techStack} provenance={siteProvenance.observed_evidence} />
             </div>
           </ReportSection>
 
-          <ReportSection eyebrow="Section 2" title="Who actually buys this">
+          <ReportSection eyebrow="Section 2" title="Who actually buys this" provenance={siteProvenance.buyer_type}>
             <div className="grid gap-5 lg:grid-cols-3">
-              <PersonaCard label="Primary" persona={analysis.icp?.primary} />
-              <PersonaCard label="Secondary" persona={analysis.icp?.secondary} />
-              <PersonaCard label="Emerging" persona={analysis.icp?.emerging} />
+              <PersonaCard label="Primary" persona={analysis.icp?.primary} provenance={siteProvenance.buyer_type} />
+              <PersonaCard label="Secondary" persona={analysis.icp?.secondary} provenance={siteProvenance.buyer_type} />
+              <PersonaCard label="Emerging" persona={analysis.icp?.emerging} provenance={siteProvenance.buyer_type} />
             </div>
             <p className="mt-6 border-l border-[#FF6B35] pl-4 font-mono text-sm text-white/70">
               These are the people Hubbly OS would find, contact, and book meetings with automatically.
             </p>
           </ReportSection>
 
-          <ReportSection eyebrow="Section 3" title="Who you're up against">
+          <ReportSection eyebrow="Section 3" title="Who you're up against" provenance="inferred">
             <div className="overflow-x-auto border border-white/10">
               <table className="w-full min-w-[820px] border-collapse text-left">
                 <thead className="bg-white/[0.03] font-mono text-[10px] uppercase tracking-[0.22em] text-[#FF6B35]">
@@ -279,9 +297,12 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </p>
           </ReportSection>
 
-          <ReportSection eyebrow="Section 4" title="People searching for you right now">
+          <ReportSection eyebrow="Section 4" title="People searching for you right now" provenance={intentProvenance.monthly}>
             <div className="border border-[#FF6B35]/60 bg-[#FF6B35]/[0.04] p-6 md:p-10">
-              <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/65">In the last 30 days</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/65">In the last 30 days</p>
+                <ProvenanceChip tag={intentProvenance.monthly} />
+              </div>
               <div className={`mt-4 font-[var(--font-bebas)] leading-none text-[#FF6B35] ${hasIntentSignal ? "text-7xl md:text-9xl" : "text-5xl md:text-7xl"}`}>
                 {hasIntentSignal ? formatNumber(monthly) : "Insufficient signal"}
               </div>
@@ -291,19 +312,22 @@ function CompleteReport({ audit }: { audit: Audit }) {
                   : "Hubbly does not have measured demand or volume data for this category yet."}
               </p>
               <div className="mt-8 grid gap-4 md:grid-cols-2">
-                <MetricCard label="Searched in the last 7 days" value={typeof intent.weekly === "number" ? formatNumber(weekly) : "not available"} />
-                <MetricCard label="Showed high purchase intent" value={formatNumber(highIntent)} />
+                <MetricCard label="Searched in the last 7 days" value={typeof intent.weekly === "number" ? formatNumber(weekly) : "not available"} provenance={intentProvenance.weekly} />
+                <MetricCard label="Showed high purchase intent" value={formatNumber(highIntent)} provenance={intentProvenance.highIntent} />
               </div>
               <p className="mt-6 font-mono text-xs text-white/55">
-                {intent.label || `Estimated based on Hubbly Data category benchmarks for ${analysis.industry || "this market"}.`}
+                {intent.label || "Hubbly Intelligence does not have measured demand data for this category yet."}
               </p>
             </div>
 
             <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
               <div>
-                <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
-                  Anchored intent signals
-                </h3>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
+                    Anchored intent signals
+                  </h3>
+                  <ProvenanceChip tag={intentProvenance.top_signals} />
+                </div>
                 <div className="mt-4 flex flex-wrap gap-3">
                   {intentSignals.length ? (
                     intentSignals.slice(0, 5).map((signal) => (
@@ -320,9 +344,12 @@ function CompleteReport({ audit }: { audit: Audit }) {
               </div>
 
               <div>
-                <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
-                  Top buyer geographies
-                </h3>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
+                    Top buyer geographies
+                  </h3>
+                  <ProvenanceChip tag={intentProvenance.geographies} />
+                </div>
                 <div className="mt-4 space-y-3">
                   {intentGeographies.length ? (
                     intentGeographies.slice(0, 5).map((geo) => (
@@ -351,7 +378,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </p>
           </ReportSection>
 
-          <ReportSection eyebrow="Section 4A" title="Your invisible pipeline">
+          <ReportSection eyebrow="Section 4A" title="Your invisible pipeline" provenance="recommendation">
             <div className="grid gap-8 border border-white/10 bg-white/[0.03] p-6 md:p-10 lg:grid-cols-[1fr_0.8fr]">
               <div className="space-y-5 text-lg leading-8 text-white/78">
                 <p>Most companies convert 1-3% of their website visitors.</p>
@@ -383,7 +410,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </div>
           </ReportSection>
 
-          <ReportSection eyebrow="Section 5" title="What's missing from your motion">
+          <ReportSection eyebrow="Section 5" title="What's missing from your motion" provenance="recommendation">
             <div className="grid gap-3 md:grid-cols-2">
               {["Website presence", "Product positioning"].map((item) => (
                 <ChecklistItem key={item} complete label={item} />
@@ -397,7 +424,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </p>
           </ReportSection>
 
-          <ReportSection eyebrow="Section 6" title="Your 30-day execution plan">
+          <ReportSection eyebrow="Section 6" title="Your 30-day execution plan" provenance="recommendation">
             {isA16zReport && (
               <CorrectionNote>
                 [NOTE: Section 6 email sample rewritten to use a16z → founder POV.]
@@ -418,7 +445,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
             )}
           </ReportSection>
 
-          <ReportSection eyebrow="Section 7" title="What Hubbly would send on your behalf">
+          <ReportSection eyebrow="Section 7" title="What Hubbly would send on your behalf" provenance="recommendation">
             {isA16zReport && (
               <CorrectionNote>
                 [NOTE: Section 7 email rewritten from founder → a16z POV to a16z → founder POV.]
@@ -443,9 +470,12 @@ function CompleteReport({ audit }: { audit: Audit }) {
           </ReportSection>
 
           <section className="border border-[#FF6B35]/70 bg-[#FF6B35]/[0.06] p-6 text-center md:p-12">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#FF6B35]">
-              Start your pipeline
-            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#FF6B35]">
+                Start your pipeline
+              </p>
+              <ProvenanceChip tag={intentProvenance.monthly} />
+            </div>
             <h2 className="mt-5 font-[var(--font-bebas)] text-5xl leading-none tracking-tight md:text-8xl">
               {formatNumber(monthly)} buyers are searching right now. Ready to reach them?
             </h2>
@@ -480,16 +510,21 @@ function CompleteReport({ audit }: { audit: Audit }) {
 function ReportSection({
   eyebrow,
   title,
+  provenance,
   children,
 }: {
   eyebrow: string
   title: string
+  provenance?: ProvenanceValue
   children: React.ReactNode
 }) {
   return (
     <section className="border-t border-[#FF6B35]/50 pt-6">
       <div className="mb-8 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF6B35]">{eyebrow}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF6B35]">{eyebrow}</p>
+          <ProvenanceChip tag={provenance} />
+        </div>
         <h2 className="font-[var(--font-bebas)] text-4xl leading-none tracking-tight text-white md:text-6xl">
           {title}
         </h2>
@@ -507,19 +542,25 @@ function CorrectionNote({ children }: { children: React.ReactNode }) {
   )
 }
 
-function SnapshotRow({ label, value }: { label: string; value?: string }) {
+function SnapshotRow({ label, value, provenance }: { label: string; value?: string; provenance?: ProvenanceValue }) {
   return (
     <div className="border border-white/10 bg-white/[0.03] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF6B35]">{label}</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF6B35]">{label}</p>
+        <ProvenanceChip tag={provenance} />
+      </div>
       <p className="mt-3 text-sm leading-6 text-white/78">{value || "Not enough public data to determine confidently"}</p>
     </div>
   )
 }
 
-function PersonaCard({ label, persona }: { label: string; persona?: Persona }) {
+function PersonaCard({ label, persona, provenance }: { label: string; persona?: Persona; provenance?: ProvenanceValue }) {
   return (
     <div className="border border-white/10 bg-white/[0.03] p-5">
-      <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#FF6B35]">{label}</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#FF6B35]">{label}</p>
+        <ProvenanceChip tag={provenance} />
+      </div>
       <h3 className="mt-4 text-xl font-semibold text-white">{persona?.title || "Buyer title unavailable"}</h3>
       <dl className="mt-5 space-y-4 text-sm">
         <Detail label="Company size" value={persona?.company_size} />
@@ -539,12 +580,41 @@ function Detail({ label, value }: { label: string; value?: string }) {
   )
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function MetricCard({ label, value, provenance }: { label: string; value: string; provenance?: ProvenanceValue }) {
   return (
     <div className="border border-white/10 bg-[#0A0A0A]/50 p-5">
       <p className="font-[var(--font-bebas)] text-5xl leading-none text-white">{value}</p>
-      <p className="mt-2 font-mono text-xs uppercase tracking-[0.14em] text-white/50">{label}</p>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <p className="font-mono text-xs uppercase tracking-[0.14em] text-white/50">{label}</p>
+        <ProvenanceChip tag={provenance} />
+      </div>
     </div>
+  )
+}
+
+export function provenanceChipLabelForTest(tag?: ProvenanceValue) {
+  if (tag !== "measured" && tag !== "inferred" && tag !== "estimated" && tag !== "recommendation") {
+    return null
+  }
+
+  return tag
+}
+
+function ProvenanceChip({ tag }: { tag?: ProvenanceValue }) {
+  const label = provenanceChipLabelForTest(tag)
+  if (!label) return null
+
+  const className = {
+    measured: "border-emerald-300/30 bg-emerald-300/10 text-emerald-200",
+    inferred: "border-sky-300/25 bg-sky-300/10 text-sky-200",
+    estimated: "border-amber-300/30 bg-amber-300/10 text-amber-200",
+    recommendation: "border-[#FF6B35]/35 bg-[#FF6B35]/10 text-[#FFB199]",
+  }[label]
+
+  return (
+    <span className={`inline-flex items-center border px-2 py-1 font-mono text-[9px] uppercase tracking-[0.14em] ${className}`}>
+      {label}
+    </span>
   )
 }
 

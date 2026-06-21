@@ -1,5 +1,6 @@
 import siteProfileVocab from "./site-profile-vocab.v1.json"
 import { createHubblyIntelligenceClient, type HubblyIntelligenceClient } from "./hubbly-intelligence"
+import { getScanModelConfig, SCAN_MODEL_POLICY, type ScanModelConfig } from "./scan-model-config"
 import { parse } from "node-html-parser"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
@@ -14,6 +15,7 @@ const SCRAPE_PATHS = [
 ] as const
 
 type ProvenanceTag = "measured" | "inferred" | "estimated" | "recommendation"
+type ProvenanceRecord = Record<string, ProvenanceTag | ScanModelConfig>
 
 type SiteProfile = {
   domain: string
@@ -27,7 +29,8 @@ type SiteProfile = {
     source_span: string | null
   }
   observed_evidence: ObservedEvidence
-  provenance: Record<string, ProvenanceTag>
+  provenance: ProvenanceRecord
+  model_provenance?: ScanModelConfig
 }
 
 type ObservedEvidence = {
@@ -65,7 +68,8 @@ type AuditAnalysis = {
     source_span?: string | null
   }
   site_profile?: SiteProfile
-  provenance?: Record<string, ProvenanceTag>
+  provenance?: ProvenanceRecord
+  model_provenance?: ScanModelConfig
   icp?: Record<string, unknown>
   competitors?: Array<Record<string, unknown>>
   gtm_gaps?: string[]
@@ -93,6 +97,7 @@ type AuditDebugState = {
 
 export async function processAudit(auditId: string, url: string) {
   const supabase = getSupabaseConfig()
+  const modelConfig = getScanModelConfig("free")
   const logs: AuditDebugLog[] = []
   let currentStep = "Starting audit"
   let progressPercent = 5
@@ -145,15 +150,17 @@ export async function processAudit(auditId: string, url: string) {
       return
     }
 
-    await markProgress("analyzing", 45, "Analyzing GTM strategy with Claude", {
+    await markProgress("analyzing", 45, "Analyzing GTM strategy with pinned synthesis model", {
       content_length: scrapedContent.length,
       pages_scraped: scrapedPages.length,
+      model: modelConfig.model,
+      model_version: modelConfig.version,
     })
 
     let analysis: AuditAnalysis
     let manualReview: AuditDebugState["manual_review"] | undefined
     try {
-      analysis = await analyzeWithClaude(scrapedContent, log)
+      analysis = await analyzeWithClaude(scrapedContent, log, modelConfig)
     } catch (error) {
       const friendlyMessage = toFriendlyError(error)
       log("error", "analysis", friendlyMessage, { raw_error: getErrorMessage(error) })
@@ -186,7 +193,11 @@ export async function processAudit(auditId: string, url: string) {
     normalizedAnalysis.buyer_type = siteProfile.buyer_type ?? undefined
     normalizedAnalysis.category = siteProfile.category ?? undefined
     normalizedAnalysis.positioning = siteProfile.positioning
-    normalizedAnalysis.provenance = siteProfile.provenance
+    normalizedAnalysis.provenance = {
+      ...siteProfile.provenance,
+      model: modelConfig,
+    }
+    normalizedAnalysis.model_provenance = modelConfig
     normalizedAnalysis.site_profile = siteProfile
 
     const intentData = await buildMeasuredIntentData(siteProfile, createHubblyIntelligenceClient())
@@ -529,13 +540,14 @@ function formatScrapedContent(pages: ScrapedPage[], companyName: string) {
 async function analyzeWithClaude(
   scrapedContent: string,
   log: (level: AuditDebugLog["level"], step: string, message: string, detail?: Record<string, unknown>) => void,
+  modelConfig: ScanModelConfig = getScanModelConfig("free"),
 ) {
   const firstPrompt = buildAnalysisPrompt(scrapedContent)
 
   try {
     return validateAnalysis(await withRetry(
       "claude analysis",
-      () => callClaude(firstPrompt),
+      () => callClaude(firstPrompt, modelConfig),
       { retries: 2, baseDelayMs: 900 },
       log,
     ))
@@ -548,7 +560,7 @@ async function analyzeWithClaude(
 Your previous response was not usable. Return only compact valid JSON with every required top-level key present: product, industry, icp, competitors, gtm_gaps, outreach_angle, sample_email.`
     return validateAnalysis(await withRetry(
       "claude compact retry",
-      () => callClaude(retryPrompt),
+      () => callClaude(retryPrompt, modelConfig),
       { retries: 1, baseDelayMs: 1200 },
       log,
     ))
@@ -607,7 +619,7 @@ Rules:
 - Respond with valid JSON only — no text outside the JSON`
 }
 
-async function callClaude(prompt: string) {
+async function callClaude(prompt: string, modelConfig: ScanModelConfig = getScanModelConfig("free")) {
   const apiKey = process.env.ANTHROPIC_API_KEY || process.env.Anthropic
 
   if (!apiKey) {
@@ -622,7 +634,7 @@ async function callClaude(prompt: string) {
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5",
+      model: modelConfig.model,
       max_tokens: 3000,
       messages: [{ role: "user", content: prompt }],
     }),
@@ -860,7 +872,9 @@ function buildSiteProfile(params: {
       category: category ? "inferred" : "estimated",
       positioning: sourceSpan ? "inferred" : "estimated",
       observed_evidence: "measured",
+      model: getScanModelConfig("free"),
     },
+    model_provenance: getScanModelConfig("free"),
   }
 }
 
@@ -951,11 +965,11 @@ function insufficientIntentData(category: string | null) {
     },
     provenance: {
       category: category ? "inferred" : "estimated",
-      monthly: "measured",
-      highIntent: "measured",
-      top_signals: "measured",
-      keyword_volumes: "measured",
-      geographies: "measured",
+      monthly: "estimated",
+      highIntent: "estimated",
+      top_signals: "estimated",
+      keyword_volumes: "estimated",
+      geographies: "estimated",
     },
   }
 }
@@ -1132,3 +1146,4 @@ export const extractObservedEvidenceForTest = extractObservedEvidence
 export const mergeObservedEvidenceForTest = mergeObservedEvidence
 export const siteProfileVocabVersionForTest = siteProfileVocab.version
 export const normalizeSiteProfileValuesForTest = normalizeSiteProfileValues
+export const scanModelPolicyForTest = SCAN_MODEL_POLICY
