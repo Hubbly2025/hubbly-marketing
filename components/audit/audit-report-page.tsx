@@ -261,7 +261,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
     score: String(intent.highIntent || intent.high_intent || ""),
     source: "audit_report",
   }).toString()}`
-  const generatedDate = formatDate(audit.completed_at || audit.created_at)
+  const generatedDateLabel = reportDateLabelForTest(audit.completed_at || audit.created_at)
 
   return (
     <main className="min-h-screen bg-[#0A0A0A] text-white">
@@ -279,7 +279,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
               {companyName} — {domain}
             </h1>
             <p className="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-white/55">
-              Generated: {generatedDate}
+              {generatedDateLabel}
             </p>
           </div>
 
@@ -760,6 +760,10 @@ export function marketplaceProvenanceForTest(
   provenance?: ProvenanceValue,
 ) {
   return marketplaces.length ? provenance : undefined
+}
+
+export function reportDateLabelForTest(value?: string) {
+  return `Scanned on: ${formatDate(value)}`
 }
 
 function ProvenanceChip({ tag }: { tag?: ProvenanceValue }) {

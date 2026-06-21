@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
   }
 
-  const email = payload.email?.trim().toLowerCase()
+  const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : ""
   const company = payload.company?.trim()
   const role = payload.role?.trim()
   const companySize = payload.company_size?.trim()

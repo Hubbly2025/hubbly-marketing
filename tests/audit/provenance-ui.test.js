@@ -31,7 +31,7 @@ const sandbox = {
 sandbox.exports = sandbox.module.exports
 vm.runInNewContext(compiled, sandbox, { filename: sourcePath })
 
-const { geographyProvenanceForTest, provenanceChipLabelForTest } = sandbox.module.exports
+const { geographyProvenanceForTest, provenanceChipLabelForTest, reportDateLabelForTest } = sandbox.module.exports
 
 assert.equal(provenanceChipLabelForTest("measured"), "measured")
 assert.equal(provenanceChipLabelForTest("inferred"), "inferred")
@@ -42,5 +42,6 @@ assert.equal(provenanceChipLabelForTest({ model: "claude-opus-4-8", version: "4.
 assert.equal(provenanceChipLabelForTest("measured_without_source"), null)
 assert.equal(geographyProvenanceForTest([], "estimated"), undefined)
 assert.equal(geographyProvenanceForTest([{ region: "Austin", count: 12 }], "measured"), "measured")
+assert.match(reportDateLabelForTest("2026-06-21T12:00:00.000Z"), /^Scanned on: /)
 
 console.log("provenance UI: 1 passed")
