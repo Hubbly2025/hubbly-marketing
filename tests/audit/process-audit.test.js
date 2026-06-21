@@ -17,7 +17,12 @@ const compiled = ts.transpileModule(source, {
 const sandbox = {
   exports: {},
   module: { exports: {} },
-  require,
+  require: (specifier) => {
+    if (specifier === "./site-profile-vocab.v1.json") {
+      return require(path.join(__dirname, "..", "..", "lib", "audit", "site-profile-vocab.v1.json"))
+    }
+    return require(specifier)
+  },
   process,
   console,
   URL,

@@ -1,0 +1,158 @@
+{
+  "version": "site-profile-vocab.v1",
+  "business_models": [
+    {
+      "slug": "b2b_saas",
+      "display": "B2B SaaS",
+      "aliases": ["b2b saas", "saas", "saas platform", "software", "software platform", "api platform"]
+    },
+    {
+      "slug": "b2b_services",
+      "display": "B2B services",
+      "aliases": ["b2b services", "agency", "consulting", "managed service", "professional services"]
+    },
+    {
+      "slug": "b2c_ecommerce",
+      "display": "B2C ecommerce",
+      "aliases": ["b2c ecommerce", "ecommerce", "e-commerce", "online store", "retail", "shop"]
+    },
+    {
+      "slug": "b2c_financial_services",
+      "display": "B2C financial services",
+      "aliases": ["consumer financial services", "financial services", "wealth", "investment", "ira"]
+    },
+    {
+      "slug": "b2c_high_consideration",
+      "display": "B2C high-consideration",
+      "aliases": ["high consideration", "consumer service", "provider"]
+    },
+    {
+      "slug": "local_service",
+      "display": "Local service",
+      "aliases": ["local service", "restaurant", "clinic", "home service", "contractor", "local business"]
+    },
+    {
+      "slug": "marketplace",
+      "display": "Marketplace",
+      "aliases": ["marketplace", "two sided marketplace", "buyer seller marketplace"]
+    },
+    {
+      "slug": "investor_vc",
+      "display": "Investor / VC",
+      "aliases": ["investor", "vc", "venture capital", "investment firm"]
+    },
+    {
+      "slug": "media_content",
+      "display": "Media / content",
+      "aliases": ["media", "content", "newsletter", "publication", "podcast"]
+    },
+    {
+      "slug": "other",
+      "display": "Other",
+      "aliases": ["other"]
+    }
+  ],
+  "buyer_types": [
+    {
+      "slug": "business",
+      "display": "Business",
+      "aliases": ["business", "b2b", "b2b team", "company", "companies", "team", "enterprise", "merchant", "developer", "founder"]
+    },
+    {
+      "slug": "consumer",
+      "display": "Consumer",
+      "aliases": ["consumer", "b2c", "individual", "individual investor", "household", "diner", "patient", "homeowner", "local diner"]
+    }
+  ],
+  "categories": [
+    {
+      "slug": "payments",
+      "display": "Payments",
+      "aliases": ["payments", "payment", "payments api", "payment api", "payment processing", "payments infrastructure", "financial infrastructure", "checkout", "merchant billing"]
+    },
+    {
+      "slug": "seafood_restaurant",
+      "display": "Seafood restaurant",
+      "aliases": ["seafood restaurant", "seafood", "crab shack", "crab restaurant", "restaurant", "family dining"]
+    },
+    {
+      "slug": "gold_ira",
+      "display": "Gold IRA",
+      "aliases": ["gold ira", "precious metals ira", "silver ira", "self directed ira"]
+    },
+    {
+      "slug": "sales_workflow_automation",
+      "display": "Sales workflow automation",
+      "aliases": ["sales workflow automation", "workflow automation", "sales automation", "lead routing", "crm automation"]
+    },
+    {
+      "slug": "saas",
+      "display": "SaaS",
+      "aliases": ["saas", "software", "software platform", "devtool", "analytics", "crm"]
+    },
+    {
+      "slug": "insurance",
+      "display": "Insurance",
+      "aliases": ["insurance", "policy", "coverage", "carrier"]
+    },
+    {
+      "slug": "mortgage",
+      "display": "Mortgage",
+      "aliases": ["mortgage", "lending", "loan", "refinance"]
+    },
+    {
+      "slug": "real_estate",
+      "display": "Real estate",
+      "aliases": ["real estate", "housing", "property", "brokerage"]
+    },
+    {
+      "slug": "recruiting",
+      "display": "Recruiting",
+      "aliases": ["recruiting", "talent", "staffing", "hiring"]
+    },
+    {
+      "slug": "solar",
+      "display": "Solar",
+      "aliases": ["solar"]
+    },
+    {
+      "slug": "home_services",
+      "display": "Home services",
+      "aliases": ["home services", "home service", "roofing", "plumbing", "hvac", "contractor"]
+    },
+    {
+      "slug": "ecommerce",
+      "display": "Ecommerce",
+      "aliases": ["ecommerce", "e-commerce", "commerce", "retail", "shop", "consumer brand"]
+    },
+    {
+      "slug": "marketing_agency",
+      "display": "Marketing agency",
+      "aliases": ["marketing agency", "agency", "marketing services", "creative agency", "demand generation"]
+    },
+    {
+      "slug": "healthcare",
+      "display": "Healthcare",
+      "aliases": ["healthcare", "health", "medical", "clinic"]
+    },
+    {
+      "slug": "finance",
+      "display": "Finance",
+      "aliases": ["finance", "wealth", "bank", "investment"]
+    }
+  ],
+  "conformance_cases": [
+    {
+      "input": { "business_model": "SaaS platform", "buyer_type": "B2B team", "category": "payments API" },
+      "expected": { "business_model": "b2b_saas", "buyer_type": "business", "category": "payments" }
+    },
+    {
+      "input": { "business_model": "restaurant", "buyer_type": "Local diner", "category": "seafood restaurant" },
+      "expected": { "business_model": "local_service", "buyer_type": "consumer", "category": "seafood_restaurant" }
+    },
+    {
+      "input": { "business_model": "consumer financial services", "buyer_type": "individual investor", "category": "gold IRA" },
+      "expected": { "business_model": "b2c_financial_services", "buyer_type": "consumer", "category": "gold_ira" }
+    }
+  ]
+}

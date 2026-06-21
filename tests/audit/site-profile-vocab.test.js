@@ -1,0 +1,69 @@
+const assert = require("node:assert/strict")
+const fs = require("node:fs")
+const path = require("node:path")
+const ts = require("typescript")
+const vm = require("node:vm")
+
+const sourcePath = path.join(__dirname, "..", "..", "lib", "audit", "process-audit.ts")
+const source = fs.readFileSync(sourcePath, "utf8")
+const compiled = ts.transpileModule(source, {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2020,
+    esModuleInterop: true,
+    resolveJsonModule: true,
+  },
+}).outputText
+
+const sandbox = {
+  exports: {},
+  module: { exports: {} },
+  require: (specifier) => {
+    if (specifier === "./site-profile-vocab.v1.json") {
+      return require(path.join(__dirname, "..", "..", "lib", "audit", "site-profile-vocab.v1.json"))
+    }
+    return require(specifier)
+  },
+  process,
+  console,
+  URL,
+  fetch: () => {
+    throw new Error("fetch should not run in vocab tests")
+  },
+  AbortSignal,
+  setTimeout,
+  clearTimeout,
+}
+sandbox.exports = sandbox.module.exports
+vm.runInNewContext(compiled, sandbox, { filename: sourcePath })
+
+const {
+  siteProfileVocabVersionForTest,
+  normalizeSiteProfileValuesForTest,
+} = sandbox.module.exports
+
+assert.equal(siteProfileVocabVersionForTest, "site-profile-vocab.v1")
+
+const cases = [
+  {
+    input: { business_model: "SaaS platform", buyer_type: "B2B team", category: "payments API" },
+    expected: { business_model: "b2b_saas", buyer_type: "business", category: "payments" },
+  },
+  {
+    input: { business_model: "restaurant", buyer_type: "Local diner", category: "seafood restaurant" },
+    expected: { business_model: "local_service", buyer_type: "consumer", category: "seafood_restaurant" },
+  },
+  {
+    input: { business_model: "consumer financial services", buyer_type: "individual investor", category: "gold IRA" },
+    expected: { business_model: "b2c_financial_services", buyer_type: "consumer", category: "gold_ira" },
+  },
+]
+
+for (const testCase of cases) {
+  assert.equal(
+    JSON.stringify(normalizeSiteProfileValuesForTest(testCase.input)),
+    JSON.stringify(testCase.expected),
+  )
+}
+
+console.log("site profile vocab: 1 passed")

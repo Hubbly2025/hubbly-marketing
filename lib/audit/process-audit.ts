@@ -1,3 +1,5 @@
+import siteProfileVocab from "./site-profile-vocab.v1.json"
+
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
 
 const SCRAPE_PATHS = [
@@ -37,6 +39,12 @@ type SiteProfile = {
     source_span: string | null
   }
   provenance: Record<string, ProvenanceTag>
+}
+
+type SiteProfileValueInput = {
+  business_model?: string | null
+  buyer_type?: string | null
+  category?: string | null
 }
 
 type ScrapedPage = {
@@ -736,7 +744,12 @@ function buildSiteProfile(params: {
     params.scrapedContent,
   ].filter(Boolean).join(" ").toLowerCase()
   const industry = normalizeText(params.analysis.industry)
-  const category = normalizeCategory(params.analysis.category) ?? detectCategoryFromSignals(text, industry)
+  const directValues = normalizeSiteProfileValues({
+    business_model: params.analysis.business_model,
+    buyer_type: params.analysis.buyer_type,
+    category: params.analysis.category,
+  })
+  const category = directValues.category ?? detectCategoryFromSignals(text, industry)
   const businessModel = normalizeBusinessModel(params.analysis.business_model)
     ?? detectBusinessModelFromSignals(text, normalizeBuyerType(params.analysis.buyer_type), category)
   const buyerType = normalizeBuyerType(params.analysis.buyer_type) ?? detectBuyerTypeFromSignals(text, businessModel, category)
@@ -853,31 +866,43 @@ function getPrimaryIcpTitle(analysis: AuditAnalysis) {
 }
 
 function normalizeCategory(value?: string | null) {
-  const normalized = normalizeText(value)?.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "")
-  return normalized || null
+  return canonicalizeSiteProfileValue("categories", value)
 }
 
 function normalizeBuyerType(value?: string | null) {
-  const normalized = normalizeText(value)?.toLowerCase()
+  return canonicalizeSiteProfileValue("buyer_types", value)
+}
+
+function normalizeBusinessModel(value?: string | null) {
+  return canonicalizeSiteProfileValue("business_models", value)
+}
+
+function normalizeSiteProfileValues(input: SiteProfileValueInput) {
+  return {
+    business_model: normalizeBusinessModel(input.business_model),
+    buyer_type: normalizeBuyerType(input.buyer_type),
+    category: normalizeCategory(input.category),
+  }
+}
+
+function canonicalizeSiteProfileValue(
+  field: "business_models" | "buyer_types" | "categories",
+  value?: string | null,
+) {
+  const normalized = normalizeVocabValue(value)
 
   if (!normalized) return null
-  if (/consumer|individual|household|diner|patient|homeowner/.test(normalized)) return "consumer"
-  if (/business|b2b|company|team|enterprise|merchant/.test(normalized)) return "business"
+
+  for (const entry of siteProfileVocab[field]) {
+    if (normalizeVocabValue(entry.slug) === normalized) return entry.slug
+    if (entry.aliases.some((alias) => normalizeVocabValue(alias) === normalized)) return entry.slug
+  }
 
   return null
 }
 
-function normalizeBusinessModel(value?: string | null) {
-  const normalized = normalizeCategory(value)
-
-  if (!normalized) return null
-  if (/b2b.*saas|saas|software/.test(normalized)) return "b2b_saas"
-  if (/b2b.*service|agency|consult/.test(normalized)) return "b2b_services"
-  if (/local.*service|restaurant|clinic/.test(normalized)) return "local_service"
-  if (/b2c.*ecommerce|ecommerce|commerce|retail/.test(normalized)) return "b2c_ecommerce"
-  if (/marketplace/.test(normalized)) return "marketplace"
-
-  return normalized
+function normalizeVocabValue(value?: string | null) {
+  return normalizeText(value)?.toLowerCase().replace(/[_-]+/g, " ").replace(/[^a-z0-9\s]+/g, " ").replace(/\s+/g, " ").trim() ?? null
 }
 
 function detectCategoryFromSignals(value: string, industry?: string | null) {
@@ -1037,3 +1062,5 @@ function buildGtmPlan(analysis: AuditAnalysis, intentData: Record<string, unknow
 
 export const buildSiteProfileForTest = buildSiteProfile
 export const estimateIntentDataForTest = estimateIntentData
+export const siteProfileVocabVersionForTest = siteProfileVocab.version
+export const normalizeSiteProfileValuesForTest = normalizeSiteProfileValues
