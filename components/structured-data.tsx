@@ -7,9 +7,12 @@ export function OrganizationSchema() {
     "@type": "Organization",
     "@id": `${siteUrl}/#organization`,
     name: "Hubbly",
-    url: siteUrl,
+    legalName: "Hubbly",
+    url: `${siteUrl}/`,
     logo: `${siteUrl}/logo.png`,
-    description: "Hubbly is an autonomous revenue operating system for modern growth teams.",
+    description:
+      "Hubbly is an autonomous growth engine: 12 specialized AI agents across 3 operating layers, sharing one memory, that turn a website into pipeline via market research, ICP creation, multi-channel outreach, voice, and booking.",
+    foundingDate: "2025",
     sameAs: [
       "https://twitter.com/hubblyio",
       "https://www.linkedin.com/company/hubbly-io",
@@ -43,33 +46,29 @@ export function ProductSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Hubbly Autonomous Growth Engine",
+    "@id": `${siteUrl}/#software`,
+    name: "Hubbly",
     applicationCategory: "BusinessApplication",
+    applicationSubCategory: "Sales & Marketing Automation",
     operatingSystem: "Web",
+    url: `${siteUrl}/`,
+    publisher: { "@id": `${siteUrl}/#organization` },
     description:
-      "Hubbly is an autonomous growth engine that turns a website, offer, and market position into a live pipeline engine through 12 specialized agents, shared memory, and human approval gates.",
-    url: siteUrl,
-    brand: {
-      "@type": "Brand",
-      name: "Hubbly",
-    },
+      "An autonomous growth engine that combines market intelligence, AI SDR-style outbound, SEO and demand capture, AI voice, reply handling, and meeting booking into one coordinated agent system with human approval gates.",
+    featureList: [
+      "Market and competitor research",
+      "ICP creation and buyer-intent scoring",
+      "SEO and demand capture",
+      "Autonomous outbound email",
+      "AI voice calling",
+      "Reply handling and meeting booking",
+      "74-language multilingual outreach",
+    ],
     offers: {
       "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-      description: "Start free with a revenue audit. Contact us for pricing.",
+      url: `${siteUrl}/pricing`,
+      category: "SaaS subscription",
     },
-    featureList: [
-      "12 specialized revenue agents",
-      "3 operating layers",
-      "Shared memory layer",
-      "Human-in-the-loop approval gates",
-      "ICP mapping",
-      "Email outreach",
-      "AI voice calling",
-      "Meeting booking",
-      "CRM sync",
-    ],
   }
 
   return (
@@ -85,37 +84,22 @@ export function FAQSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    "@id": `${siteUrl}/#faq`,
     mainEntity: [
       {
         "@type": "Question",
-        name: "How does Hubbly's 12-agent system work?",
+        name: "What is Hubbly?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Hubbly uses 12 specialized revenue agents organized across 3 operating layers. These agents share one memory layer so research, targeting, messaging, outreach, replies, booking, and optimization stay coordinated from first signal to scheduled meeting.",
+          text: "Hubbly is an autonomous growth engine that turns a website, offer, and market position into coordinated execution across SEO, outbound, voice, booking, and optimization.",
         },
       },
       {
         "@type": "Question",
-        name: "What is the shared memory layer in Hubbly?",
+        name: "How does Hubbly work?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "The shared memory layer is the common operating context every Hubbly agent reads from and writes to. It preserves business context, buyer logic, outreach history, reply classification, and meeting outcomes across the full revenue workflow.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "How is Hubbly different from a chatbot or sales copilot?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "A chatbot or copilot generates suggestions in-session. Hubbly is an autonomous revenue operating system that combines intelligence, execution, memory, and optimization into one coordinated workflow with human approval gates.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "What does Hubbly replace?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Hubbly replaces fragmented outbound and pipeline stacks that often include lead data tools, enrichment products, sequencing platforms, dialers, booking tools, AI copy tools, spreadsheet workflows, and disconnected reporting dashboards.",
+          text: "Hubbly analyzes the business, maps the market, builds the strategy, launches specialized workflows, and improves over time from replies, meetings, and conversion signals.",
         },
       },
       {
@@ -123,15 +107,47 @@ export function FAQSchema() {
         name: "Who is Hubbly for?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Hubbly is built for growth teams, agencies, insurance organizations, mortgage teams, financial services businesses, and B2B SaaS operators that need more pipeline without adding fragmented tools and manual overhead.",
+          text: "Hubbly is for B2B and B2C companies that want one system to understand their market, find buyers, and coordinate growth across channels.",
         },
       },
       {
         "@type": "Question",
-        name: "Does Hubbly support specific industries?",
+        name: "What does Hubbly replace?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes. Hubbly supports verticals such as insurance, mortgage, agencies, financial services, and B2B SaaS, with tailored workflows and specialized go-to-market logic.",
+          text: "Hubbly replaces disconnected growth stacks that often include data vendors, enrichment tools, sequencing products, dialers, booking tools, AI copy tools, spreadsheet glue, and reporting dashboards.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is Hubbly just an AI SDR platform?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "No. Hubbly includes AI SDR-style capabilities, but it is broader than outbound because it combines intelligence, execution, memory, and optimization in one system.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Does Hubbly support industry-specific workflows?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. The core engine stays the same. The language, approvals, workflows, and compliance logic adapt to your market.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Does Hubbly support international and multilingual workflows?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. Hubbly supports international teams and operates across 74 languages for outreach, voice, follow-up, and reporting.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Does Hubbly work with our existing CRM and tools?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. Hubbly is designed to integrate with existing systems or replace parts of the stack over time, depending on how your team wants to adopt it.",
         },
       },
     ],
