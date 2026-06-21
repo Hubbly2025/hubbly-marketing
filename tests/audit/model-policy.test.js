@@ -79,5 +79,6 @@ const profile = buildSiteProfileForTest({
 assert.equal(profile.provenance.model.model, "claude-opus-4-8")
 assert.equal(profile.provenance.model.version, "4.8")
 assert.equal(profile.provenance.model.tier, "free")
+assert.equal(profile.provenance.model.provider, undefined)
 
 console.log("model policy: 1 passed")

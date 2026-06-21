@@ -348,7 +348,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
                   <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
                     Top buyer geographies
                   </h3>
-                  <ProvenanceChip tag={intentProvenance.geographies} />
+                  <ProvenanceChip tag={geographyProvenanceForTest(intentGeographies, intentProvenance.geographies)} />
                 </div>
                 <div className="mt-4 space-y-3">
                   {intentGeographies.length ? (
@@ -598,6 +598,13 @@ export function provenanceChipLabelForTest(tag?: ProvenanceValue) {
   }
 
   return tag
+}
+
+export function geographyProvenanceForTest(
+  geographies: Array<{ region?: string; count?: number }>,
+  provenance?: ProvenanceValue,
+) {
+  return geographies.length ? provenance : undefined
 }
 
 function ProvenanceChip({ tag }: { tag?: ProvenanceValue }) {

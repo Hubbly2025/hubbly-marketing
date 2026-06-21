@@ -85,7 +85,8 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
   assert.equal(intent.status, "measured")
   assert.equal(intent.monthly, 2000)
   assert.equal(intent.weekly, undefined)
-  assert.equal(intent.highIntent, 2000)
+  assert.equal(intent.highIntent, 1200)
+  assert.notEqual(intent.highIntent, intent.monthly)
   assert.equal(JSON.stringify(intent.top_signals), JSON.stringify([
     "payments api pricing",
     "best payment processing software",

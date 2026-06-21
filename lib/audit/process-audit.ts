@@ -1,6 +1,6 @@
 import siteProfileVocab from "./site-profile-vocab.v1.json"
 import { createHubblyIntelligenceClient, type HubblyIntelligenceClient } from "./hubbly-intelligence"
-import { getScanModelConfig, SCAN_MODEL_POLICY, type ScanModelConfig } from "./scan-model-config"
+import { getScanModelConfig, SCAN_MODEL_POLICY, toPublicModelProvenance, type PublicScanModelProvenance, type ScanModelConfig } from "./scan-model-config"
 import { parse } from "node-html-parser"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
@@ -15,7 +15,7 @@ const SCRAPE_PATHS = [
 ] as const
 
 type ProvenanceTag = "measured" | "inferred" | "estimated" | "recommendation"
-type ProvenanceRecord = Record<string, ProvenanceTag | ScanModelConfig>
+type ProvenanceRecord = Record<string, ProvenanceTag | PublicScanModelProvenance>
 
 type SiteProfile = {
   domain: string
@@ -30,7 +30,7 @@ type SiteProfile = {
   }
   observed_evidence: ObservedEvidence
   provenance: ProvenanceRecord
-  model_provenance?: ScanModelConfig
+  model_provenance?: PublicScanModelProvenance
 }
 
 type ObservedEvidence = {
@@ -69,7 +69,7 @@ type AuditAnalysis = {
   }
   site_profile?: SiteProfile
   provenance?: ProvenanceRecord
-  model_provenance?: ScanModelConfig
+  model_provenance?: PublicScanModelProvenance
   icp?: Record<string, unknown>
   competitors?: Array<Record<string, unknown>>
   gtm_gaps?: string[]
@@ -195,9 +195,9 @@ export async function processAudit(auditId: string, url: string) {
     normalizedAnalysis.positioning = siteProfile.positioning
     normalizedAnalysis.provenance = {
       ...siteProfile.provenance,
-      model: modelConfig,
+      model: toPublicModelProvenance(modelConfig),
     }
-    normalizedAnalysis.model_provenance = modelConfig
+    normalizedAnalysis.model_provenance = toPublicModelProvenance(modelConfig)
     normalizedAnalysis.site_profile = siteProfile
 
     const intentData = await buildMeasuredIntentData(siteProfile, createHubblyIntelligenceClient())
@@ -872,9 +872,9 @@ function buildSiteProfile(params: {
       category: category ? "inferred" : "estimated",
       positioning: sourceSpan ? "inferred" : "estimated",
       observed_evidence: "measured",
-      model: getScanModelConfig("free"),
+      model: toPublicModelProvenance(getScanModelConfig("free")),
     },
-    model_provenance: getScanModelConfig("free"),
+    model_provenance: toPublicModelProvenance(getScanModelConfig("free")),
   }
 }
 
@@ -914,7 +914,7 @@ async function buildMeasuredIntentData(siteProfile: SiteProfile, client: HubblyI
     }
 
     const monthly = measuredKeywords.reduce((sum, item) => sum + item.monthlyVolume, 0)
-    const highIntent = monthly
+    const highIntent = calculateHighIntentVolume(measuredKeywords)
 
     return {
       status: "measured",
@@ -983,6 +983,16 @@ function normalizeIntentKeyword(value: string) {
     .replace(/[^a-z0-9\s/.'"-]+/g, " ")
     .replace(/\s+/g, " ")
     .trim()
+}
+
+function calculateHighIntentVolume(keywords: Array<{ keyword: string; monthlyVolume: number }>) {
+  return keywords
+    .filter((item) => isHighIntentKeyword(item.keyword))
+    .reduce((sum, item) => sum + item.monthlyVolume, 0)
+}
+
+function isHighIntentKeyword(keyword: string) {
+  return /\b(pricing|price|cost|demo|contact sales|buy|order|book|schedule|reservation|reserve|near me|menu|alternative|vs|compare|reviews?)\b/i.test(keyword)
 }
 
 function normalizeText(value?: string | null) {

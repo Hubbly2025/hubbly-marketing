@@ -8,6 +8,8 @@ export type ScanModelConfig = {
   flippable_to?: string
 }
 
+export type PublicScanModelProvenance = Omit<ScanModelConfig, "provider">
+
 const OPUS_4_8_MODEL = "claude-opus-4-8"
 const SONNET_4_6_MODEL = "claude-sonnet-4-6"
 
@@ -29,4 +31,13 @@ export const SCAN_MODEL_POLICY: Record<ScanTier, ScanModelConfig> = {
 
 export function getScanModelConfig(tier: ScanTier = "free") {
   return SCAN_MODEL_POLICY[tier]
+}
+
+export function toPublicModelProvenance(config: ScanModelConfig): PublicScanModelProvenance {
+  return {
+    model: config.model,
+    version: config.version,
+    tier: config.tier,
+    flippable_to: config.flippable_to,
+  }
 }

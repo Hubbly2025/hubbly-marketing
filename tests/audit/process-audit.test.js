@@ -57,6 +57,12 @@ const sandbox = {
             tier: "paid",
           },
         },
+        toPublicModelProvenance: (config) => ({
+          model: config.model,
+          version: config.version,
+          tier: config.tier,
+          flippable_to: config.flippable_to,
+        }),
       }
     }
     return require(specifier)

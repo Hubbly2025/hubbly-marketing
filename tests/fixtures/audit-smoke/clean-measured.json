@@ -39,7 +39,6 @@
           "positioning": "inferred",
           "observed_evidence": "measured",
           "model": {
-            "provider": "anthropic",
             "model": "claude-opus-4-8",
             "version": "4.8",
             "tier": "free",
@@ -47,7 +46,6 @@
           }
         },
         "model_provenance": {
-          "provider": "anthropic",
           "model": "claude-opus-4-8",
           "version": "4.8",
           "tier": "free",
@@ -59,7 +57,6 @@
         "buyer_type": "inferred",
         "observed_evidence": "measured",
         "model": {
-          "provider": "anthropic",
           "model": "claude-opus-4-8",
           "version": "4.8",
           "tier": "free",
@@ -67,7 +64,6 @@
         }
       },
       "model_provenance": {
-        "provider": "anthropic",
         "model": "claude-opus-4-8",
         "version": "4.8",
         "tier": "free",
@@ -78,8 +74,8 @@
       "status": "measured",
       "category": "payments",
       "monthly": 2000,
-      "highIntent": 2000,
-      "high_intent": 2000,
+      "highIntent": 1200,
+      "high_intent": 1200,
       "label": "Measured by Hubbly Intelligence for payments.",
       "top_signals": ["payments api pricing", "payment processing software"],
       "keyword_volumes": [
