@@ -41,6 +41,9 @@ type Audit = {
     gtm_gaps?: string[]
     outreach_angle?: string
     sample_email?: SampleEmail
+    site_profile?: {
+      observed_evidence?: ObservedEvidence
+    }
     error?: string
   }
   competitors?: Competitor[]
@@ -61,6 +64,13 @@ type Audit = {
     week_4?: Record<string, unknown>
   }
   sample_email?: SampleEmail
+}
+
+type ObservedEvidence = {
+  primary_cta_text?: string | null
+  h1?: string | null
+  key_headers?: string[]
+  detected_tech_stack?: string[]
 }
 
 const A16Z_WRONG_EMAIL_BODY =
@@ -170,6 +180,15 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const intentSignals = intent.top_signals ?? []
   const intentGeographies = intent.geographies ?? []
   const hasIntentSignal = intent.status !== "insufficient_signal"
+  const observedEvidence = analysis.site_profile?.observed_evidence ?? {}
+  const primaryCta = observedEvidence.primary_cta_text || "not detected"
+  const h1 = observedEvidence.h1 || "not detected"
+  const keyHeaders = observedEvidence.key_headers?.length
+    ? observedEvidence.key_headers.join(" | ")
+    : "not detected"
+  const techStack = observedEvidence.detected_tech_stack?.length
+    ? observedEvidence.detected_tech_stack.join(", ")
+    : "not detected"
   const isA16zReport = isAndreessenHorowitzReport(audit, companyName, domain)
   const sampleEmail = isA16zReport ? A16Z_CORRECTED_EMAIL : audit.sample_email ?? analysis.sample_email ?? {}
   const displayedGtmPlan = isA16zReport ? replacePlanEmailPov(audit.gtm_plan) : audit.gtm_plan
@@ -213,8 +232,10 @@ function CompleteReport({ audit }: { audit: Audit }) {
               <SnapshotRow label="Industry" value={analysis.industry} />
               <SnapshotRow label="Target market" value={analysis.icp?.primary?.title} />
               <SnapshotRow label="Current positioning" value={analysis.outreach_angle} />
-              <SnapshotRow label="Primary CTA" value="Captured from website CTA language during audit" />
-              <SnapshotRow label="Tech stack" value="Public website signals reviewed during audit" />
+              <SnapshotRow label="H1" value={h1} />
+              <SnapshotRow label="Key headers" value={keyHeaders} />
+              <SnapshotRow label="Primary CTA" value={primaryCta} />
+              <SnapshotRow label="Tech stack" value={techStack} />
             </div>
           </ReportSection>
 
@@ -266,7 +287,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
               <p className="mt-4 max-w-2xl text-xl text-white md:text-2xl">
                 {hasIntentSignal
                   ? `people actively researched solutions like ${companyName}.`
-                  : "Hubbly could not resolve enough buyer/category signal to estimate demand honestly."}
+                  : "Hubbly does not have measured demand or volume data for this category yet."}
               </p>
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <MetricCard label="Searched in the last 7 days" value={formatNumber(weekly)} />

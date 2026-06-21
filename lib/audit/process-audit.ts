@@ -1,4 +1,5 @@
 import siteProfileVocab from "./site-profile-vocab.v1.json"
+import { parse } from "node-html-parser"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
 
@@ -38,7 +39,15 @@ type SiteProfile = {
     value: string | null
     source_span: string | null
   }
+  observed_evidence: ObservedEvidence
   provenance: Record<string, ProvenanceTag>
+}
+
+type ObservedEvidence = {
+  primary_cta_text: string | null
+  h1: string | null
+  key_headers: string[]
+  detected_tech_stack: string[]
 }
 
 type SiteProfileValueInput = {
@@ -53,6 +62,7 @@ type ScrapedPage = {
   title: string | null
   ogSiteName: string | null
   content: string
+  observedEvidence: ObservedEvidence
   status: number
 }
 
@@ -119,6 +129,7 @@ export async function processAudit(auditId: string, url: string) {
     const { pages: scrapedPages, diagnostics: scrapeDiagnostics } = await scrapeWebsiteDeep(url, log)
     const companyName = extractCompanyName(scrapedPages, url)
     const scrapedContent = formatScrapedContent(scrapedPages, companyName)
+    const observedEvidence = mergeObservedEvidence(scrapedPages.map((page) => page.observedEvidence))
 
     if (scrapedContent.trim().length < 300) {
       const message = "We could not find enough readable content on that site. It may block automated tools or require JavaScript."
@@ -182,6 +193,7 @@ export async function processAudit(auditId: string, url: string) {
       scannedAt: new Date().toISOString(),
       analysis: normalizedAnalysis,
       scrapedContent,
+      observedEvidence,
     })
     normalizedAnalysis.business_model = siteProfile.business_model ?? undefined
     normalizedAnalysis.buyer_type = siteProfile.buyer_type ?? undefined
@@ -344,6 +356,7 @@ async function scrapePage(url: string, label: string, apiKey?: string) {
   const html = await response.text()
   const title = extractTagContent(html, "title")
   const ogSiteName = extractMetaContent(html, "og:site_name")
+  const observedEvidence = extractObservedEvidence(html, response.headers)
   const content = extractReadableText(html)
 
   if (!content.trim()) {
@@ -356,6 +369,7 @@ async function scrapePage(url: string, label: string, apiKey?: string) {
     title,
     ogSiteName,
     content: content.slice(0, 2000),
+    observedEvidence,
     status: response.status,
   }
 }
@@ -396,6 +410,84 @@ function extractReadableText(html: string) {
     .trim()
 
   return [`Headings:\n${headings}`, `CTA language:\n${ctas}`, `Page text:\n${text}`].join("\n\n")
+}
+
+function extractObservedEvidence(html: string, headers: Headers): ObservedEvidence {
+  const root = parse(html)
+  const primaryCta = root
+    .querySelectorAll("a, button")
+    .map((node) => cleanObservedText(node.text))
+    .find((text) => Boolean(text && isLikelyPrimaryCta(text))) ?? null
+  const h1 = cleanObservedText(root.querySelector("h1")?.text) ?? null
+  const keyHeaders = root
+    .querySelectorAll("h1, h2, h3")
+    .map((node) => cleanObservedText(node.text))
+    .filter((text): text is string => Boolean(text))
+    .slice(0, 8)
+  const detectedTechStack = detectTechStack(root, headers)
+
+  return {
+    primary_cta_text: primaryCta,
+    h1,
+    key_headers: uniqueStrings(keyHeaders),
+    detected_tech_stack: detectedTechStack,
+  }
+}
+
+function mergeObservedEvidence(items: ObservedEvidence[]): ObservedEvidence {
+  return {
+    primary_cta_text: items.map((item) => item.primary_cta_text).find(Boolean) ?? null,
+    h1: items.map((item) => item.h1).find(Boolean) ?? null,
+    key_headers: uniqueStrings(items.flatMap((item) => item.key_headers)).slice(0, 8),
+    detected_tech_stack: uniqueStrings(items.flatMap((item) => item.detected_tech_stack)),
+  }
+}
+
+function cleanObservedText(value?: string | null) {
+  const cleaned = decodeHtml(stripTags(value ?? ""))
+    .replace(/\s+/g, " ")
+    .trim()
+  return cleaned || null
+}
+
+function isLikelyPrimaryCta(value: string) {
+  return /\b(contact sales|get started|start now|book|schedule|request|demo|reserve|reservation|order|buy|shop|sign up|join|try)\b/i.test(value)
+}
+
+function detectTechStack(root: ReturnType<typeof parse>, headers: Headers) {
+  const hasNextData = Boolean(root.querySelector("script#__NEXT_DATA__"))
+  const scriptSources = root
+    .querySelectorAll("script")
+    .map((script) => script.getAttribute("src") ?? "")
+    .join(" ")
+  const linkHrefs = root
+    .querySelectorAll("link")
+    .map((link) => link.getAttribute("href") ?? "")
+    .join(" ")
+  const metaGenerator = root.querySelector("meta[name=\"generator\" i]")?.getAttribute("content") ?? ""
+  const server = headers.get("server") ?? ""
+  const poweredBy = headers.get("x-powered-by") ?? ""
+  const vercel = headers.get("x-vercel-id") ?? ""
+  const signals = `${scriptSources} ${linkHrefs} ${metaGenerator} ${server} ${poweredBy} ${vercel}`
+  const detected: string[] = []
+
+  if (hasNextData || /\/_next\/|next\.js/i.test(signals)) detected.push("Next.js")
+  if (/\breact\b|react-dom/i.test(signals)) detected.push("React")
+  if (/googletagmanager\.com|gtm\.js|gtag\/js/i.test(signals)) detected.push("Google Tag Manager")
+  if (/google-analytics\.com|analytics\.js|gtag\/js/i.test(signals)) detected.push("Google Analytics")
+  if (/segment\.com|segment\.io|analytics\.load/i.test(signals)) detected.push("Segment")
+  if (/hubspot/i.test(signals)) detected.push("HubSpot")
+  if (/shopify|cdn\.shopify\.com/i.test(signals)) detected.push("Shopify")
+  if (/wordpress|wp-content|wp-includes/i.test(signals)) detected.push("WordPress")
+  if (/webflow|assets\.website-files\.com/i.test(signals)) detected.push("Webflow")
+  if (/vercel/i.test(signals)) detected.push("Vercel")
+  if (/cloudflare/i.test(signals)) detected.push("Cloudflare")
+
+  return uniqueStrings(detected)
+}
+
+function uniqueStrings(values: string[]) {
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)))
 }
 
 function stripTags(value: string) {
@@ -732,6 +824,7 @@ function buildSiteProfile(params: {
   scannedAt: string
   analysis: AuditAnalysis
   scrapedContent: string
+  observedEvidence?: ObservedEvidence
 }): SiteProfile {
   const text = [
     params.analysis.product,
@@ -770,6 +863,7 @@ function buildSiteProfile(params: {
       value: positioningValue,
       source_span: sourceSpan,
     },
+    observed_evidence: params.observedEvidence ?? emptyObservedEvidence(),
     provenance: {
       domain: "measured",
       scanned_at: "measured",
@@ -778,7 +872,17 @@ function buildSiteProfile(params: {
       industry: industry ? "inferred" : "estimated",
       category: category ? "inferred" : "estimated",
       positioning: sourceSpan ? "inferred" : "estimated",
+      observed_evidence: "measured",
     },
+  }
+}
+
+function emptyObservedEvidence(): ObservedEvidence {
+  return {
+    primary_cta_text: null,
+    h1: null,
+    key_headers: [],
+    detected_tech_stack: [],
   }
 }
 
@@ -1062,5 +1166,7 @@ function buildGtmPlan(analysis: AuditAnalysis, intentData: Record<string, unknow
 
 export const buildSiteProfileForTest = buildSiteProfile
 export const estimateIntentDataForTest = estimateIntentData
+export const extractObservedEvidenceForTest = extractObservedEvidence
+export const mergeObservedEvidenceForTest = mergeObservedEvidence
 export const siteProfileVocabVersionForTest = siteProfileVocab.version
 export const normalizeSiteProfileValuesForTest = normalizeSiteProfileValues
