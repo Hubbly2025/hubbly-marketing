@@ -4,6 +4,7 @@ import {
   type HubblyIntelligenceClient,
   type HubblyIntelligenceDomainPositions,
 } from "./hubbly-intelligence"
+import { normalizeAuditDomain, type ScanGuardMetadata } from "./scan-guards"
 import { getScanModelConfig, SCAN_MODEL_POLICY, toPublicModelProvenance, type PublicScanModelProvenance, type ScanModelConfig } from "./scan-model-config"
 import { parse } from "node-html-parser"
 
@@ -79,6 +80,7 @@ type AuditAnalysis = {
   gtm_gaps?: string[]
   outreach_angle?: string
   sample_email?: Record<string, unknown>
+  scan_guard?: Record<string, unknown>
 }
 
 type IntentData = {
@@ -105,7 +107,7 @@ type AuditDebugState = {
   }
 }
 
-export async function processAudit(auditId: string, url: string) {
+export async function processAudit(auditId: string, url: string, scanGuard?: ScanGuardMetadata) {
   const supabase = getSupabaseConfig()
   const modelConfig = getScanModelConfig("free")
   const logs: AuditDebugLog[] = []
@@ -191,9 +193,16 @@ export async function processAudit(auditId: string, url: string) {
         logs,
         manual_review: manualReview,
       },
+      scan_guard: scanGuard ? {
+        domain: scanGuard.cacheDomain,
+        cache_key: scanGuard.cacheKey,
+        cache_ttl_seconds: scanGuard.cacheTtlSeconds,
+        requested_at: scanGuard.requestedAt,
+        rate_limit_key: scanGuard.rateLimitKey,
+      } : undefined,
     }
     const siteProfile = buildSiteProfile({
-      domain: new URL(url).hostname.replace(/^www\./, ""),
+      domain: normalizeAuditDomain(url),
       scannedAt: new Date().toISOString(),
       analysis: normalizedAnalysis,
       scrapedContent,

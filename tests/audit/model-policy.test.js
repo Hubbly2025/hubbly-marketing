@@ -34,6 +34,9 @@ function loadTsModule(relativePath) {
       if (specifier === "./hubbly-intelligence-config") {
         return { getHubblyIntelligenceConfig: () => ({ cadence: { free: "on_demand", autopilot: "weekly", workforce: "daily" } }) }
       }
+      if (specifier === "./scan-guards") {
+        return { normalizeAuditDomain: (value) => new URL(value).hostname.replace(/^www\./, "") }
+      }
       if (specifier === "./scan-model-config") {
         return loadTsModule("lib/audit/scan-model-config.ts")
       }
