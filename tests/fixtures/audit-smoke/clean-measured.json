@@ -91,6 +91,46 @@
         "keyword_volumes": "measured",
         "geographies": "estimated"
       }
+    },
+    "competitive_intelligence": {
+      "status": "measured",
+      "caps": {
+        "keyword_count": 2,
+        "competitor_count": 1,
+        "max_keywords": 5,
+        "max_competitors": 3
+      },
+      "battlefield": [
+        {
+          "domain": "adyen.com",
+          "label": "competitor domain",
+          "intersections": 2,
+          "avgPosition": 4.5,
+          "shareOfVoice": 0.75,
+          "yourShareOfVoice": 0.45,
+          "referringDomains": 2200,
+          "yourReferringDomains": 1200,
+          "provenance": "measured"
+        }
+      ],
+      "marketplaces": [],
+      "bleeding": [
+        {
+          "keyword": "merchant services",
+          "monthlyVolume": 300,
+          "competitorDomains": ["adyen.com"],
+          "provenance": "measured"
+        }
+      ],
+      "bleedingMonthly": 300,
+      "named_without_serp_presence": [],
+      "provenance": {
+        "competitor_domains": "measured",
+        "battlefield": "measured",
+        "marketplaces": "estimated",
+        "bleeding": "measured",
+        "backlinks": "measured"
+      }
     }
   }
 }

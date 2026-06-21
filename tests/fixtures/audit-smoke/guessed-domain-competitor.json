@@ -1,0 +1,61 @@
+{
+  "audit": {
+    "id": "guessed-domain-competitor",
+    "url": "https://stripe.example",
+    "status": "complete",
+    "analysis": {
+      "company_name": "Stripe",
+      "site_profile": {
+        "observed_evidence": {
+          "primary_cta_text": "Contact sales",
+          "h1": "Financial infrastructure",
+          "key_headers": ["Financial infrastructure"],
+          "detected_tech_stack": ["React"]
+        },
+        "provenance": {
+          "observed_evidence": "measured"
+        }
+      },
+      "model_provenance": {
+        "model": "claude-opus-4-8",
+        "version": "4.8",
+        "tier": "free"
+      }
+    },
+    "intent_data": {
+      "status": "insufficient_signal",
+      "monthly": 0,
+      "highIntent": 0,
+      "top_signals": [],
+      "keyword_volumes": [],
+      "geographies": [],
+      "provenance": {
+        "monthly": "estimated",
+        "highIntent": "estimated",
+        "top_signals": "estimated",
+        "keyword_volumes": "estimated",
+        "geographies": "estimated"
+      }
+    },
+    "competitive_intelligence": {
+      "status": "measured",
+      "battlefield": [
+        {
+          "domain": "checkout.com",
+          "domain_source": "llm_guess",
+          "shareOfVoice": 0.42,
+          "provenance": "measured"
+        }
+      ],
+      "marketplaces": [],
+      "bleeding": [],
+      "bleedingMonthly": 0,
+      "provenance": {
+        "competitor_domains": "measured",
+        "battlefield": "measured",
+        "bleeding": "estimated",
+        "backlinks": "estimated"
+      }
+    }
+  }
+}

@@ -75,6 +75,7 @@ type Audit = {
     geographies?: Array<{ region?: string; count?: number }>
     provenance?: Record<string, ProvenanceValue>
   }
+  competitive_intelligence?: CompetitiveIntelligence
   gtm_plan?: {
     week_1?: Record<string, unknown>
     week_2_3?: Record<string, unknown>
@@ -88,6 +89,45 @@ type ObservedEvidence = {
   h1?: string | null
   key_headers?: string[]
   detected_tech_stack?: string[]
+}
+
+type CompetitiveIntelligence = {
+  status?: "measured" | "insufficient_signal"
+  caps?: {
+    keyword_count?: number
+    competitor_count?: number
+    max_keywords?: number
+    max_competitors?: number
+  }
+  battlefield?: Array<{
+    domain?: string
+    label?: string
+    intersections?: number | null
+    avgPosition?: number | null
+    shareOfVoice?: number
+    yourShareOfVoice?: number
+    referringDomains?: number | null
+    yourReferringDomains?: number | null
+    narrative?: Competitor | null
+    provenance?: ProvenanceTag
+  }>
+  marketplaces?: Array<{
+    domain?: string
+    label?: string
+    intersections?: number | null
+    shareOfVoice?: number
+    referringDomains?: number | null
+    provenance?: ProvenanceTag
+  }>
+  bleeding?: Array<{
+    keyword?: string
+    monthlyVolume?: number
+    competitorDomains?: string[]
+    provenance?: ProvenanceTag
+  }>
+  bleedingMonthly?: number
+  named_without_serp_presence?: Competitor[]
+  provenance?: Record<string, ProvenanceValue>
 }
 
 const A16Z_WRONG_EMAIL_BODY =
@@ -191,6 +231,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const companyName = analysis.company_name || domain
   const competitors = audit.competitors?.length ? audit.competitors : analysis.competitors ?? []
   const intent = audit.intent_data ?? {}
+  const competitive = audit.competitive_intelligence ?? {}
   const monthly = intent.monthly ?? 0
   const weekly = intent.weekly ?? 0
   const highIntent = intent.highIntent ?? intent.high_intent ?? 0
@@ -200,6 +241,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const observedEvidence = analysis.site_profile?.observed_evidence ?? {}
   const siteProvenance = analysis.site_profile?.provenance ?? analysis.provenance ?? {}
   const intentProvenance = intent.provenance ?? {}
+  const competitiveProvenance = competitive.provenance ?? {}
   const primaryCta = observedEvidence.primary_cta_text || "not detected"
   const h1 = observedEvidence.h1 || "not detected"
   const keyHeaders = observedEvidence.key_headers?.length
@@ -295,6 +337,112 @@ function CompleteReport({ audit }: { audit: Audit }) {
             <p className="mt-5 font-mono text-xs text-white/55">
               Hubbly identifies prospects actively researching competitor alternatives and contacts them first.
             </p>
+          </ReportSection>
+
+          <ReportSection eyebrow="Section 3A" title="Battlefield" provenance={competitiveProvenance.battlefield}>
+            {competitive.status === "measured" ? (
+              <div className="space-y-8">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <MetricCard
+                    label="Priority keywords checked"
+                    value={formatNumber(competitive.caps?.keyword_count ?? 0)}
+                    provenance={competitiveProvenance.competitor_domains}
+                  />
+                  <MetricCard
+                    label="Measured domains compared"
+                    value={formatNumber(competitive.caps?.competitor_count ?? 0)}
+                    provenance={competitiveProvenance.competitor_domains}
+                  />
+                  <MetricCard
+                    label="Searches you're invisible for"
+                    value={`~${formatNumber(competitive.bleedingMonthly ?? 0)}`}
+                    provenance={competitiveProvenance.bleeding}
+                  />
+                </div>
+
+                <div className="overflow-x-auto border border-white/10">
+                  <table className="w-full min-w-[900px] border-collapse text-left">
+                    <thead className="bg-white/[0.03] font-mono text-[10px] uppercase tracking-[0.22em] text-[#FF6B35]">
+                      <tr>
+                        <th className="border-b border-white/10 p-4">Domain</th>
+                        <th className="border-b border-white/10 p-4">Share of voice</th>
+                        <th className="border-b border-white/10 p-4">Your share</th>
+                        <th className="border-b border-white/10 p-4">Referring domains</th>
+                        <th className="border-b border-white/10 p-4">Narrative match</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(competitive.battlefield ?? []).map((item) => (
+                        <tr key={item.domain} className="border-b border-white/10 last:border-b-0">
+                          <td className="p-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-mono text-sm text-white">{item.domain}</span>
+                              <ProvenanceChip tag={item.provenance} />
+                            </div>
+                          </td>
+                          <td className="p-4 text-sm text-white/75">{formatPercent(item.shareOfVoice)}</td>
+                          <td className="p-4 text-sm text-white/75">{formatPercent(item.yourShareOfVoice)}</td>
+                          <td className="p-4 text-sm text-white/75">{formatNullableNumber(item.referringDomains)}</td>
+                          <td className="p-4 text-sm text-white/70">{item.narrative?.name || "measured without narrative"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <div className="border border-white/10 bg-white/[0.03] p-5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">Bleeding keywords</h3>
+                      <ProvenanceChip tag={competitiveProvenance.bleeding} />
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      {(competitive.bleeding ?? []).length ? (
+                        (competitive.bleeding ?? []).slice(0, 5).map((item) => (
+                          <div key={item.keyword} className="border border-white/10 p-3">
+                            <p className="font-mono text-xs text-white">{item.keyword}</p>
+                            <p className="mt-1 text-sm text-white/60">
+                              ~{formatNumber(item.monthlyVolume ?? 0)} monthly searches you're invisible for
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="font-mono text-xs leading-6 text-white/60">No measured bleeding keywords in the capped set.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border border-white/10 bg-white/[0.03] p-5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">Marketplaces ranking above you</h3>
+                      <ProvenanceChip tag={marketplaceProvenanceForTest(competitive.marketplaces ?? [], competitiveProvenance.marketplaces)} />
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      {(competitive.marketplaces ?? []).length ? (
+                        (competitive.marketplaces ?? []).slice(0, 5).map((item) => (
+                          <div key={item.domain} className="grid grid-cols-[1fr_auto] gap-3 border border-white/10 p-3 text-sm">
+                            <span className="font-mono text-white">{item.domain}</span>
+                            <span className="text-white/60">{formatPercent(item.shareOfVoice)}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="font-mono text-xs leading-6 text-white/60">No measured marketplace domains in the capped set.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {(competitive.named_without_serp_presence ?? []).length > 0 && (
+                  <p className="font-mono text-xs leading-6 text-white/55">
+                    Named without measured SERP presence: {(competitive.named_without_serp_presence ?? []).map((item) => item.name).filter(Boolean).join(", ")}.
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="font-mono text-xs leading-6 text-white/60">
+                Hubbly Intelligence does not have measured competitor-domain data for this scan yet.
+              </p>
+            )}
           </ReportSection>
 
           <ReportSection eyebrow="Section 4" title="People searching for you right now" provenance={intentProvenance.monthly}>
@@ -607,6 +755,13 @@ export function geographyProvenanceForTest(
   return geographies.length ? provenance : undefined
 }
 
+export function marketplaceProvenanceForTest(
+  marketplaces: Array<{ domain?: string }>,
+  provenance?: ProvenanceValue,
+) {
+  return marketplaces.length ? provenance : undefined
+}
+
 function ProvenanceChip({ tag }: { tag?: ProvenanceValue }) {
   const label = provenanceChipLabelForTest(tag)
   if (!label) return null
@@ -686,6 +841,14 @@ function formatDate(value?: string) {
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value)
+}
+
+function formatNullableNumber(value?: number | null) {
+  return typeof value === "number" ? formatNumber(value) : "not available"
+}
+
+function formatPercent(value?: number) {
+  return typeof value === "number" ? `${Math.round(value * 100)}%` : "not available"
 }
 
 function formatPlanValue(value: unknown): string {

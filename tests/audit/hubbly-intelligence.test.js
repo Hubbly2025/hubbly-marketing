@@ -52,6 +52,7 @@ function loadTsModule(relativePath) {
 const {
   normalizeIntentKeyword,
   buildMeasuredIntentDataForTest,
+  buildCompetitiveIntelligenceForTest,
   buildSiteProfileForTest,
 } = loadTsModule("lib/audit/process-audit.ts")
 
@@ -82,7 +83,11 @@ const measuredClient = {
   },
 }
 
+let measuredIntent
+let insufficientIntent
+
 buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
+  measuredIntent = intent
   assert.equal(intent.status, "measured")
   assert.equal(intent.monthly, 2300)
   assert.equal(intent.weekly, undefined)
@@ -102,6 +107,7 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
     },
   })
 }).then((emptyIntent) => {
+  insufficientIntent = emptyIntent
   assert.equal(emptyIntent.status, "insufficient_signal")
   assert.equal(emptyIntent.monthly, 0)
   assert.equal(JSON.stringify(emptyIntent.top_signals), "[]")
@@ -110,6 +116,125 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
   assert.equal(normalizeIntentKeyword("1/2 oz gold ira"), "1/2 oz gold ira")
   assert.equal(normalizeIntentKeyword("software for ops"), "software for ops")
   assert(!normalizeIntentKeyword("1 oz").includes("0z"))
+
+  return buildCompetitiveIntelligenceForTest(
+    stripeProfile,
+    [
+      {
+        name: "Adyen",
+        their_angle: "Global payments platform.",
+        their_weakness: "Enterprise-heavy onboarding.",
+        your_opening: "Developer-first integration.",
+      },
+      {
+        name: "Checkout.com",
+        their_angle: "Enterprise payment processing.",
+      },
+    ],
+    measuredIntent,
+    {
+      async fetchCompetitorSerpData(request) {
+        assert.equal(request.domain, "stripe.example")
+        assert.equal(JSON.stringify(request.keywords), JSON.stringify([
+          "payments api pricing",
+          "best payment processing software",
+          "merchant services",
+        ]))
+        return {
+          competitors: [
+            {
+              domain: "adyen.com",
+              kind: "strategic_competitor",
+              label: "competitor domain",
+              intersections: 5,
+              avgPosition: 7.2,
+              targetTraffic: 1800,
+              competitorTraffic: 2600,
+              provenance: "measured",
+            },
+            {
+              domain: "g2.com",
+              kind: "marketplace",
+              label: "marketplace ranking above you",
+              intersections: 4,
+              avgPosition: 4.1,
+              targetTraffic: null,
+              competitorTraffic: 9000,
+              provenance: "measured",
+            },
+          ],
+        }
+      },
+      async fetchSerpPositions() {
+        return {
+          domains: [
+            {
+              domain: "stripe.example",
+              provenance: "measured",
+              keywords: [
+                { keyword: "payments api pricing", monthlyVolume: 1200, position: 3, provenance: "measured" },
+                { keyword: "best payment processing software", monthlyVolume: 800, position: 8, provenance: "measured" },
+              ],
+            },
+            {
+              domain: "adyen.com",
+              provenance: "measured",
+              keywords: [
+                { keyword: "payments api pricing", monthlyVolume: 1200, position: 1, provenance: "measured" },
+                { keyword: "merchant services", monthlyVolume: 300, position: 4, provenance: "measured" },
+              ],
+            },
+            {
+              domain: "g2.com",
+              provenance: "measured",
+              keywords: [
+                { keyword: "best payment processing software", monthlyVolume: 800, position: 2, provenance: "measured" },
+              ],
+            },
+          ],
+        }
+      },
+      async fetchBacklinkSummaries() {
+        return {
+          summaries: [
+            { domain: "stripe.example", referringDomains: 1200, referringMainDomains: 1100, provenance: "measured" },
+            { domain: "adyen.com", referringDomains: 2200, referringMainDomains: 2000, provenance: "measured" },
+            { domain: "g2.com", referringDomains: 3100, referringMainDomains: 2900, provenance: "measured" },
+          ],
+        }
+      },
+    },
+  )
+}).then((competitive) => {
+  assert.equal(competitive.status, "measured")
+  assert.equal(competitive.caps.keyword_count, 3)
+  assert.equal(competitive.caps.competitor_count, 2)
+  assert.equal(competitive.provenance.battlefield, "measured")
+  assert.equal(competitive.battlefield[0].domain, "adyen.com")
+  assert.equal(competitive.battlefield[0].narrative.name, "Adyen")
+  assert.equal(competitive.battlefield[0].shareOfVoice, 0.5667)
+  assert.equal(competitive.battlefield[0].yourShareOfVoice, 0.3667)
+  assert.equal(competitive.battlefield[0].referringDomains, 2200)
+  assert.equal(competitive.bleeding[0].keyword, "merchant services")
+  assert.equal(competitive.bleeding[0].monthlyVolume, 300)
+  assert.equal(competitive.bleedingMonthly, 300)
+  assert.equal(competitive.marketplaces[0].domain, "g2.com")
+  assert.equal(competitive.named_without_serp_presence[0].name, "Checkout.com")
+
+  return buildCompetitiveIntelligenceForTest(stripeProfile, [], insufficientIntent, {
+    async fetchCompetitorSerpData() {
+      return { competitors: [] }
+    },
+    async fetchSerpPositions() {
+      throw new Error("positions should not be fetched without measured domains")
+    },
+    async fetchBacklinkSummaries() {
+      throw new Error("backlinks should not be fetched without measured domains")
+    },
+  })
+}).then((emptyCompetitive) => {
+  assert.equal(emptyCompetitive.status, "insufficient_signal")
+  assert.equal(JSON.stringify(emptyCompetitive.battlefield), "[]")
 
   console.log("hubbly intelligence: 1 passed")
 }).catch((error) => {

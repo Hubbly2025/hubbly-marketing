@@ -1,0 +1,67 @@
+{
+  "audit": {
+    "id": "fabricated-competitor",
+    "url": "https://stripe.example",
+    "status": "complete",
+    "analysis": {
+      "company_name": "Stripe",
+      "site_profile": {
+        "observed_evidence": {
+          "primary_cta_text": "Contact sales",
+          "h1": "Financial infrastructure",
+          "key_headers": ["Financial infrastructure"],
+          "detected_tech_stack": ["React"]
+        },
+        "provenance": {
+          "observed_evidence": "measured"
+        }
+      },
+      "model_provenance": {
+        "model": "claude-opus-4-8",
+        "version": "4.8",
+        "tier": "free"
+      }
+    },
+    "intent_data": {
+      "status": "insufficient_signal",
+      "monthly": 0,
+      "highIntent": 0,
+      "top_signals": [],
+      "keyword_volumes": [],
+      "geographies": [],
+      "provenance": {
+        "monthly": "estimated",
+        "highIntent": "estimated",
+        "top_signals": "estimated",
+        "keyword_volumes": "estimated",
+        "geographies": "estimated"
+      }
+    },
+    "competitive_intelligence": {
+      "status": "measured",
+      "battlefield": [
+        {
+          "domain": "adyen.com",
+          "shareOfVoice": 0.73,
+          "referringDomains": 2200,
+          "provenance": "measured"
+        }
+      ],
+      "bleeding": [
+        {
+          "keyword": "merchant services",
+          "monthlyVolume": 900,
+          "competitorDomains": [],
+          "provenance": "measured"
+        }
+      ],
+      "bleedingMonthly": 900,
+      "provenance": {
+        "competitor_domains": "estimated",
+        "battlefield": "estimated",
+        "bleeding": "estimated",
+        "backlinks": "estimated"
+      }
+    }
+  }
+}

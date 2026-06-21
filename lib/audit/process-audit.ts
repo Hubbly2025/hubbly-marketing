@@ -1,5 +1,9 @@
 import siteProfileVocab from "./site-profile-vocab.v1.json"
-import { createHubblyIntelligenceClient, type HubblyIntelligenceClient } from "./hubbly-intelligence"
+import {
+  createHubblyIntelligenceClient,
+  type HubblyIntelligenceClient,
+  type HubblyIntelligenceDomainPositions,
+} from "./hubbly-intelligence"
 import { getScanModelConfig, SCAN_MODEL_POLICY, toPublicModelProvenance, type PublicScanModelProvenance, type ScanModelConfig } from "./scan-model-config"
 import { parse } from "node-html-parser"
 
@@ -75,6 +79,12 @@ type AuditAnalysis = {
   gtm_gaps?: string[]
   outreach_angle?: string
   sample_email?: Record<string, unknown>
+}
+
+type IntentData = {
+  status?: string
+  top_signals?: string[]
+  keyword_volumes?: Array<{ keyword?: string; monthlyVolume?: number }>
 }
 
 type AuditDebugLog = {
@@ -200,7 +210,14 @@ export async function processAudit(auditId: string, url: string) {
     normalizedAnalysis.model_provenance = toPublicModelProvenance(modelConfig)
     normalizedAnalysis.site_profile = siteProfile
 
-    const intentData = await buildMeasuredIntentData(siteProfile, createHubblyIntelligenceClient())
+    const intelligenceClient = createHubblyIntelligenceClient()
+    const intentData = await buildMeasuredIntentData(siteProfile, intelligenceClient)
+    const competitiveIntelligence = await buildCompetitiveIntelligence(
+      siteProfile,
+      normalizedAnalysis.competitors ?? [],
+      intentData,
+      intelligenceClient,
+    )
     const gtmPlan = buildGtmPlan(normalizedAnalysis, intentData, companyName)
 
     await markProgress("complete", 100, manualReview ? "Fallback report ready for manual review" : "Audit report complete")
@@ -210,6 +227,7 @@ export async function processAudit(auditId: string, url: string) {
       analysis: normalizedAnalysis,
       competitors: normalizedAnalysis.competitors ?? [],
       intent_data: intentData,
+      competitive_intelligence: competitiveIntelligence,
       gtm_plan: gtmPlan,
       sample_email: normalizedAnalysis.sample_email ?? null,
       completed_at: new Date().toISOString(),
@@ -975,6 +993,215 @@ function insufficientIntentData(category: string | null) {
   }
 }
 
+async function buildCompetitiveIntelligence(
+  siteProfile: SiteProfile,
+  namedCompetitors: Array<Record<string, unknown>>,
+  intentData: IntentData,
+  client: HubblyIntelligenceClient,
+) {
+  const priorityKeywords = priorityKeywordSet(intentData)
+  const insufficient = () => insufficientCompetitiveIntelligence(priorityKeywords.length)
+
+  if (!siteProfile.category || !siteProfile.buyer_type || !siteProfile.business_model || !priorityKeywords.length) {
+    return insufficient()
+  }
+
+  try {
+    const competitorResponse = await client.fetchCompetitorSerpData({
+      domain: siteProfile.domain,
+      category: siteProfile.category,
+      buyerType: siteProfile.buyer_type,
+      businessModel: siteProfile.business_model,
+      keywords: priorityKeywords,
+    })
+    const measuredDomains = competitorResponse.competitors
+      .filter((item) => item.provenance === "measured" && item.domain)
+      .slice(0, 3)
+
+    if (!measuredDomains.length) {
+      return insufficient()
+    }
+
+    const competitorDomains = measuredDomains.map((item) => item.domain)
+    const [positionsResponse, backlinkResponse] = await Promise.all([
+      client.fetchSerpPositions({
+        domain: siteProfile.domain,
+        category: siteProfile.category,
+        buyerType: siteProfile.buyer_type,
+        businessModel: siteProfile.business_model,
+        keywords: priorityKeywords,
+        competitorDomains,
+      }),
+      client.fetchBacklinkSummaries({
+        domain: siteProfile.domain,
+        category: siteProfile.category,
+        buyerType: siteProfile.buyer_type,
+        businessModel: siteProfile.business_model,
+        keywords: priorityKeywords,
+        competitorDomains,
+      }),
+    ])
+
+    const targetPositions = positionsResponse.domains.find((item) => item.domain === siteProfile.domain)
+    const backlinkByDomain = new Map(backlinkResponse.summaries.map((item) => [item.domain, item]))
+    const targetBacklinks = backlinkByDomain.get(siteProfile.domain)
+    const targetShareOfVoice = calculateShareOfVoice(targetPositions, priorityKeywords)
+    const battlefield = measuredDomains
+      .filter((domain) => domain.kind === "strategic_competitor")
+      .map((domain) => {
+        const positions = positionsResponse.domains.find((item) => item.domain === domain.domain)
+        const backlinks = backlinkByDomain.get(domain.domain)
+        return {
+          domain: domain.domain,
+          label: domain.label,
+          intersections: domain.intersections,
+          avgPosition: domain.avgPosition,
+          shareOfVoice: calculateShareOfVoice(positions, priorityKeywords),
+          yourShareOfVoice: targetShareOfVoice,
+          referringDomains: backlinks?.referringDomains ?? null,
+          yourReferringDomains: targetBacklinks?.referringDomains ?? null,
+          narrative: matchNarrative(domain.domain, namedCompetitors),
+          provenance: "measured" as const,
+        }
+      })
+
+    const marketplaces = measuredDomains
+      .filter((domain) => domain.kind === "marketplace")
+      .map((domain) => ({
+        domain: domain.domain,
+        label: domain.label,
+        intersections: domain.intersections,
+        shareOfVoice: calculateShareOfVoice(
+          positionsResponse.domains.find((item) => item.domain === domain.domain),
+          priorityKeywords,
+        ),
+        referringDomains: backlinkByDomain.get(domain.domain)?.referringDomains ?? null,
+        provenance: "measured" as const,
+      }))
+
+    const bleeding = buildBleedingKeywords(positionsResponse.domains, siteProfile.domain, priorityKeywords)
+    const measuredNarrativeDomains = new Set(measuredDomains.map((item) => item.domain))
+
+    return {
+      status: battlefield.length || marketplaces.length || bleeding.length ? "measured" : "insufficient_signal",
+      caps: {
+        keyword_count: priorityKeywords.length,
+        competitor_count: measuredDomains.length,
+        max_keywords: 5,
+        max_competitors: 3,
+      },
+      battlefield,
+      marketplaces,
+      bleeding,
+      bleedingMonthly: bleeding.reduce((sum, item) => sum + item.monthlyVolume, 0),
+      named_without_serp_presence: namedCompetitors.filter((item) => {
+        const name = typeof item.name === "string" ? item.name : ""
+        return name && !Array.from(measuredNarrativeDomains).some((domain) => narrativeMatchesDomain(domain, name))
+      }),
+      provenance: {
+        competitor_domains: "measured",
+        battlefield: "measured",
+        marketplaces: marketplaces.length ? "measured" : "estimated",
+        bleeding: bleeding.length ? "measured" : "estimated",
+        backlinks: "measured",
+      },
+    }
+  } catch {
+    return insufficient()
+  }
+}
+
+function insufficientCompetitiveIntelligence(keywordCount: number) {
+  return {
+    status: "insufficient_signal",
+    caps: {
+      keyword_count: keywordCount,
+      competitor_count: 0,
+      max_keywords: 5,
+      max_competitors: 3,
+    },
+    battlefield: [],
+    marketplaces: [],
+    bleeding: [],
+    bleedingMonthly: 0,
+    named_without_serp_presence: [],
+    provenance: {
+      competitor_domains: "estimated",
+      battlefield: "estimated",
+      marketplaces: "estimated",
+      bleeding: "estimated",
+      backlinks: "estimated",
+    },
+  }
+}
+
+function priorityKeywordSet(intentData: IntentData) {
+  const keywordVolumes = Array.isArray(intentData.keyword_volumes) ? intentData.keyword_volumes : []
+  const volumeKeywords = keywordVolumes
+    .map((item) => normalizeIntentKeyword(item.keyword ?? ""))
+    .filter(Boolean)
+  const signalKeywords = (intentData.top_signals ?? [])
+    .map((keyword) => normalizeIntentKeyword(keyword))
+    .filter(Boolean)
+
+  return uniqueStrings([...volumeKeywords, ...signalKeywords]).slice(0, 5)
+}
+
+function calculateShareOfVoice(domainPositions: HubblyIntelligenceDomainPositions | undefined, priorityKeywords: string[]) {
+  if (!domainPositions || !priorityKeywords.length) return 0
+  const positionByKeyword = new Map(domainPositions.keywords.map((item) => [item.keyword, item.position]))
+  const score = priorityKeywords.reduce((sum, keyword) => {
+    const position = positionByKeyword.get(keyword)
+    if (!position || position > 10) return sum
+    return sum + ((11 - position) / 10)
+  }, 0)
+
+  return round4(score / priorityKeywords.length)
+}
+
+function buildBleedingKeywords(
+  domains: HubblyIntelligenceDomainPositions[],
+  targetDomain: string,
+  priorityKeywords: string[],
+) {
+  const targetKeywords = new Set(domains.find((item) => item.domain === targetDomain)?.keywords.map((item) => item.keyword) ?? [])
+  const bleeding = new Map<string, { keyword: string; monthlyVolume: number; competitorDomains: string[]; provenance: "measured" }>()
+
+  for (const domain of domains) {
+    if (domain.domain === targetDomain) continue
+    for (const item of domain.keywords) {
+      if (!priorityKeywords.includes(item.keyword) || targetKeywords.has(item.keyword) || !item.monthlyVolume) continue
+      const existing = bleeding.get(item.keyword)
+      if (existing) {
+        existing.competitorDomains.push(domain.domain)
+      } else {
+        bleeding.set(item.keyword, {
+          keyword: item.keyword,
+          monthlyVolume: item.monthlyVolume,
+          competitorDomains: [domain.domain],
+          provenance: "measured",
+        })
+      }
+    }
+  }
+
+  return Array.from(bleeding.values()).sort((a, b) => b.monthlyVolume - a.monthlyVolume)
+}
+
+function matchNarrative(domain: string, competitors: Array<Record<string, unknown>>) {
+  return competitors.find((item) => typeof item.name === "string" && narrativeMatchesDomain(domain, item.name)) ?? null
+}
+
+function narrativeMatchesDomain(domain: string, name: string) {
+  const normalizedName = name.toLowerCase().replace(/[^a-z0-9]+/g, "")
+  const normalizedDomain = domain.split(".")[0].replace(/[^a-z0-9]+/g, "")
+  return Boolean(normalizedName && normalizedDomain && (normalizedName.includes(normalizedDomain) || normalizedDomain.includes(normalizedName)))
+}
+
+function round4(value: number) {
+  return Math.round(value * 10000) / 10000
+}
+
 function normalizeIntentKeyword(value: string) {
   return decodeHtml(stripTags(value))
     .normalize("NFKC")
@@ -1157,6 +1384,7 @@ function buildGtmPlan(analysis: AuditAnalysis, intentData: Record<string, unknow
 export const buildSiteProfileForTest = buildSiteProfile
 export const estimateIntentDataForTest = buildMeasuredIntentData
 export const buildMeasuredIntentDataForTest = buildMeasuredIntentData
+export const buildCompetitiveIntelligenceForTest = buildCompetitiveIntelligence
 export { normalizeIntentKeyword }
 export const extractObservedEvidenceForTest = extractObservedEvidence
 export const mergeObservedEvidenceForTest = mergeObservedEvidence
