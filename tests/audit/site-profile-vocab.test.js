@@ -22,6 +22,18 @@ const sandbox = {
     if (specifier === "./site-profile-vocab.v1.json") {
       return require(path.join(__dirname, "..", "..", "lib", "audit", "site-profile-vocab.v1.json"))
     }
+    if (specifier === "./hubbly-intelligence") {
+      return {
+        createHubblyIntelligenceClient: () => ({
+          async fetchKeywordDemand() {
+            return { keywords: [] }
+          },
+        }),
+      }
+    }
+    if (specifier === "./hubbly-intelligence-config") {
+      return { getHubblyIntelligenceConfig: () => ({ cadence: { free: "on_demand", autopilot: "weekly", workforce: "daily" } }) }
+    }
     return require(specifier)
   },
   process,

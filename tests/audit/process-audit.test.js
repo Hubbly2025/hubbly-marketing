@@ -21,6 +21,18 @@ const sandbox = {
     if (specifier === "./site-profile-vocab.v1.json") {
       return require(path.join(__dirname, "..", "..", "lib", "audit", "site-profile-vocab.v1.json"))
     }
+    if (specifier === "./hubbly-intelligence") {
+      return {
+        createHubblyIntelligenceClient: () => ({
+          async fetchKeywordDemand() {
+            return { keywords: [] }
+          },
+        }),
+      }
+    }
+    if (specifier === "./hubbly-intelligence-config") {
+      return { getHubblyIntelligenceConfig: () => ({ cadence: { free: "on_demand", autopilot: "weekly", workforce: "daily" } }) }
+    }
     return require(specifier)
   },
   process,
@@ -85,9 +97,6 @@ const restaurantProfile = buildSiteProfileForTest({
   scrapedContent: "Joe's Crab Shack serves seafood, crab buckets, shrimp, cocktails, and family dinners. View our menu, find a location near you, and make a reservation.",
 })
 
-const stripeIntent = estimateIntentDataForTest(stripeProfile)
-const restaurantIntent = estimateIntentDataForTest(restaurantProfile)
-
 assert.equal(stripeProfile.buyer_type, "business")
 assert.equal(stripeProfile.business_model, "b2b_saas")
 assert.equal(stripeProfile.category, "payments")
@@ -96,28 +105,8 @@ assert.equal(restaurantProfile.business_model, "local_service")
 assert.equal(restaurantProfile.category, "seafood_restaurant")
 assert.notEqual(stripeProfile.category, restaurantProfile.category)
 
-assert.equal(JSON.stringify(stripeIntent.top_signals), JSON.stringify([
-  "payments infrastructure pricing",
-  "best payment API for online businesses",
-  "payment processing software reviews",
-  "Stripe alternatives for businesses",
-  "payments platform for growing teams",
-]))
-assert.equal(JSON.stringify(restaurantIntent.top_signals), JSON.stringify([
-  "seafood restaurant near me",
-  "crab shack menu",
-  "seafood restaurant reservations",
-  "best crab restaurant nearby",
-  "family seafood restaurant",
-]))
-assert.notDeepEqual(stripeIntent.top_signals, restaurantIntent.top_signals)
-assert.equal(JSON.stringify(stripeIntent.geographies), "[]")
-assert.equal(JSON.stringify(restaurantIntent.geographies), "[]")
-
 assertNoDefaultTerm(stripeProfile)
 assertNoDefaultTerm(restaurantProfile)
-assertNoDefaultTerm(stripeIntent)
-assertNoDefaultTerm(restaurantIntent)
 
 const stripeWithIncidentalConsumerCopy = buildSiteProfileForTest({
   domain: "stripe.example",
@@ -140,4 +129,46 @@ assert.equal(stripeWithIncidentalConsumerCopy.business_model, "b2b_saas")
 assert.equal(stripeWithIncidentalConsumerCopy.category, "payments")
 assert.equal(stripeWithIncidentalConsumerCopy.buyer_type, "business")
 
-console.log("audit process helpers: 1 passed")
+Promise.all([
+  estimateIntentDataForTest(stripeProfile, {
+    async fetchKeywordDemand() {
+      return {
+        keywords: [
+          { keyword: "payments API pricing", monthlyVolume: 1200 },
+          { keyword: "payment processing software", monthlyVolume: 800 },
+        ],
+      }
+    },
+  }),
+  estimateIntentDataForTest(restaurantProfile, {
+    async fetchKeywordDemand() {
+      return {
+        keywords: [
+          { keyword: "seafood restaurant near me", monthlyVolume: 900 },
+          { keyword: "crab shack menu", monthlyVolume: 500 },
+        ],
+      }
+    },
+  }),
+]).then(([stripeIntent, restaurantIntent]) => {
+  assert.equal(stripeIntent.status, "measured")
+  assert.equal(restaurantIntent.status, "measured")
+  assert.equal(JSON.stringify(stripeIntent.top_signals), JSON.stringify([
+    "payments api pricing",
+    "payment processing software",
+  ]))
+  assert.equal(JSON.stringify(restaurantIntent.top_signals), JSON.stringify([
+    "seafood restaurant near me",
+    "crab shack menu",
+  ]))
+  assert.notDeepEqual(stripeIntent.top_signals, restaurantIntent.top_signals)
+  assert.equal(JSON.stringify(stripeIntent.geographies), "[]")
+  assert.equal(JSON.stringify(restaurantIntent.geographies), "[]")
+  assertNoDefaultTerm(stripeIntent)
+  assertNoDefaultTerm(restaurantIntent)
+
+  console.log("audit process helpers: 1 passed")
+}).catch((error) => {
+  console.error(error)
+  process.exit(1)
+})

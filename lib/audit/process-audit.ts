@@ -1,4 +1,5 @@
 import siteProfileVocab from "./site-profile-vocab.v1.json"
+import { createHubblyIntelligenceClient, type HubblyIntelligenceClient } from "./hubbly-intelligence"
 import { parse } from "node-html-parser"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
@@ -11,20 +12,6 @@ const SCRAPE_PATHS = [
   { path: "/features", label: "features" },
   { path: "/customers", label: "customers" },
 ] as const
-
-const INTENT_ESTIMATES: Record<string, { monthly: number; weekly: number; highIntent: number }> = {
-  saas: { monthly: 4200, weekly: 1100, highIntent: 380 },
-  insurance: { monthly: 8900, weekly: 2400, highIntent: 720 },
-  mortgage: { monthly: 6200, weekly: 1600, highIntent: 490 },
-  real_estate: { monthly: 7400, weekly: 1900, highIntent: 560 },
-  recruiting: { monthly: 3800, weekly: 980, highIntent: 290 },
-  solar: { monthly: 5100, weekly: 1300, highIntent: 420 },
-  home_services: { monthly: 9200, weekly: 2500, highIntent: 740 },
-  ecommerce: { monthly: 11000, weekly: 2900, highIntent: 890 },
-  marketing_agency: { monthly: 2900, weekly: 750, highIntent: 210 },
-  healthcare: { monthly: 6800, weekly: 1800, highIntent: 530 },
-  finance: { monthly: 5500, weekly: 1400, highIntent: 440 },
-}
 
 type ProvenanceTag = "measured" | "inferred" | "estimated" | "recommendation"
 
@@ -202,7 +189,7 @@ export async function processAudit(auditId: string, url: string) {
     normalizedAnalysis.provenance = siteProfile.provenance
     normalizedAnalysis.site_profile = siteProfile
 
-    const intentData = estimateIntentData(siteProfile)
+    const intentData = await buildMeasuredIntentData(siteProfile, createHubblyIntelligenceClient())
     const gtmPlan = buildGtmPlan(normalizedAnalysis, intentData, companyName)
 
     await markProgress("complete", 100, manualReview ? "Fallback report ready for manual review" : "Audit report complete")
@@ -886,77 +873,102 @@ function emptyObservedEvidence(): ObservedEvidence {
   }
 }
 
-function estimateIntentData(siteProfile: SiteProfile) {
+async function buildMeasuredIntentData(siteProfile: SiteProfile, client: HubblyIntelligenceClient) {
   const category = siteProfile.category
 
-  if (!category) {
-    return {
-      status: "insufficient_signal",
-      category: null,
-      monthly: 0,
-      weekly: 0,
-      highIntent: 0,
-      high_intent: 0,
-      label: "Insufficient signal to estimate intent benchmarks for this site profile.",
-      top_signals: [],
-      geographies: [],
-      provenance: {
-        category: "estimated",
-        monthly: "estimated",
-        weekly: "estimated",
-        highIntent: "estimated",
-        top_signals: "estimated",
-        geographies: "estimated",
-      },
-    }
+  if (!category || !siteProfile.buyer_type || !siteProfile.business_model) {
+    return insufficientIntentData(category)
   }
 
-  const base = INTENT_ESTIMATES[category]
-  if (!base) {
-    return {
-      status: "insufficient_signal",
+  try {
+    const response = await client.fetchKeywordDemand({
+      domain: siteProfile.domain,
       category,
-      monthly: 0,
-      weekly: 0,
-      highIntent: 0,
-      high_intent: 0,
-      label: `Insufficient signal to estimate intent benchmarks for ${humanizeCategory(category)}.`,
-      top_signals: buildIntentSignals(siteProfile),
+      buyerType: siteProfile.buyer_type,
+      businessModel: siteProfile.business_model,
+    })
+    const measuredKeywords = response.keywords
+      .map((item) => ({
+        keyword: normalizeIntentKeyword(item.keyword),
+        monthlyVolume: Number.isFinite(item.monthlyVolume) ? Number(item.monthlyVolume) : null,
+      }))
+      .filter((item): item is { keyword: string; monthlyVolume: number } => Boolean(item.keyword) && Number(item.monthlyVolume) > 0)
+      .sort((a, b) => b.monthlyVolume - a.monthlyVolume)
+
+    if (!measuredKeywords.length) {
+      return insufficientIntentData(category)
+    }
+
+    const monthly = measuredKeywords.reduce((sum, item) => sum + item.monthlyVolume, 0)
+    const highIntent = monthly
+
+    return {
+      status: "measured",
+      category,
+      monthly,
+      highIntent,
+      high_intent: highIntent,
+      label: `Measured by Hubbly Intelligence for ${humanizeCategory(category)}.`,
+      top_signals: measuredKeywords.slice(0, 5).map((item) => item.keyword),
+      keyword_volumes: measuredKeywords.slice(0, 10),
       geographies: buildGeographies(siteProfile),
+      cadence: {
+        free: "on_demand",
+        autopilot: "weekly",
+        workforce: "daily",
+      },
       provenance: {
         category: "inferred",
-        monthly: "estimated",
-        weekly: "estimated",
-        highIntent: "estimated",
-        top_signals: "inferred",
+        monthly: "measured",
+        highIntent: "measured",
+        top_signals: "measured",
+        keyword_volumes: "measured",
         geographies: "estimated",
       },
     }
+  } catch {
+    return insufficientIntentData(category)
   }
+}
 
-  const monthly = withVariance(base.monthly)
-  const weekly = withVariance(base.weekly)
-  const highIntent = withVariance(base.highIntent)
-
+function insufficientIntentData(category: string | null) {
   return {
-    status: "estimated",
+    status: "insufficient_signal",
     category,
-    monthly,
-    weekly,
-    highIntent,
-    high_intent: highIntent,
-    label: `Estimated from Hubbly category benchmarks for ${humanizeCategory(category)} anchored on ${siteProfile.buyer_type ?? "insufficient signal"}.`,
-    top_signals: buildIntentSignals(siteProfile),
-    geographies: buildGeographies(siteProfile),
+    monthly: 0,
+    highIntent: 0,
+    high_intent: 0,
+    label: category
+      ? `Hubbly Intelligence does not have measured demand data for ${humanizeCategory(category)} yet.`
+      : "Hubbly Intelligence does not have enough profile signal to measure demand yet.",
+    top_signals: [],
+    keyword_volumes: [],
+    geographies: [],
+    cadence: {
+      free: "on_demand",
+      autopilot: "weekly",
+      workforce: "daily",
+    },
     provenance: {
-      category: "inferred",
-      monthly: "estimated",
-      weekly: "estimated",
-      highIntent: "estimated",
-      top_signals: "inferred",
-      geographies: "estimated",
+      category: category ? "inferred" : "estimated",
+      monthly: "measured",
+      highIntent: "measured",
+      top_signals: "measured",
+      keyword_volumes: "measured",
+      geographies: "measured",
     },
   }
+}
+
+function normalizeIntentKeyword(value: string) {
+  return decodeHtml(stripTags(value))
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[“”]/g, "\"")
+    .replace(/[‘’]/g, "'")
+    .replace(/[^a-z0-9\s/.'"-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
 }
 
 function normalizeText(value?: string | null) {
@@ -1075,60 +1087,8 @@ function findSourceSpan(positioningValue: string | null, scrapedContent: string)
   return sentence ? sentence.slice(0, 500) : null
 }
 
-function buildIntentSignals(siteProfile: SiteProfile) {
-  const category = siteProfile.category
-
-  if (!category) return []
-
-  if (category === "payments") {
-    return [
-      "payments infrastructure pricing",
-      "best payment API for online businesses",
-      "payment processing software reviews",
-      "Stripe alternatives for businesses",
-      "payments platform for growing teams",
-    ]
-  }
-
-  if (category === "seafood_restaurant") {
-    return [
-      "seafood restaurant near me",
-      "crab shack menu",
-      "seafood restaurant reservations",
-      "best crab restaurant nearby",
-      "family seafood restaurant",
-    ]
-  }
-
-  if (siteProfile.buyer_type === "consumer" || siteProfile.business_model === "local_service") {
-    const label = humanizeCategory(category)
-    return [
-      `${label} near me`,
-      `${label} pricing`,
-      `best ${label} nearby`,
-      `${label} reviews`,
-      `${label} booking`,
-    ]
-  }
-
-  const label = humanizeCategory(category)
-  return [
-    `${label} pricing`,
-    `best ${label} for ${siteProfile.buyer_type === "business" ? "businesses" : "buyers"}`,
-    `${label} reviews`,
-    `${label} alternatives`,
-    `${label} solution`,
-  ]
-}
-
 function humanizeCategory(category: string) {
   return category.replace(/_/g, " ")
-}
-
-function withVariance(value: number) {
-  const variance = 0.15
-  const factor = 1 + (Math.random() * variance * 2 - variance)
-  return Math.round(value * factor)
 }
 
 function buildGeographies(siteProfile: SiteProfile) {
@@ -1165,7 +1125,9 @@ function buildGtmPlan(analysis: AuditAnalysis, intentData: Record<string, unknow
 }
 
 export const buildSiteProfileForTest = buildSiteProfile
-export const estimateIntentDataForTest = estimateIntentData
+export const estimateIntentDataForTest = buildMeasuredIntentData
+export const buildMeasuredIntentDataForTest = buildMeasuredIntentData
+export { normalizeIntentKeyword }
 export const extractObservedEvidenceForTest = extractObservedEvidence
 export const mergeObservedEvidenceForTest = mergeObservedEvidence
 export const siteProfileVocabVersionForTest = siteProfileVocab.version

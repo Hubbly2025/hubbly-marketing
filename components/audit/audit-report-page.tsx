@@ -48,7 +48,7 @@ type Audit = {
   }
   competitors?: Competitor[]
   intent_data?: {
-    status?: "estimated" | "insufficient_signal"
+    status?: "measured" | "insufficient_signal"
     category?: string | null
     monthly?: number
     weekly?: number
@@ -56,6 +56,7 @@ type Audit = {
     high_intent?: number
     label?: string
     top_signals?: string[]
+    keyword_volumes?: Array<{ keyword?: string; monthlyVolume?: number }>
     geographies?: Array<{ region?: string; count?: number }>
   }
   gtm_plan?: {
@@ -290,7 +291,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
                   : "Hubbly does not have measured demand or volume data for this category yet."}
               </p>
               <div className="mt-8 grid gap-4 md:grid-cols-2">
-                <MetricCard label="Searched in the last 7 days" value={formatNumber(weekly)} />
+                <MetricCard label="Searched in the last 7 days" value={typeof intent.weekly === "number" ? formatNumber(weekly) : "not available"} />
                 <MetricCard label="Showed high purchase intent" value={formatNumber(highIntent)} />
               </div>
               <p className="mt-6 font-mono text-xs text-white/55">

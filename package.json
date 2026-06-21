@@ -6,7 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "test:audit": "node tests/audit/process-audit.test.js && node tests/audit/site-profile-vocab.test.js && node tests/audit/observed-evidence.test.js",
+    "test:audit": "node tests/audit/process-audit.test.js && node tests/audit/site-profile-vocab.test.js && node tests/audit/observed-evidence.test.js && node tests/audit/hubbly-intelligence.test.js",
     "start": "next start"
   },
   "dependencies": {
