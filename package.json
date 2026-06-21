@@ -7,7 +7,7 @@
     "dev": "next dev",
     "lint": "eslint .",
     "test": "pnpm run test:audit",
-    "test:audit": "node tests/audit/process-audit.test.js && node tests/audit/site-profile-vocab.test.js && node tests/audit/observed-evidence.test.js && node tests/audit/hubbly-intelligence.test.js && node tests/audit/model-policy.test.js && node tests/audit/provenance-ui.test.js && node scripts/audit-data-source-smoke.js tests/fixtures/audit-smoke/clean-measured.json",
+    "test:audit": "node tests/audit/process-audit.test.js && node tests/audit/site-profile-vocab.test.js && node tests/audit/observed-evidence.test.js && node tests/audit/hubbly-intelligence.test.js && node tests/audit/hubbly-intelligence-live.test.js && node tests/audit/model-policy.test.js && node tests/audit/provenance-ui.test.js && node scripts/audit-data-source-smoke.js tests/fixtures/audit-smoke/clean-measured.json",
     "start": "next start"
   },
   "dependencies": {

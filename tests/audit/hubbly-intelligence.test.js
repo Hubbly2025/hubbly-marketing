@@ -75,6 +75,7 @@ const measuredClient = {
       keywords: [
         { keyword: "payments API pricing", monthlyVolume: 1200 },
         { keyword: " best payment processing software ", monthlyVolume: 800 },
+        { keyword: "merchant services", monthlyVolume: 300, competition: "HIGH" },
         { keyword: "1/2 oz payment coin", monthlyVolume: 0 },
       ],
     }
@@ -83,13 +84,14 @@ const measuredClient = {
 
 buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
   assert.equal(intent.status, "measured")
-  assert.equal(intent.monthly, 2000)
+  assert.equal(intent.monthly, 2300)
   assert.equal(intent.weekly, undefined)
-  assert.equal(intent.highIntent, 1200)
+  assert.equal(intent.highIntent, 1500)
   assert.notEqual(intent.highIntent, intent.monthly)
   assert.equal(JSON.stringify(intent.top_signals), JSON.stringify([
     "payments api pricing",
     "best payment processing software",
+    "merchant services",
   ]))
   assert.equal(intent.provenance.monthly, "measured")
   assert.equal(intent.provenance.top_signals, "measured")

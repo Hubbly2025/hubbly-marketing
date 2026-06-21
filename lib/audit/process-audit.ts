@@ -905,8 +905,9 @@ async function buildMeasuredIntentData(siteProfile: SiteProfile, client: HubblyI
       .map((item) => ({
         keyword: normalizeIntentKeyword(item.keyword),
         monthlyVolume: Number.isFinite(item.monthlyVolume) ? Number(item.monthlyVolume) : null,
+        competition: typeof item.competition === "string" ? item.competition : null,
       }))
-      .filter((item): item is { keyword: string; monthlyVolume: number } => Boolean(item.keyword) && Number(item.monthlyVolume) > 0)
+      .filter((item): item is { keyword: string; monthlyVolume: number; competition: string | null } => Boolean(item.keyword) && Number(item.monthlyVolume) > 0)
       .sort((a, b) => b.monthlyVolume - a.monthlyVolume)
 
     if (!measuredKeywords.length) {
@@ -985,14 +986,19 @@ function normalizeIntentKeyword(value: string) {
     .trim()
 }
 
-function calculateHighIntentVolume(keywords: Array<{ keyword: string; monthlyVolume: number }>) {
+function calculateHighIntentVolume(keywords: Array<{ keyword: string; monthlyVolume: number; competition?: string | null }>) {
   return keywords
-    .filter((item) => isHighIntentKeyword(item.keyword))
+    .filter((item) => isHighIntentKeyword(item.keyword) || isHighCompetitionKeyword(item.competition))
     .reduce((sum, item) => sum + item.monthlyVolume, 0)
 }
 
 function isHighIntentKeyword(keyword: string) {
   return /\b(pricing|price|cost|demo|contact sales|buy|order|book|schedule|reservation|reserve|near me|menu|alternative|vs|compare|reviews?)\b/i.test(keyword)
+}
+
+function isHighCompetitionKeyword(value?: string | null) {
+  if (!value) return false
+  return value.toLowerCase() === "high" || Number(value) >= 60
 }
 
 function normalizeText(value?: string | null) {
