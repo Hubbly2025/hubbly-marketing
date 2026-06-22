@@ -968,8 +968,9 @@ async function buildMeasuredIntentData(siteProfile: SiteProfile, client: HubblyI
         geographies: "estimated",
       },
     }
-  } catch {
-    return insufficientIntentData(category)
+  } catch (error) {
+    logHubblyIntelligenceError("intent", error)
+    return unavailableIntentData(category, error)
   }
 }
 
@@ -998,6 +999,36 @@ function insufficientIntentData(category: string | null) {
       top_signals: "estimated",
       keyword_volumes: "estimated",
       geographies: "estimated",
+    },
+  }
+}
+
+function unavailableIntentData(category: string | null, error: unknown) {
+  return {
+    status: "data_unavailable",
+    category,
+    monthly: 0,
+    highIntent: 0,
+    high_intent: 0,
+    label: category
+      ? `Hubbly Intelligence demand data for ${humanizeCategory(category)} is temporarily unavailable.`
+      : "Hubbly Intelligence demand data is temporarily unavailable.",
+    top_signals: [],
+    keyword_volumes: [],
+    geographies: [],
+    error: vendorDataError(error),
+    cadence: {
+      free: "on_demand",
+      autopilot: "weekly",
+      workforce: "daily",
+    },
+    provenance: {
+      category: category ? "inferred" : "estimated",
+      monthly: "data_unavailable",
+      highIntent: "data_unavailable",
+      top_signals: "data_unavailable",
+      keyword_volumes: "data_unavailable",
+      geographies: "data_unavailable",
     },
   }
 }
@@ -1115,8 +1146,9 @@ async function buildCompetitiveIntelligence(
         backlinks: "measured",
       },
     }
-  } catch {
-    return insufficient()
+  } catch (error) {
+    logHubblyIntelligenceError("competitive", error)
+    return unavailableCompetitiveIntelligence(priorityKeywords.length, error)
   }
 }
 
@@ -1142,6 +1174,57 @@ function insufficientCompetitiveIntelligence(keywordCount: number) {
       backlinks: "estimated",
     },
   }
+}
+
+function unavailableCompetitiveIntelligence(keywordCount: number, error: unknown) {
+  return {
+    status: "data_unavailable",
+    label: "Hubbly Intelligence competitive data is temporarily unavailable.",
+    caps: {
+      keyword_count: keywordCount,
+      competitor_count: 0,
+      max_keywords: 5,
+      max_competitors: 3,
+    },
+    battlefield: [],
+    marketplaces: [],
+    bleeding: [],
+    bleedingMonthly: 0,
+    named_without_serp_presence: [],
+    error: vendorDataError(error),
+    provenance: {
+      competitor_domains: "data_unavailable",
+      battlefield: "data_unavailable",
+      marketplaces: "data_unavailable",
+      bleeding: "data_unavailable",
+      backlinks: "data_unavailable",
+    },
+  }
+}
+
+function logHubblyIntelligenceError(section: string, error: unknown) {
+  console.warn("[audit] Hubbly Intelligence data unavailable", {
+    section,
+    error: getErrorMessage(error),
+    error_type: getErrorName(error),
+  })
+}
+
+function vendorDataError(error: unknown) {
+  return {
+    type: getErrorName(error) === "TimeoutError" ? "vendor_timeout" : "vendor_error",
+    message: getErrorName(error) === "TimeoutError"
+      ? "Hubbly Intelligence timed out."
+      : "Hubbly Intelligence data is temporarily unavailable.",
+  }
+}
+
+function getErrorName(error: unknown) {
+  if (error && typeof error === "object" && "name" in error && typeof error.name === "string") {
+    return error.name
+  }
+
+  return error instanceof Error ? error.name : typeof error
 }
 
 function priorityKeywordSet(intentData: IntentData) {

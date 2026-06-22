@@ -21,6 +21,8 @@ const ENDPOINTS = {
   backlinksSummary: "/backlinks/summary/live",
 }
 
+let activeFetchCapture = null
+
 function main() {
   runRealValidation().then((result) => {
     printChecks(result.checks)
@@ -318,6 +320,7 @@ function createFetchCapture() {
 
   return {
     install() {
+      activeFetchCapture = captures
       globalThis.fetch = async (input, init) => {
         const url = typeof input === "string" ? input : input.url
 
@@ -332,6 +335,9 @@ function createFetchCapture() {
 
       return () => {
         globalThis.fetch = originalFetch
+        if (activeFetchCapture === captures) {
+          activeFetchCapture = null
+        }
       }
     },
     createAuditRow(auditId, url) {
@@ -349,6 +355,18 @@ function createFetchCapture() {
       return captures
     },
   }
+}
+
+function captureVendorPostJson(entry) {
+  if (!activeFetchCapture || !isVendorEndpoint(entry.url)) return
+
+  activeFetchCapture.vendorEndpoints.push({
+    url: entry.url,
+    status: entry.status,
+    ok: entry.ok,
+    request: entry.request,
+    response: entry.response,
+  })
 }
 
 function handleSupabaseCapture(url, init, auditRows) {
@@ -448,7 +466,7 @@ function loadTsModule(relativePath) {
   const absolutePath = path.join(process.cwd(), relativePath)
   if (moduleCache.has(absolutePath)) return moduleCache.get(absolutePath).exports
 
-  const source = fs.readFileSync(absolutePath, "utf8")
+  const source = instrumentSource(relativePath, fs.readFileSync(absolutePath, "utf8"))
   const compiled = ts.transpileModule(source, {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
@@ -480,9 +498,46 @@ function loadTsModule(relativePath) {
     AbortSignal,
     setTimeout,
     clearTimeout,
+    __hubblyCaptureVendorEndpoint: captureVendorPostJson,
   }
   vm.runInNewContext(compiled, sandbox, { filename: absolutePath })
   return module.exports
+}
+
+function instrumentSource(relativePath, source) {
+  if (relativePath !== "lib/audit/hubbly-intelligence.ts") return source
+
+  const original = `    if (!response.ok) {
+      return {}
+    }
+
+    return await response.json()`
+  const instrumented = `    if (!response.ok) {
+      globalThis.__hubblyCaptureVendorEndpoint?.({
+        url: \`\${baseUrl.replace(/\\/$/, "")}\${path}\`,
+        status: response.status,
+        ok: response.ok,
+        request: payload,
+        response: null,
+      })
+      return {}
+    }
+
+    const json = await response.json()
+    globalThis.__hubblyCaptureVendorEndpoint?.({
+      url: \`\${baseUrl.replace(/\\/$/, "")}\${path}\`,
+      status: response.status,
+      ok: response.ok,
+      request: payload,
+      response: json,
+    })
+    return json`
+
+  if (!source.includes(original)) {
+    throw new Error("validate-real-scan could not instrument Hubbly Intelligence postJson seam")
+  }
+
+  return source.replace(original, instrumented)
 }
 
 if (require.main === module) {
@@ -491,6 +546,8 @@ if (require.main === module) {
 
 module.exports = {
   ENDPOINTS,
+  createFetchCapture,
+  loadTsModule,
   validateResults,
   runRealValidation,
 }

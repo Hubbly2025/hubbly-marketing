@@ -275,7 +275,11 @@ client.fetchCompetitorSerpData({
   assert.equal(calls[0].body[0].target, "stripe.example")
   assert.equal(calls[0].body[0].limit, 3)
   assert.equal(JSON.stringify(calls[0].body[0].exclude_domains), JSON.stringify(["stripe.example"]))
+  assert.equal(calls[0].init.signal?.[Symbol.for("hubbly.timeoutMs")], 45000)
   assert.equal(calls[1].body[0].limit, 25)
+  assert.equal(calls[1].init.signal?.[Symbol.for("hubbly.timeoutMs")], 60000)
+  assert.equal(calls[4].init.signal?.[Symbol.for("hubbly.timeoutMs")], 90000)
+  assert.equal(calls[5].init.signal?.[Symbol.for("hubbly.timeoutMs")], 45000)
   assert(calls[1].body[0].filters.flat(Infinity).includes("keyword_data.keyword_info.search_volume"))
   assert.equal(JSON.stringify(calls[4].body.map((task) => task.keyword)), JSON.stringify([
     "payments api pricing",

@@ -1,5 +1,5 @@
 const assert = require("node:assert/strict")
-const { validateResults } = require("../../scripts/validate-real-scan.js")
+const { validateResults, createFetchCapture, loadTsModule } = require("../../scripts/validate-real-scan.js")
 
 const goodInput = {
   scans: {
@@ -70,7 +70,50 @@ assert(failingIds.includes("high_intent_subset"))
 assert(failingIds.includes("battlefield_measured_domains"))
 assert(failingIds.includes("vendor_walling"))
 
-console.log("validate real scan harness: 1 passed")
+capturePostJsonSeam().then(() => {
+  console.log("validate real scan harness: 1 passed")
+}).catch((error) => {
+  console.error(error)
+  process.exit(1)
+})
+
+async function capturePostJsonSeam() {
+  const capture = createFetchCapture()
+  const restoreCapture = capture.install()
+  const wrappedFetch = globalThis.fetch
+
+  try {
+    globalThis.fetch = async () => ({
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          tasks: [{ result: [{ items: [{ keyword: "payments api", search_volume: 1200 }] }] }],
+        }
+      },
+    })
+
+    const { createHubblyIntelligenceClient } = loadTsModule("lib/audit/hubbly-intelligence.ts")
+    await createHubblyIntelligenceClient({
+      apiKey: "login:password",
+      baseUrl: "https://example.test/v3",
+      cadence: { free: "on_demand", autopilot: "weekly", workforce: "daily" },
+    }).fetchKeywordDemand({
+      domain: "stripe.example",
+      category: "payments",
+      buyerType: "business",
+      businessModel: "b2b_saas",
+    })
+
+    const endpoints = capture.getCaptures().vendorEndpoints
+    assert.equal(endpoints.length, 1)
+    assert.equal(endpoints[0].url, "https://example.test/v3/keywords_data/google_ads/search_volume/live")
+    assert.equal(endpoints[0].response.tasks[0].result[0].items[0].search_volume, 1200)
+  } finally {
+    globalThis.fetch = wrappedFetch
+    restoreCapture()
+  }
+}
 
 function endpoint(path, response) {
   return {

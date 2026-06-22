@@ -75,7 +75,7 @@ class RemoteHubblyIntelligenceClient implements HubblyIntelligenceClient {
         location_name: "United States",
         language_name: "English",
       },
-    ], auth)
+    ], auth, 20000)
 
     return { keywords: parseKeywordDemandResponse(response) }
   }
@@ -103,7 +103,7 @@ class RemoteHubblyIntelligenceClient implements HubblyIntelligenceClient {
           order_by: ["ranked_serp_element.serp_item.rank_group,asc"],
           limit: 25,
         },
-      ], auth)
+      ], auth, 60000)
 
       return {
         domain,
@@ -118,7 +118,7 @@ class RemoteHubblyIntelligenceClient implements HubblyIntelligenceClient {
         location_name: "United States",
         language_name: "English",
         depth: 20,
-      })), auth)
+      })), auth, 90000)
       : {}
     const exactPositions = parseSerpAdvancedResponse(serpPayload, domains, rankedResponses)
 
@@ -141,7 +141,7 @@ class RemoteHubblyIntelligenceClient implements HubblyIntelligenceClient {
         exclude_domains: [target],
         item_types: ["organic"],
       },
-    ], auth)
+    ], auth, 45000)
 
     return { competitors: parseCompetitorsDomainResponse(response, target).slice(0, 3) }
   }
@@ -158,7 +158,7 @@ class RemoteHubblyIntelligenceClient implements HubblyIntelligenceClient {
           internal_list_limit: 10,
           backlinks_status_type: "live",
         },
-      ], auth)
+      ], auth, 45000)
 
       return parseBacklinkSummaryResponse(payload, domain)
     }))
@@ -171,9 +171,15 @@ class RemoteHubblyIntelligenceClient implements HubblyIntelligenceClient {
     return {}
   }
 
-  private async postJson(path: string, payload: unknown, authorization: string) {
+  private async postJson(path: string, payload: unknown, authorization: string, timeoutMs = 60000) {
     const baseUrl = this.config.baseUrl
     if (!baseUrl) return {}
+    const signal = AbortSignal.timeout(timeoutMs)
+    try {
+      ;(signal as AbortSignal & { [key: symbol]: number })[Symbol.for("hubbly.timeoutMs")] = timeoutMs
+    } catch {
+      // Signal objects are extensible in Node; this marker is only for adapter tests.
+    }
 
     const response = await fetch(`${baseUrl.replace(/\/$/, "")}${path}`, {
       method: "POST",
@@ -182,7 +188,7 @@ class RemoteHubblyIntelligenceClient implements HubblyIntelligenceClient {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(8000),
+      signal,
     })
 
     if (!response.ok) {

@@ -99,6 +99,7 @@ createHubblyIntelligenceClient({
   assert.equal(calls[0].url, "https://example.test/v3/keywords_data/google_ads/search_volume/live")
   assert.equal(calls[0].init.method, "POST")
   assert.equal(calls[0].init.headers.authorization, `Basic ${Buffer.from("login:password").toString("base64")}`)
+  assert.equal(calls[0].init.signal?.[Symbol.for("hubbly.timeoutMs")], 20000)
 
   const body = JSON.parse(calls[0].init.body)
   assert.equal(body[0].location_name, "United States")

@@ -83,6 +83,10 @@ function validateAuditPayload(payload, label) {
     failures.push(`${label}: intent_data.monthly is measured but has no measured keyword source`)
   }
 
+  if (isVendorError(intent.error) && intent.status === "insufficient_signal") {
+    failures.push(`${label}: intent vendor error is mislabeled insufficient_signal`)
+  }
+
   if (intentProvenance.highIntent === "measured" && Number(intent.highIntent ?? intent.high_intent ?? 0) > 0 && !keywordVolumes.length) {
     failures.push(`${label}: intent_data.highIntent is measured but has no measured keyword source`)
   }
@@ -118,6 +122,10 @@ function validateAuditPayload(payload, label) {
   return failures
 }
 
+function isVendorError(error) {
+  return Boolean(error && typeof error === "object" && /vendor/i.test(String(error.type ?? "")))
+}
+
 function validateCompetitiveIntelligence(competitive, provenance, label) {
   const failures = []
   const battlefield = Array.isArray(competitive.battlefield) ? competitive.battlefield : []
@@ -131,6 +139,10 @@ function validateCompetitiveIntelligence(competitive, provenance, label) {
 
   if (hasMeasuredCompetitiveClaim && provenance.competitor_domains !== "measured") {
     failures.push(`${label}: measured competitive claim has no measured competitor-domain source`)
+  }
+
+  if (isVendorError(competitive.error) && competitive.status === "insufficient_signal") {
+    failures.push(`${label}: competitive vendor error is mislabeled insufficient_signal`)
   }
 
   battlefield.forEach((item, index) => {

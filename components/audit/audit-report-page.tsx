@@ -63,7 +63,7 @@ type Audit = {
   }
   competitors?: Competitor[]
   intent_data?: {
-    status?: "measured" | "insufficient_signal"
+    status?: "measured" | "insufficient_signal" | "data_unavailable"
     category?: string | null
     monthly?: number
     weekly?: number
@@ -92,7 +92,7 @@ type ObservedEvidence = {
 }
 
 type CompetitiveIntelligence = {
-  status?: "measured" | "insufficient_signal"
+  status?: "measured" | "insufficient_signal" | "data_unavailable"
   caps?: {
     keyword_count?: number
     competitor_count?: number
@@ -237,7 +237,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const highIntent = intent.highIntent ?? intent.high_intent ?? 0
   const intentSignals = intent.top_signals ?? []
   const intentGeographies = intent.geographies ?? []
-  const hasIntentSignal = intent.status !== "insufficient_signal"
+  const hasIntentSignal = intent.status === "measured"
   const observedEvidence = analysis.site_profile?.observed_evidence ?? {}
   const siteProvenance = analysis.site_profile?.provenance ?? analysis.provenance ?? {}
   const intentProvenance = intent.provenance ?? {}
@@ -250,6 +250,15 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const techStack = observedEvidence.detected_tech_stack?.length
     ? observedEvidence.detected_tech_stack.join(", ")
     : "not detected"
+  const intentSummary = intentMetricCopyForTest(intent.status, monthly)
+  const intentBody = intent.status === "data_unavailable"
+    ? "Hubbly Intelligence demand data is temporarily unavailable."
+    : hasIntentSignal
+      ? `people actively researched solutions like ${companyName}.`
+      : "Hubbly does not have measured demand or volume data for this category yet."
+  const emptyIntentSignals = intent.status === "data_unavailable"
+    ? "Hubbly Intelligence demand data is temporarily unavailable."
+    : "Insufficient signal to generate anchored intent signals."
   const isA16zReport = isAndreessenHorowitzReport(audit, companyName, domain)
   const sampleEmail = isA16zReport ? A16Z_CORRECTED_EMAIL : audit.sample_email ?? analysis.sample_email ?? {}
   const displayedGtmPlan = isA16zReport ? replacePlanEmailPov(audit.gtm_plan) : audit.gtm_plan
@@ -440,7 +449,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
               </div>
             ) : (
               <p className="font-mono text-xs leading-6 text-white/60">
-                Hubbly Intelligence does not have measured competitor-domain data for this scan yet.
+                {competitiveEmptyCopyForTest(competitive.status)}
               </p>
             )}
           </ReportSection>
@@ -452,12 +461,10 @@ function CompleteReport({ audit }: { audit: Audit }) {
                 <ProvenanceChip tag={intentProvenance.monthly} />
               </div>
               <div className={`mt-4 font-[var(--font-bebas)] leading-none text-[#FF6B35] ${hasIntentSignal ? "text-7xl md:text-9xl" : "text-5xl md:text-7xl"}`}>
-                {hasIntentSignal ? formatNumber(monthly) : "Insufficient signal"}
+                {intentSummary}
               </div>
               <p className="mt-4 max-w-2xl text-xl text-white md:text-2xl">
-                {hasIntentSignal
-                  ? `people actively researched solutions like ${companyName}.`
-                  : "Hubbly does not have measured demand or volume data for this category yet."}
+                {intentBody}
               </p>
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <MetricCard label="Searched in the last 7 days" value={typeof intent.weekly === "number" ? formatNumber(weekly) : "not available"} provenance={intentProvenance.weekly} />
@@ -485,7 +492,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
                     ))
                   ) : (
                     <p className="font-mono text-xs leading-6 text-white/60">
-                      Insufficient signal to generate anchored intent signals.
+                      {emptyIntentSignals}
                     </p>
                   )}
                 </div>
@@ -764,6 +771,21 @@ export function marketplaceProvenanceForTest(
 
 export function reportDateLabelForTest(value?: string) {
   return `Scanned on: ${formatDate(value)}`
+}
+
+export function intentMetricCopyForTest(status: string | undefined, monthly: number) {
+  if (status === "measured") return formatNumber(monthly)
+  if (status === "data_unavailable") return "Data unavailable"
+
+  return "Insufficient signal"
+}
+
+export function competitiveEmptyCopyForTest(status: string | undefined) {
+  if (status === "data_unavailable") {
+    return "Hubbly Intelligence competitive data is temporarily unavailable."
+  }
+
+  return "Hubbly Intelligence does not have measured competitor-domain data for this scan yet."
 }
 
 function ProvenanceChip({ tag }: { tag?: ProvenanceValue }) {

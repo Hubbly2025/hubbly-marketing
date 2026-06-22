@@ -115,6 +115,17 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
   assert.equal(emptyIntent.monthly, 0)
   assert.equal(JSON.stringify(emptyIntent.top_signals), "[]")
 
+  return buildMeasuredIntentDataForTest(stripeProfile, {
+    async fetchKeywordDemand() {
+      throw new DOMException("The operation was aborted due to timeout", "TimeoutError")
+    },
+  })
+}).then((vendorErrorIntent) => {
+  assert.equal(vendorErrorIntent.status, "data_unavailable")
+  assert.equal(vendorErrorIntent.provenance.monthly, "data_unavailable")
+  assert.equal(vendorErrorIntent.error.type, "vendor_timeout")
+  assert.match(vendorErrorIntent.label, /temporarily unavailable/i)
+
   assert.equal(normalizeIntentKeyword("1 oz gold ira"), "1 oz gold ira")
   assert.equal(normalizeIntentKeyword("1/2 oz gold ira"), "1/2 oz gold ira")
   assert.equal(normalizeIntentKeyword("software for ops"), "software for ops")
@@ -238,6 +249,23 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
 }).then((emptyCompetitive) => {
   assert.equal(emptyCompetitive.status, "insufficient_signal")
   assert.equal(JSON.stringify(emptyCompetitive.battlefield), "[]")
+
+  return buildCompetitiveIntelligenceForTest(stripeProfile, [], measuredIntent, {
+    async fetchCompetitorSerpData() {
+      throw new DOMException("The operation was aborted due to timeout", "TimeoutError")
+    },
+    async fetchSerpPositions() {
+      throw new Error("positions should not be fetched after competitor timeout")
+    },
+    async fetchBacklinkSummaries() {
+      throw new Error("backlinks should not be fetched after competitor timeout")
+    },
+  })
+}).then((vendorErrorCompetitive) => {
+  assert.equal(vendorErrorCompetitive.status, "data_unavailable")
+  assert.equal(vendorErrorCompetitive.provenance.competitor_domains, "data_unavailable")
+  assert.equal(vendorErrorCompetitive.error.type, "vendor_timeout")
+  assert.match(vendorErrorCompetitive.label, /temporarily unavailable/i)
 
   console.log("hubbly intelligence: 1 passed")
 }).catch((error) => {
