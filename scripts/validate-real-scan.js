@@ -358,6 +358,10 @@ function createFetchCapture() {
 }
 
 function captureVendorPostJson(entry) {
+  if (process.env.REAL_SCAN_CAPTURE_DEBUG === "1") {
+    console.error(`CAPTURE ${entry.url}`)
+  }
+
   if (!activeFetchCapture || !isVendorEndpoint(entry.url)) return
 
   activeFetchCapture.vendorEndpoints.push({
@@ -513,7 +517,7 @@ function instrumentSource(relativePath, source) {
 
     return await response.json()`
   const instrumented = `    if (!response.ok) {
-      globalThis.__hubblyCaptureVendorEndpoint?.({
+      __hubblyCaptureVendorEndpoint?.({
         url: \`\${baseUrl.replace(/\\/$/, "")}\${path}\`,
         status: response.status,
         ok: response.ok,
@@ -524,7 +528,7 @@ function instrumentSource(relativePath, source) {
     }
 
     const json = await response.json()
-    globalThis.__hubblyCaptureVendorEndpoint?.({
+    __hubblyCaptureVendorEndpoint?.({
       url: \`\${baseUrl.replace(/\\/$/, "")}\${path}\`,
       status: response.status,
       ok: response.ok,
