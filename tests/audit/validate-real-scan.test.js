@@ -53,7 +53,12 @@ const goodInput = {
         tasks: [{ result: [{ items: [{ domain: "adyen.com", rank_absolute: 1 }] }] }],
       }),
       endpoint("/backlinks/summary/live", {
-        tasks: [{ result: [{ items: [{ target: "adyen.com", referring_domains: 2200 }] }] }],
+        status_code: 20000,
+        status_message: "Ok.",
+        cost: 0,
+        tasks_count: 1,
+        tasks_error: 0,
+        tasks: [{ status_code: 20000, status_message: "Ok.", result: [{ target: "adyen.com", referring_domains: 2200 }] }],
       }),
     ],
   },

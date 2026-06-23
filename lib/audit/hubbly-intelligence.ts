@@ -379,7 +379,7 @@ function mergeExactPositions(
 }
 
 function parseBacklinkSummaryResponse(payload: unknown, domain: string): HubblyIntelligenceBacklinkSummary {
-  const record = asRecord(resultItems(payload)[0])
+  const record = firstResultRecord(payload) ?? asRecord(resultItems(payload)[0])
 
   return {
     domain,
@@ -387,6 +387,18 @@ function parseBacklinkSummaryResponse(payload: unknown, domain: string): HubblyI
     referringMainDomains: numberValue(record?.referring_main_domains),
     provenance: "measured",
   }
+}
+
+function firstResultRecord(payload: unknown) {
+  const tasks = (payload as DataForSeoResponse | null)?.tasks ?? []
+  for (const task of tasks) {
+    for (const result of task.result ?? []) {
+      const record = asRecord(result)
+      if (record && ("referring_domains" in record || "referring_main_domains" in record)) return record
+    }
+  }
+
+  return null
 }
 
 function resultItems(payload: unknown) {

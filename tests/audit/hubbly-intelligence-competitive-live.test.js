@@ -104,14 +104,18 @@ const fetchImpl = async (url, init) => {
   if (url.endsWith("/backlinks/summary/live")) {
     const target = calls.at(-1).body[0].target
     return jsonResponse({
+      status_code: 20000,
+      status_message: "Ok.",
+      cost: 0,
+      tasks_count: 1,
+      tasks_error: 0,
       tasks: [{
         status_code: 20000,
+        status_message: "Ok.",
         result: [{
-          items: [{
-            target,
-            referring_domains: target === "stripe.example" ? 1200 : target === "adyen.com" ? 2200 : 3100,
-            referring_main_domains: target === "stripe.example" ? 1100 : target === "adyen.com" ? 2000 : 2900,
-          }],
+          target,
+          referring_domains: target === "stripe.example" ? 1200 : target === "adyen.com" ? 2200 : 3100,
+          referring_main_domains: target === "stripe.example" ? 1100 : target === "adyen.com" ? 2000 : 2900,
         }],
       }],
     })
