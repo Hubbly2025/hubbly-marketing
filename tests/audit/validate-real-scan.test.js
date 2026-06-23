@@ -19,12 +19,17 @@ const goodInput = {
     ],
     vendorEndpoints: [
       endpoint("/keywords_data/google_ads/search_volume/live", {
-        tasks: [{ result: [{ items: [{
+        status_code: 20000,
+        status_message: "Ok.",
+        cost: 0.075,
+        tasks_count: 1,
+        tasks_error: 0,
+        tasks: [{ status_code: 20000, status_message: "Ok.", result: [{
           keyword: "payments api pricing",
           search_volume: 1200,
           competition: "HIGH",
           competition_index: 81,
-        }] }] }],
+        }] }],
       }),
       endpoint(("/data" + "forseo_labs/google") + "/competitors_domain/live", {
         tasks: [{ result: [{ items: [{

@@ -48,30 +48,35 @@ const fetchImpl = async (url, init) => {
     ok: true,
     async json() {
       return {
+        status_code: 20000,
+        status_message: "Ok.",
+        cost: 0.075,
+        tasks_count: 1,
+        tasks_error: 0,
         tasks: [
           {
             status_code: 20000,
+            status_message: "Ok.",
+            cost: 0.075,
+            result_count: 3,
             result: [
               {
-                items: [
-                  {
-                    keyword: "Payments API Pricing",
-                    search_volume: 1200,
-                    competition: "HIGH",
-                    location_code: 2840,
-                    language_code: "en",
-                  },
-                  {
-                    keyword: "1/2 oz payment coin",
-                    search_volume: 50,
-                    competition: "LOW",
-                  },
-                  {
-                    keyword: "software for ops",
-                    search_volume: 800,
-                    competition_index: 64,
-                  },
-                ],
+                keyword: "Payments API Pricing",
+                search_volume: 1200,
+                competition: "HIGH",
+                competition_index: 81,
+                location_code: 2840,
+                language_code: "en",
+              },
+              {
+                keyword: "1/2 oz payment coin",
+                search_volume: 50,
+                competition: "LOW",
+              },
+              {
+                keyword: "software for ops",
+                search_volume: 800,
+                competition_index: 64,
               },
             ],
           },

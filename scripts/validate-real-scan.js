@@ -439,7 +439,7 @@ function flatResultItems(entries) {
     const tasks = entry.response?.tasks ?? []
     return tasks.flatMap((task) => {
       const results = task.result ?? []
-      return results.flatMap((result) => result.items ?? [])
+      return results.flatMap((result) => Array.isArray(result.items) ? result.items : [result])
     })
   })
 }

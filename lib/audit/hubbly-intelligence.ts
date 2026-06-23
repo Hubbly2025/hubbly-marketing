@@ -241,11 +241,10 @@ function parseKeywordDemandResponse(payload: unknown): HubblyIntelligenceKeyword
 
   for (const task of tasks) {
     for (const result of task.result ?? []) {
-      const items = Array.isArray((result as { items?: unknown[] }).items)
-        ? (result as { items?: unknown[] }).items ?? []
-        : []
+      const resultRecord = asRecord(result)
+      const records = Array.isArray(resultRecord?.items) ? resultRecord.items : [result]
 
-      for (const item of items) {
+      for (const item of records) {
         const record = asRecord(item)
         const keyword = canonicalizeDisplayKeyword(stringValue(record?.keyword))
         if (!keyword) continue
