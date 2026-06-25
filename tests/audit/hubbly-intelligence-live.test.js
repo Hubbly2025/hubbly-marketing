@@ -99,12 +99,21 @@ createHubblyIntelligenceClient({
     "payments platform",
     "payments for business",
     "payments api",
+    "payments api pricing",
+    "payments demo",
+    "best payments",
+    "payments vs alternatives",
+    "payments reviews",
+    "payments cost",
   ])
 
   assert.equal(JSON.stringify(demand.keywords), JSON.stringify([
     { keyword: "payments", monthlyVolume: 1000, competition: "HIGH" },
     { keyword: "payments pricing", monthlyVolume: 900, competition: "81" },
     { keyword: "payments api", monthlyVolume: 700, competition: "64" },
+    { keyword: "payments api pricing", monthlyVolume: 600, competition: "HIGH" },
+    { keyword: "payments demo", monthlyVolume: 300, competition: "MEDIUM" },
+    { keyword: "best payments", monthlyVolume: 250, competition: "LOW" },
   ]))
 
   return createHubblyIntelligenceClient({
@@ -147,6 +156,9 @@ function keywordRowsForRequest(requestedKeywords) {
     keywordRow("payments", 1000, "HIGH"),
     keywordRow("payments pricing", 900, 81),
     keywordRow("payments api", 700, 64),
+    keywordRow("payments api pricing", 600, "HIGH"),
+    keywordRow("payments demo", 300, "MEDIUM"),
+    keywordRow("best payments", 250, "LOW"),
     keywordRow("seafood restaurant", 1100, "MEDIUM"),
     keywordRow("seafood restaurant near me", 950, "HIGH"),
     keywordRow("0 apr business loan", 500, "HIGH"),

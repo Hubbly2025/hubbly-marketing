@@ -233,6 +233,12 @@ function buildKeywordSeeds(request: HubblyIntelligenceRequest) {
     `${category} platform`,
     buyer === "business" ? `${category} for business` : `${category} near me`,
     businessModel.includes("saas") ? `${category} api` : `${category} services`,
+    businessModel.includes("saas") ? `${category} api pricing` : `${category} cost`,
+    buyer === "business" ? `${category} demo` : `${category} menu`,
+    `best ${category}`,
+    `${category} vs alternatives`,
+    `${category} reviews`,
+    `${category} cost`,
   ]
 
   return uniqueStrings(seeds.map(canonicalizeDisplayKeyword)).slice(0, 25)

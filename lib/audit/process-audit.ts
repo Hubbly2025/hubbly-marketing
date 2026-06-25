@@ -1647,7 +1647,25 @@ function normalizeTextValue(value: unknown) {
 }
 
 function containsOutcomeGuarantee(value: string) {
-  return /\b(guarantee|guaranteed|promise|will rank|rank #?1|first page|10x|double your|triple your|certain to|assured)\b/i.test(value)
+  const sentences = value
+    .toLowerCase()
+    .split(/[.!?\n;]+/)
+    .map((sentence) => sentence.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+
+  return sentences.some((sentence) => {
+    if (/\bwill\s+rank\b|\brank\s+#?1\b|\b#1\s+ranking\b|\b10x\b|\bdouble your\b|\btriple your\b|\bcertain to\b|\bassured\b/.test(sentence)) {
+      return true
+    }
+
+    const hasGuarantee = /\bguarantee(?:d|s)?\b|\bpromise[sd]?\b/.test(sentence)
+    if (!hasGuarantee) return false
+
+    const negated = /\b(no|not|never|without)\b.{0,80}\b(guarantee(?:d|s)?|promise[sd]?)\b/.test(sentence)
+    if (negated) return false
+
+    return /\b(rank|ranking|traffic|revenue|lift|first[-\s]?page|#1|placement|outcome|result)\b/.test(sentence)
+  })
 }
 
 function averageMeasuredPosition(domainPositions: HubblyIntelligenceDomainPositions | undefined) {

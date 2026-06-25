@@ -202,7 +202,10 @@ async function run() {
   assert.equal(pendingPlan.label, "Game plan generating…")
 
   assert.equal(containsOutcomeGuaranteeForTest("This plan is projected to help"), false)
+  assert.equal(containsOutcomeGuaranteeForTest("Projected to improve topical relevance; outcomes are not guaranteed."), false)
+  assert.equal(containsOutcomeGuaranteeForTest("No ranking or placement outcome is guaranteed."), false)
   assert.equal(containsOutcomeGuaranteeForTest("This will rank #1"), true)
+  assert.equal(containsOutcomeGuaranteeForTest("Guaranteed first-page traffic lift."), true)
 
   console.log("game plan: 1 passed")
 }
