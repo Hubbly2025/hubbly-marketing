@@ -16,6 +16,17 @@ const PLACEHOLDER_PATTERNS = [
 const HARDCODED_GEO_REGIONS = ["California", "Texas", "Florida", "New York", "Illinois"]
 const NUMERIC_INTENT_FIELDS = ["monthly", "weekly", "highIntent"]
 const VALID_NUMERIC_PROVENANCE = new Set(["measured", "estimated"])
+const ALWAYS_ENABLED_RANK_CAPABILITIES = new Set([
+  "rank.on_page_optimization",
+  "rank.structured_data_schema",
+  "rank.aeo_llms_txt",
+  "rank.instant_indexing",
+])
+const GATED_RANK_CAPABILITY_FLAGS = {
+  "rank.content_generation": "RANK_CONTENT_ENABLED",
+  "rank.autonomous_publish": "RANK_PUBLISH_ENABLED",
+}
+const GUARANTEE_PATTERN = /\b(guarantee|guaranteed|promise|will rank|rank #?1|first page|10x|double your|triple your|certain to|assured)\b/i
 
 function main() {
   const fixturePaths = process.argv.slice(2)
@@ -113,6 +124,7 @@ function validateAuditPayload(payload, label) {
   }
 
   failures.push(...validateCompetitiveIntelligence(competitive, competitiveProvenance, label))
+  failures.push(...validateGamePlan(audit.gtm_plan ?? analysis.game_plan, label))
 
   const modelProvenance = analysis.model_provenance ?? analysis.provenance?.model ?? siteProfile.model_provenance ?? siteProvenance.model
   if (!modelProvenance || !modelProvenance.model || !modelProvenance.version || !modelProvenance.tier) {
@@ -120,6 +132,48 @@ function validateAuditPayload(payload, label) {
   }
 
   return failures
+}
+
+function validateGamePlan(gamePlan, label) {
+  const failures = []
+  if (!gamePlan || typeof gamePlan !== "object") return failures
+  if (gamePlan.status === "analysis_pending") return failures
+
+  const moves = Array.isArray(gamePlan.moves) ? gamePlan.moves : []
+  const enabledCapabilities = enabledRankCapabilityIds()
+
+  moves.forEach((move, index) => {
+    const capabilityId = move?.capability_id
+    if (!capabilityId || !enabledCapabilities.has(capabilityId)) {
+      failures.push(`${label}: game_plan.moves[${index}] uses a capability that is not allowed or enabled`)
+    }
+
+    const flag = GATED_RANK_CAPABILITY_FLAGS[capabilityId]
+    if (flag && !isSmokeFeatureEnabled(flag)) {
+      failures.push(`${label}: game_plan.moves[${index}] renders a gated capability while ${flag} is false`)
+    }
+  })
+
+  if (GUARANTEE_PATTERN.test(JSON.stringify(gamePlan))) {
+    failures.push(`${label}: game_plan contains guarantee or outcome-promise language`)
+  }
+
+  return failures
+}
+
+function enabledRankCapabilityIds() {
+  const ids = new Set(ALWAYS_ENABLED_RANK_CAPABILITIES)
+  for (const [capabilityId, flag] of Object.entries(GATED_RANK_CAPABILITY_FLAGS)) {
+    if (isSmokeFeatureEnabled(flag)) {
+      ids.add(capabilityId)
+    }
+  }
+  return ids
+}
+
+function isSmokeFeatureEnabled(flag) {
+  const value = process.env[flag]
+  return Boolean(value && /^(1|true|yes|on)$/i.test(value.trim()))
 }
 
 function isVendorError(error) {
@@ -131,6 +185,7 @@ function validateCompetitiveIntelligence(competitive, provenance, label) {
   const battlefield = Array.isArray(competitive.battlefield) ? competitive.battlefield : []
   const marketplaces = Array.isArray(competitive.marketplaces) ? competitive.marketplaces : []
   const bleeding = Array.isArray(competitive.bleeding) ? competitive.bleeding : []
+  const revenueAtRisk = competitive.cost?.revenueAtRisk ?? competitive.cost?.revenue_at_risk
   const hasMeasuredCompetitiveClaim =
     competitive.status === "measured" ||
     battlefield.some((item) => item?.provenance === "measured") ||
@@ -143,6 +198,18 @@ function validateCompetitiveIntelligence(competitive, provenance, label) {
 
   if (isVendorError(competitive.error) && competitive.status === "insufficient_signal") {
     failures.push(`${label}: competitive vendor error is mislabeled insufficient_signal`)
+  }
+
+  if (typeof revenueAtRisk?.monthly === "number" && revenueAtRisk.monthly > 0) {
+    const formula = revenueAtRisk.formula ?? {}
+    const inputs = Array.isArray(formula.inputs) ? formula.inputs : []
+    if (!formula.expression || !inputs.length) {
+      failures.push(`${label}: revenue-at-risk is missing an attached formula`)
+    }
+  }
+
+  if (isVendorError(competitive.error) && provenance.backlinks === "measured") {
+    failures.push(`${label}: backlinks are measured while vendor access/error is present`)
   }
 
   battlefield.forEach((item, index) => {

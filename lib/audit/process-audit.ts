@@ -6,6 +6,11 @@ import {
 } from "./hubbly-intelligence"
 import { normalizeAuditDomain, type ScanGuardMetadata } from "./scan-guards"
 import { getScanModelConfig, SCAN_MODEL_POLICY, toPublicModelProvenance, type PublicScanModelProvenance, type ScanModelConfig } from "./scan-model-config"
+import {
+  enabledRankCapabilities,
+  rankCapabilityById,
+  type RankCapability,
+} from "./rank-capabilities"
 import { parse } from "node-html-parser"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
@@ -80,6 +85,7 @@ type AuditAnalysis = {
   gtm_gaps?: string[]
   outreach_angle?: string
   sample_email?: Record<string, unknown>
+  game_plan?: RankGamePlan
   scan_guard?: Record<string, unknown>
 }
 
@@ -87,6 +93,47 @@ type IntentData = {
   status?: string
   top_signals?: string[]
   keyword_volumes?: Array<{ keyword?: string; monthlyVolume?: number }>
+}
+
+type RankGamePlanMove = {
+  title: string
+  capability_id: string
+  capability_label: string
+  measured_gap: string
+  plan: string
+  why_this?: string
+  provenance: "recommendation"
+}
+
+type RankGamePlan = {
+  status: "recommendation" | "analysis_pending"
+  label?: string
+  reason?: string
+  moves: RankGamePlanMove[]
+  allowed_capability_ids: string[]
+  capabilities: Array<Pick<RankCapability, "id" | "label" | "description" | "tier">>
+  provenance: "recommendation"
+  model_provenance: PublicScanModelProvenance
+}
+
+const ORGANIC_CTR_CURVE: Record<number, number> = {
+  1: 0.276,
+  2: 0.158,
+  3: 0.111,
+  4: 0.084,
+  5: 0.063,
+  6: 0.049,
+  7: 0.039,
+  8: 0.033,
+  9: 0.027,
+  10: 0.024,
+}
+
+const COMPETITIVE_FORMULA_SOURCES = {
+  search_volume: "Hubbly Intelligence ranked keyword volume",
+  competitor_position: "Hubbly Intelligence SERP position",
+  position_ctr: "standard organic CTR curve",
+  value_per_click: "Hubbly Intelligence keyword CPC",
 }
 
 type AuditDebugLog = {
@@ -227,7 +274,14 @@ export async function processAudit(auditId: string, url: string, scanGuard?: Sca
       intentData,
       intelligenceClient,
     )
-    const gtmPlan = buildGtmPlan(normalizedAnalysis, intentData, companyName)
+    const gamePlan = await buildConstrainedGamePlan({
+      companyName,
+      analysis: normalizedAnalysis,
+      competitiveIntelligence,
+      modelConfig,
+      log,
+    })
+    normalizedAnalysis.game_plan = gamePlan
 
     await markProgress("complete", 100, manualReview ? "Fallback report ready for manual review" : "Audit report complete")
     await updateAuditLead(supabase, auditId, {
@@ -237,7 +291,7 @@ export async function processAudit(auditId: string, url: string, scanGuard?: Sca
       competitors: normalizedAnalysis.competitors ?? [],
       intent_data: intentData,
       competitive_intelligence: competitiveIntelligence,
-      gtm_plan: gtmPlan,
+      gtm_plan: gamePlan,
       sample_email: normalizedAnalysis.sample_email ?? null,
       completed_at: new Date().toISOString(),
     })
@@ -647,6 +701,10 @@ Rules:
 }
 
 async function callClaude(prompt: string, modelConfig: ScanModelConfig = getScanModelConfig("free")) {
+  return callClaudeJson(prompt, modelConfig) as Promise<AuditAnalysis>
+}
+
+async function callClaudeJson(prompt: string, modelConfig: ScanModelConfig = getScanModelConfig("free")) {
   const apiKey = process.env.ANTHROPIC_API_KEY || process.env.Anthropic
 
   if (!apiKey) {
@@ -686,7 +744,7 @@ async function callClaude(prompt: string, modelConfig: ScanModelConfig = getScan
 
 function parseJson(text: string) {
   const cleaned = text.replace(/```json|```/g, "").trim()
-  return JSON.parse(cleaned) as AuditAnalysis
+  return JSON.parse(cleaned)
 }
 
 function validateAnalysis(analysis: AuditAnalysis) {
@@ -1084,8 +1142,8 @@ async function buildCompetitiveIntelligence(
 
     const targetPositions = positionsResponse.domains.find((item) => item.domain === siteProfile.domain)
     const backlinkByDomain = new Map(backlinkResponse.summaries.map((item) => [item.domain, item]))
-    const targetBacklinks = backlinkByDomain.get(siteProfile.domain)
-    const targetShareOfVoice = calculateShareOfVoice(targetPositions, priorityKeywords)
+	    const targetBacklinks = backlinkByDomain.get(siteProfile.domain)
+	    const targetShareOfVoice = calculateShareOfVoice(targetPositions, priorityKeywords)
     const battlefield = measuredDomains
       .filter((domain) => domain.kind === "strategic_competitor")
       .map((domain) => {
@@ -1119,11 +1177,20 @@ async function buildCompetitiveIntelligence(
         provenance: "measured" as const,
       }))
 
-    const bleeding = buildBleedingKeywords(positionsResponse.domains, siteProfile.domain, priorityKeywords)
-    const measuredNarrativeDomains = new Set(measuredDomains.map((item) => item.domain))
+	    const bleeding = buildBleedingKeywords(positionsResponse.domains, siteProfile.domain, priorityKeywords)
+	    const measuredNarrativeDomains = new Set(measuredDomains.map((item) => item.domain))
+	    const diagnosis = buildCompetitiveDiagnosis({
+	      targetDomain: siteProfile.domain,
+	      measuredDomains,
+	      positions: positionsResponse.domains,
+	      backlinkByDomain,
+	      priorityKeywords,
+	      targetShareOfVoice,
+	    })
+	    const cost = buildCompetitiveCost(bleeding, diagnosis.rows)
 
-    return {
-      status: battlefield.length || marketplaces.length || bleeding.length ? "measured" : "insufficient_signal",
+	    return {
+	      status: battlefield.length || marketplaces.length || bleeding.length ? "measured" : "insufficient_signal",
       caps: {
         keyword_count: priorityKeywords.length,
         competitor_count: measuredDomains.length,
@@ -1131,10 +1198,12 @@ async function buildCompetitiveIntelligence(
         max_competitors: 3,
       },
       battlefield,
-      marketplaces,
-      bleeding,
-      bleedingMonthly: bleeding.reduce((sum, item) => sum + item.monthlyVolume, 0),
-      named_without_serp_presence: namedCompetitors.filter((item) => {
+	      marketplaces,
+	      bleeding,
+	      bleedingMonthly: bleeding.reduce((sum, item) => sum + item.monthlyVolume, 0),
+	      diagnosis,
+	      cost,
+	      named_without_serp_presence: namedCompetitors.filter((item) => {
         const name = typeof item.name === "string" ? item.name : ""
         return name && !Array.from(measuredNarrativeDomains).some((domain) => narrativeMatchesDomain(domain, name))
       }),
@@ -1251,13 +1320,397 @@ function calculateShareOfVoice(domainPositions: HubblyIntelligenceDomainPosition
   return round4(score / priorityKeywords.length)
 }
 
+function buildCompetitiveDiagnosis(input: {
+  targetDomain: string
+  measuredDomains: Array<{ domain: string; kind: string; label: string; avgPosition: number | null }>
+  positions: HubblyIntelligenceDomainPositions[]
+  backlinkByDomain: Map<string, { referringDomains: number | null }>
+  priorityKeywords: string[]
+  targetShareOfVoice: number
+}) {
+  const targetPositions = input.positions.find((item) => item.domain === input.targetDomain)
+  const targetBacklinks = input.backlinkByDomain.get(input.targetDomain)
+  const targetReferringDomains = targetBacklinks?.referringDomains ?? null
+  const competitorRows = input.measuredDomains.slice(0, 3).map((domain) => {
+    const positions = input.positions.find((item) => item.domain === domain.domain)
+    const backlinks = input.backlinkByDomain.get(domain.domain)
+    const referringDomains = backlinks?.referringDomains ?? null
+
+    return {
+      domain: domain.domain,
+      label: domain.label,
+      kind: domain.kind,
+      shareOfVoice: calculateShareOfVoice(positions, input.priorityKeywords),
+      avgPosition: domain.avgPosition ?? averageMeasuredPosition(positions),
+      rankings: measuredRankings(positions, input.priorityKeywords),
+      keywordIntentMix: keywordIntentMix(positions),
+      referringDomains,
+      authorityDeficit: authorityDeficit(targetReferringDomains, referringDomains),
+      provenance: "measured" as const,
+    }
+  })
+
+  return {
+    rows: [
+      {
+        domain: input.targetDomain,
+        label: "Your domain",
+        kind: "target",
+        shareOfVoice: input.targetShareOfVoice,
+        avgPosition: averageMeasuredPosition(targetPositions),
+        rankings: measuredRankings(targetPositions, input.priorityKeywords),
+        keywordIntentMix: keywordIntentMix(targetPositions),
+        referringDomains: targetReferringDomains,
+        authorityDeficit: 0,
+        provenance: "measured" as const,
+      },
+      ...competitorRows,
+    ],
+    provenance: "measured" as const,
+  }
+}
+
+function buildCompetitiveCost(
+  bleeding: Array<{
+    keyword: string
+    monthlyVolume: number
+    competitorDomains: string[]
+    bestCompetitorPosition?: number | null
+    valuePerClick?: number | null
+  }>,
+  diagnosisRows: Array<{ domain: string; kind: string; referringDomains: number | null; authorityDeficit: number | null; provenance: "measured" }>,
+) {
+  const formulaInputs = bleeding
+    .map((item) => {
+      const position = item.bestCompetitorPosition ?? null
+      const ctr = ctrForPosition(position)
+      const valuePerClick = item.valuePerClick ?? null
+      const estimatedValue = ctr !== null && valuePerClick !== null
+        ? Math.round(item.monthlyVolume * ctr * valuePerClick)
+        : null
+
+      return {
+        keyword: item.keyword,
+        search_volume: item.monthlyVolume,
+        competitor_position: position,
+        position_ctr: ctr,
+        value_per_click: valuePerClick,
+        estimated_value: estimatedValue,
+        sources: COMPETITIVE_FORMULA_SOURCES,
+      }
+    })
+  const monthly = formulaInputs.reduce((sum, item) => sum + (item.estimated_value ?? 0), 0)
+
+  return {
+    invisibleKeywords: bleeding,
+    monthlySearchesAtRisk: bleeding.reduce((sum, item) => sum + item.monthlyVolume, 0),
+    revenueAtRisk: {
+      monthly,
+      provenance: "inferred" as const,
+      formula: {
+        expression: "sum(search_volume * position_ctr * value_per_click)",
+        inputs: formulaInputs,
+        sources: COMPETITIVE_FORMULA_SOURCES,
+      },
+    },
+    authorityDeficit: diagnosisRows
+      .filter((row) => row.kind !== "target" && typeof row.authorityDeficit === "number" && row.authorityDeficit > 0)
+      .map((row) => ({
+        domain: row.domain,
+        referringDomains: row.referringDomains,
+        deficit: row.authorityDeficit,
+        provenance: "measured" as const,
+      })),
+    provenance: {
+      invisibleKeywords: "measured",
+      monthlySearchesAtRisk: "measured",
+      revenueAtRisk: "inferred",
+      authorityDeficit: "measured",
+    },
+  }
+}
+
+type GamePlanSynthesizer = (prompt: string, modelConfig: ScanModelConfig) => Promise<unknown>
+
+async function buildConstrainedGamePlan(input: {
+  companyName: string
+  analysis: AuditAnalysis
+  competitiveIntelligence: Record<string, unknown>
+  modelConfig?: ScanModelConfig
+  log?: (level: AuditDebugLog["level"], step: string, message: string, detail?: Record<string, unknown>) => void
+  synthesize?: GamePlanSynthesizer
+  env?: Record<string, string | undefined>
+}) {
+  const modelConfig = input.modelConfig ?? getScanModelConfig("free")
+  const capabilities = enabledRankCapabilities(input.env)
+  const gaps = measuredCompetitiveGaps(input.competitiveIntelligence)
+
+  if (input.competitiveIntelligence.status !== "measured" || !gaps.length) {
+    return analysisPendingGamePlan("measured_competitive_gaps_unavailable", capabilities, modelConfig)
+  }
+
+  const prompt = buildGamePlanPrompt({
+    companyName: input.companyName,
+    analysis: input.analysis,
+    competitiveIntelligence: input.competitiveIntelligence,
+    capabilities,
+    gaps,
+  })
+
+  try {
+    const rawPlan = await (input.synthesize ?? callClaudeJson)(prompt, modelConfig)
+    return validateGamePlan(rawPlan, capabilities, modelConfig)
+  } catch (error) {
+    input.log?.("warn", "game_plan", "Rank game plan synthesis is pending", {
+      error: getErrorMessage(error),
+    })
+    return analysisPendingGamePlan("synthesis_unavailable", capabilities, modelConfig)
+  }
+}
+
+function buildGamePlanPrompt(input: {
+  companyName: string
+  analysis: AuditAnalysis
+  competitiveIntelligence: Record<string, unknown>
+  capabilities: RankCapability[]
+  gaps: string[]
+}) {
+  const capabilityAllowlist = input.capabilities.map((capability) => ({
+    id: capability.id,
+    label: capability.label,
+    description: capability.description,
+  }))
+
+  return `You are writing Act 3 of a public competitive scan for ${input.companyName}.
+
+Use only the measured gaps and only the Rank capabilities in the allowlist.
+
+Measured gaps:
+${JSON.stringify(input.gaps, null, 2)}
+
+Allowed Rank capabilities:
+${JSON.stringify(capabilityAllowlist, null, 2)}
+
+Context:
+${JSON.stringify({
+    product: input.analysis.product,
+    industry: input.analysis.industry,
+    business_model: input.analysis.business_model,
+    buyer_type: input.analysis.buyer_type,
+    category: input.analysis.category,
+    diagnosis: input.competitiveIntelligence.diagnosis,
+    cost: input.competitiveIntelligence.cost,
+  }, null, 2)}
+
+Return JSON only:
+{
+  "status": "recommendation",
+  "moves": [
+    {
+      "title": "Short action name",
+      "capability_id": "one allowed capability id",
+      "measured_gap": "Specific measured gap from the list above",
+      "why_this": "Why this capability addresses that gap",
+      "plan": "Plan/projection wording. Never guarantee an outcome."
+    }
+  ]
+}
+
+Rules:
+- capability_id must be one of the allowed Rank capability IDs exactly.
+- Do not recommend content generation or autonomous publishing unless those IDs appear in the allowlist.
+- Every move must trace to a measured gap above.
+- Frame this as a plan/projection, never a guarantee.
+- Do not promise rankings, revenue, traffic, first-page placement, or a numeric lift.`
+}
+
+function measuredCompetitiveGaps(competitive: Record<string, unknown>) {
+  const gaps: string[] = []
+  const diagnosis = competitive.diagnosis as { rows?: Array<Record<string, unknown>> } | undefined
+  const rows = diagnosis?.rows ?? []
+  const target = rows.find((row) => row.kind === "target")
+  const targetShare = typeof target?.shareOfVoice === "number" ? target.shareOfVoice : null
+
+  for (const row of rows.filter((item) => item.kind !== "target").slice(0, 3)) {
+    const domain = String(row.domain ?? "competitor")
+    const shareOfVoice = typeof row.shareOfVoice === "number" ? row.shareOfVoice : null
+    const authorityDeficitValue = typeof row.authorityDeficit === "number" ? row.authorityDeficit : null
+
+    if (targetShare !== null && shareOfVoice !== null && shareOfVoice > targetShare) {
+      gaps.push(`${domain} has higher measured share of voice (${shareOfVoice}) than the target (${targetShare}).`)
+    }
+    if (authorityDeficitValue !== null && authorityDeficitValue > 0) {
+      gaps.push(`${domain} has a measured authority gap of ${authorityDeficitValue} referring domains over the target.`)
+    }
+  }
+
+  const bleeding = Array.isArray(competitive.bleeding) ? competitive.bleeding : []
+  const invisibleKeywords = bleeding
+    .slice(0, 5)
+    .map((item) => {
+      if (!item || typeof item !== "object") return null
+      const record = item as Record<string, unknown>
+      const keyword = typeof record.keyword === "string" ? record.keyword : null
+      const monthlyVolume = typeof record.monthlyVolume === "number" ? record.monthlyVolume : null
+      if (!keyword || !monthlyVolume) return null
+      return `${keyword} (${monthlyVolume} measured monthly searches)`
+    })
+    .filter((item): item is string => Boolean(item))
+
+  if (invisibleKeywords.length) {
+    gaps.push(`The target is invisible for measured competitor keywords: ${invisibleKeywords.join(", ")}.`)
+  }
+
+  return gaps.slice(0, 8)
+}
+
+function validateGamePlan(rawPlan: unknown, capabilities: RankCapability[], modelConfig: ScanModelConfig): RankGamePlan {
+  if (!rawPlan || typeof rawPlan !== "object") {
+    throw new AuditPipelineError("game_plan_invalid", "Game plan response was not an object", true)
+  }
+
+  const plan = rawPlan as Record<string, unknown>
+  const moves = Array.isArray(plan.moves) ? plan.moves : []
+  if (plan.status !== "recommendation" || !moves.length) {
+    throw new AuditPipelineError("game_plan_invalid", "Game plan response is missing recommendation moves", true)
+  }
+
+  const allowedIds = new Set(capabilities.map((capability) => capability.id))
+  const normalizedMoves = moves.slice(0, 4).map((move, index) => {
+    if (!move || typeof move !== "object") {
+      throw new AuditPipelineError("game_plan_invalid", `Game plan move ${index + 1} is invalid`, true)
+    }
+
+    const record = move as Record<string, unknown>
+    const capabilityId = typeof record.capability_id === "string" ? record.capability_id : ""
+    const capability = rankCapabilityById(capabilityId)
+    const title = normalizeTextValue(record.title)
+    const measuredGap = normalizeTextValue(record.measured_gap)
+    const planText = normalizeTextValue(record.plan)
+    const whyThis = normalizeTextValue(record.why_this)
+
+    if (!allowedIds.has(capabilityId) || !capability) {
+      throw new AuditPipelineError("game_plan_disallowed_capability", `Game plan used disallowed capability ${capabilityId || "(missing)"}`, true)
+    }
+    if (!title || !measuredGap || !planText) {
+      throw new AuditPipelineError("game_plan_invalid", `Game plan move ${index + 1} is missing required fields`, true)
+    }
+    if (containsOutcomeGuarantee([title, measuredGap, planText, whyThis].filter(Boolean).join(" "))) {
+      throw new AuditPipelineError("game_plan_guarantee", "Game plan contains guarantee language", true)
+    }
+
+    return {
+      title,
+      capability_id: capability.id,
+      capability_label: capability.label,
+      measured_gap: measuredGap,
+      plan: planText,
+      why_this: whyThis ?? undefined,
+      provenance: "recommendation" as const,
+    }
+  })
+
+  return {
+    status: "recommendation",
+    moves: normalizedMoves,
+    allowed_capability_ids: capabilities.map((capability) => capability.id),
+    capabilities: publicRankCapabilities(capabilities),
+    provenance: "recommendation",
+    model_provenance: toPublicModelProvenance(modelConfig),
+  }
+}
+
+function analysisPendingGamePlan(reason: string, capabilities: RankCapability[], modelConfig: ScanModelConfig): RankGamePlan {
+  return {
+    status: "analysis_pending",
+    label: "Game plan generating…",
+    reason,
+    moves: [],
+    allowed_capability_ids: capabilities.map((capability) => capability.id),
+    capabilities: publicRankCapabilities(capabilities),
+    provenance: "recommendation",
+    model_provenance: toPublicModelProvenance(modelConfig),
+  }
+}
+
+function publicRankCapabilities(capabilities: RankCapability[]) {
+  return capabilities.map((capability) => ({
+    id: capability.id,
+    label: capability.label,
+    description: capability.description,
+    tier: capability.tier,
+  }))
+}
+
+function normalizeTextValue(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.replace(/\s+/g, " ").trim() : null
+}
+
+function containsOutcomeGuarantee(value: string) {
+  return /\b(guarantee|guaranteed|promise|will rank|rank #?1|first page|10x|double your|triple your|certain to|assured)\b/i.test(value)
+}
+
+function averageMeasuredPosition(domainPositions: HubblyIntelligenceDomainPositions | undefined) {
+  const positions = (domainPositions?.keywords ?? [])
+    .map((item) => item.position)
+    .filter((position): position is number => typeof position === "number" && Number.isFinite(position))
+  if (!positions.length) return null
+
+  return round2(positions.reduce((sum, position) => sum + position, 0) / positions.length)
+}
+
+function measuredRankings(domainPositions: HubblyIntelligenceDomainPositions | undefined, priorityKeywords: string[]) {
+  const positionByKeyword = new Map((domainPositions?.keywords ?? []).map((item) => [item.keyword, item.position]))
+  return priorityKeywords.map((keyword) => ({
+    keyword,
+    position: positionByKeyword.get(keyword) ?? null,
+    provenance: "measured" as const,
+  }))
+}
+
+function keywordIntentMix(domainPositions: HubblyIntelligenceDomainPositions | undefined) {
+  const mix = { commercial: 0, comparison: 0, local: 0, informational: 0 }
+  for (const item of domainPositions?.keywords ?? []) {
+    if (/\b(best|vs|alternative|review|compare)\b/.test(item.keyword)) {
+      mix.comparison += 1
+    } else if (/\b(near me|local|restaurant|service)\b/.test(item.keyword)) {
+      mix.local += 1
+    } else if (/\b(price|pricing|cost|fee|software|platform|api|services?)\b/.test(item.keyword)) {
+      mix.commercial += 1
+    } else {
+      mix.informational += 1
+    }
+  }
+
+  return { ...mix, provenance: "measured" as const }
+}
+
+function authorityDeficit(targetReferringDomains: number | null, competitorReferringDomains: number | null) {
+  if (targetReferringDomains === null || competitorReferringDomains === null) return null
+
+  return Math.max(competitorReferringDomains - targetReferringDomains, 0)
+}
+
+function ctrForPosition(position?: number | null) {
+  if (!position || position < 1) return null
+
+  return ORGANIC_CTR_CURVE[Math.min(Math.round(position), 10)] ?? null
+}
+
 function buildBleedingKeywords(
   domains: HubblyIntelligenceDomainPositions[],
   targetDomain: string,
   priorityKeywords: string[],
 ) {
   const targetKeywords = new Set(domains.find((item) => item.domain === targetDomain)?.keywords.map((item) => item.keyword) ?? [])
-  const bleeding = new Map<string, { keyword: string; monthlyVolume: number; competitorDomains: string[]; provenance: "measured" }>()
+  const bleeding = new Map<string, {
+    keyword: string
+    monthlyVolume: number
+    competitorDomains: string[]
+    bestCompetitorPosition: number | null
+    valuePerClick: number | null
+    provenance: "measured"
+  }>()
 
   for (const domain of domains) {
     if (domain.domain === targetDomain) continue
@@ -1266,11 +1719,19 @@ function buildBleedingKeywords(
       const existing = bleeding.get(item.keyword)
       if (existing) {
         existing.competitorDomains.push(domain.domain)
+        if (item.position && (!existing.bestCompetitorPosition || item.position < existing.bestCompetitorPosition)) {
+          existing.bestCompetitorPosition = item.position
+        }
+        if (existing.valuePerClick === null && typeof item.valuePerClick === "number") {
+          existing.valuePerClick = item.valuePerClick
+        }
       } else {
         bleeding.set(item.keyword, {
           keyword: item.keyword,
           monthlyVolume: item.monthlyVolume,
           competitorDomains: [domain.domain],
+          bestCompetitorPosition: item.position ?? null,
+          valuePerClick: item.valuePerClick ?? null,
           provenance: "measured",
         })
       }
@@ -1292,6 +1753,10 @@ function narrativeMatchesDomain(domain: string, name: string) {
 
 function round4(value: number) {
   return Math.round(value * 10000) / 10000
+}
+
+function round2(value: number) {
+  return Math.round(value * 100) / 100
 }
 
 function normalizeIntentKeyword(value: string) {
@@ -1448,35 +1913,13 @@ function buildGeographies(siteProfile: SiteProfile) {
   return []
 }
 
-function buildGtmPlan(analysis: AuditAnalysis, intentData: Record<string, unknown>, companyName: string) {
-  const primaryIcp = analysis.icp?.primary as { title?: string; pain_point?: string } | undefined
-
-  return {
-    company_name: companyName,
-    week_1: {
-      icp_targeting: primaryIcp?.title
-        ? `${primaryIcp.title} profiles matching the pain: ${primaryIcp.pain_point ?? analysis.outreach_angle}`
-        : analysis.outreach_angle,
-      data_sourcing: "Website-fit accounts, competitor search intent, and category research signals.",
-      message_angle: analysis.outreach_angle,
-    },
-    week_2_3: {
-      email: analysis.sample_email,
-      voice: `Follow up on the same pain point ${companyName} solves, with one short call prompt.`,
-      volume: `Prioritize the ${intentData.high_intent} highest-intent buyers first.`,
-    },
-    week_4: {
-      test: "Compare pain-led subject lines against competitor-displacement subject lines.",
-      double_down: "Increase volume on the highest reply segment.",
-      expand: "Add the secondary ICP once the primary segment shows reply signal.",
-    },
-  }
-}
-
 export const buildSiteProfileForTest = buildSiteProfile
 export const estimateIntentDataForTest = buildMeasuredIntentData
 export const buildMeasuredIntentDataForTest = buildMeasuredIntentData
 export const buildCompetitiveIntelligenceForTest = buildCompetitiveIntelligence
+export const buildConstrainedGamePlanForTest = buildConstrainedGamePlan
+export const buildGamePlanPromptForTest = buildGamePlanPrompt
+export const containsOutcomeGuaranteeForTest = containsOutcomeGuarantee
 export { normalizeIntentKeyword }
 export const extractObservedEvidenceForTest = extractObservedEvidence
 export const mergeObservedEvidenceForTest = mergeObservedEvidence

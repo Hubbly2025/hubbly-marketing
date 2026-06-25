@@ -40,6 +40,9 @@ function loadTsModule(relativePath) {
       if (specifier === "./scan-model-config") {
         return loadTsModule("lib/audit/scan-model-config.ts")
       }
+      if (specifier === "./rank-capabilities") {
+        return loadTsModule("lib/audit/rank-capabilities.ts")
+      }
       return require(specifier)
     },
     process,

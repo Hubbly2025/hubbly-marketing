@@ -38,6 +38,7 @@ export type HubblyIntelligenceRankedKeyword = {
   keyword: string
   monthlyVolume: number | null
   position: number | null
+  valuePerClick?: number
   provenance: "measured"
 }
 
@@ -295,10 +296,13 @@ function parseRankedKeywordsResponse(payload: unknown, priorityKeywords: string[
       const keyword = canonicalizeDisplayKeyword(stringValue(keywordData?.keyword))
       if (!keyword || (prioritySet.size > 0 && !prioritySet.has(keyword))) return null
 
+      const cpc = numberValue(asRecord(keywordData?.keyword_info)?.cpc)
+
       return {
         keyword,
         monthlyVolume: numberValue(asRecord(keywordData?.keyword_info)?.search_volume),
         position: numberValue(serpItem?.rank_group ?? serpItem?.rank_absolute),
+        ...(cpc !== null ? { valuePerClick: cpc } : {}),
         provenance: "measured" as const,
       }
     })

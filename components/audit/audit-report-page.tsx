@@ -24,6 +24,24 @@ type SampleEmail = {
 type ProvenanceTag = "measured" | "inferred" | "estimated" | "recommendation"
 type ProvenanceValue = ProvenanceTag | Record<string, unknown> | undefined
 
+type RankGamePlan = {
+  status?: "recommendation" | "analysis_pending"
+  label?: string
+  reason?: string
+  moves?: Array<{
+    title?: string
+    capability_id?: string
+    capability_label?: string
+    measured_gap?: string
+    plan?: string
+    why_this?: string
+    provenance?: ProvenanceTag
+  }>
+  allowed_capability_ids?: string[]
+  provenance?: ProvenanceTag
+  model_provenance?: Record<string, unknown>
+}
+
 type Audit = {
   id: string
   url: string
@@ -59,6 +77,7 @@ type Audit = {
     }
     provenance?: Record<string, ProvenanceValue>
     model_provenance?: Record<string, unknown>
+    game_plan?: RankGamePlan
     error?: string
   }
   competitors?: Competitor[]
@@ -76,11 +95,7 @@ type Audit = {
     provenance?: Record<string, ProvenanceValue>
   }
   competitive_intelligence?: CompetitiveIntelligence
-  gtm_plan?: {
-    week_1?: Record<string, unknown>
-    week_2_3?: Record<string, unknown>
-    week_4?: Record<string, unknown>
-  }
+  gtm_plan?: RankGamePlan
   sample_email?: SampleEmail
 }
 
@@ -119,14 +134,57 @@ type CompetitiveIntelligence = {
     referringDomains?: number | null
     provenance?: ProvenanceTag
   }>
-  bleeding?: Array<{
-    keyword?: string
-    monthlyVolume?: number
-    competitorDomains?: string[]
-    provenance?: ProvenanceTag
-  }>
-  bleedingMonthly?: number
-  named_without_serp_presence?: Competitor[]
+	  bleeding?: Array<{
+	    keyword?: string
+	    monthlyVolume?: number
+	    bestCompetitorPosition?: number | null
+	    valuePerClick?: number | null
+	    competitorDomains?: string[]
+	    provenance?: ProvenanceTag
+	  }>
+	  bleedingMonthly?: number
+	  diagnosis?: {
+	    rows?: Array<{
+	      domain?: string
+	      label?: string
+	      kind?: string
+	      shareOfVoice?: number
+	      avgPosition?: number | null
+	      referringDomains?: number | null
+	      authorityDeficit?: number | null
+	      keywordIntentMix?: Record<string, number | string>
+	      provenance?: ProvenanceTag
+	    }>
+	    provenance?: ProvenanceTag
+	  }
+	  cost?: {
+	    monthlySearchesAtRisk?: number
+	    revenueAtRisk?: {
+	      monthly?: number
+	      provenance?: ProvenanceTag
+	      formula?: {
+	        expression?: string
+	        inputs?: Array<{
+	          keyword?: string
+	          search_volume?: number
+	          competitor_position?: number | null
+	          position_ctr?: number | null
+	          value_per_click?: number | null
+	          estimated_value?: number | null
+	          sources?: Record<string, string>
+	        }>
+	        sources?: Record<string, string>
+	      }
+	    }
+	    authorityDeficit?: Array<{
+	      domain?: string
+	      referringDomains?: number | null
+	      deficit?: number | null
+	      provenance?: ProvenanceTag
+	    }>
+	    provenance?: Record<string, ProvenanceValue>
+	  }
+	  named_without_serp_presence?: Competitor[]
   provenance?: Record<string, ProvenanceValue>
 }
 
@@ -242,6 +300,10 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const siteProvenance = analysis.site_profile?.provenance ?? analysis.provenance ?? {}
   const intentProvenance = intent.provenance ?? {}
   const competitiveProvenance = competitive.provenance ?? {}
+  const diagnosisRows = competitive.diagnosis?.rows ?? []
+  const cost = competitive.cost ?? {}
+  const revenueAtRisk = cost.revenueAtRisk
+  const formulaInputs = revenueAtRisk?.formula?.inputs ?? []
   const primaryCta = observedEvidence.primary_cta_text || "not detected"
   const h1 = observedEvidence.h1 || "not detected"
   const keyHeaders = observedEvidence.key_headers?.length
@@ -261,7 +323,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
     : "Insufficient signal to generate anchored intent signals."
   const isA16zReport = isAndreessenHorowitzReport(audit, companyName, domain)
   const sampleEmail = isA16zReport ? A16Z_CORRECTED_EMAIL : audit.sample_email ?? analysis.sample_email ?? {}
-  const displayedGtmPlan = isA16zReport ? replacePlanEmailPov(audit.gtm_plan) : audit.gtm_plan
+  const gamePlan = audit.gtm_plan ?? analysis.game_plan
   const waitlistUrl = `/waitlist?${new URLSearchParams({
     audit_id: audit.id,
     url: audit.url,
@@ -348,7 +410,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </p>
           </ReportSection>
 
-          <ReportSection eyebrow="Section 3A" title="Battlefield" provenance={competitiveProvenance.battlefield}>
+          <ReportSection eyebrow="Act 1" title="Where you stand vs competitors" provenance={competitiveProvenance.battlefield}>
             {competitive.status === "measured" ? (
               <div className="space-y-8">
                 <div className="grid gap-4 md:grid-cols-3">
@@ -363,9 +425,9 @@ function CompleteReport({ audit }: { audit: Audit }) {
                     provenance={competitiveProvenance.competitor_domains}
                   />
                   <MetricCard
-                    label="Searches you're invisible for"
-                    value={`~${formatNumber(competitive.bleedingMonthly ?? 0)}`}
-                    provenance={competitiveProvenance.bleeding}
+                    label="Measured backlink source"
+                    value={competitiveProvenance.backlinks === "measured" ? "active" : "unavailable"}
+                    provenance={competitiveProvenance.backlinks}
                   />
                 </div>
 
@@ -375,13 +437,14 @@ function CompleteReport({ audit }: { audit: Audit }) {
                       <tr>
                         <th className="border-b border-white/10 p-4">Domain</th>
                         <th className="border-b border-white/10 p-4">Share of voice</th>
-                        <th className="border-b border-white/10 p-4">Your share</th>
+                        <th className="border-b border-white/10 p-4">Avg. rank</th>
+                        <th className="border-b border-white/10 p-4">Intent mix</th>
                         <th className="border-b border-white/10 p-4">Referring domains</th>
-                        <th className="border-b border-white/10 p-4">Narrative match</th>
+                        <th className="border-b border-white/10 p-4">Authority gap</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {(competitive.battlefield ?? []).map((item) => (
+                      {diagnosisRows.map((item) => (
                         <tr key={item.domain} className="border-b border-white/10 last:border-b-0">
                           <td className="p-4">
                             <div className="flex flex-wrap items-center gap-2">
@@ -390,19 +453,48 @@ function CompleteReport({ audit }: { audit: Audit }) {
                             </div>
                           </td>
                           <td className="p-4 text-sm text-white/75">{formatPercent(item.shareOfVoice)}</td>
-                          <td className="p-4 text-sm text-white/75">{formatPercent(item.yourShareOfVoice)}</td>
+                          <td className="p-4 text-sm text-white/75">{formatNullableNumber(item.avgPosition)}</td>
+                          <td className="p-4 text-sm text-white/75">{formatIntentMix(item.keywordIntentMix)}</td>
                           <td className="p-4 text-sm text-white/75">{formatNullableNumber(item.referringDomains)}</td>
-                          <td className="p-4 text-sm text-white/70">{item.narrative?.name || "measured without narrative"}</td>
+                          <td className="p-4 text-sm text-white/75">{formatNullableNumber(item.authorityDeficit)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
+              </div>
+            ) : (
+              <p className="font-mono text-xs leading-6 text-white/60">
+                {competitiveEmptyCopyForTest(competitive.status)}
+              </p>
+            )}
+          </ReportSection>
 
-                <div className="grid gap-6 lg:grid-cols-2">
+          <ReportSection eyebrow="Act 2" title="What it's costing" provenance={cost.provenance?.revenueAtRisk}>
+            {competitive.status === "measured" ? (
+              <div className="space-y-8">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <MetricCard
+                    label="Invisible monthly searches"
+                    value={`~${formatNumber(cost.monthlySearchesAtRisk ?? competitive.bleedingMonthly ?? 0)}`}
+                    provenance={competitiveProvenance.bleeding}
+                  />
+                  <MetricCard
+                    label="Monthly revenue at risk"
+                    value={`~$${formatNumber(revenueAtRisk?.monthly ?? 0)}`}
+                    provenance={revenueAtRisk?.provenance}
+                  />
+                  <MetricCard
+                    label="Authority gaps found"
+                    value={formatNumber(cost.authorityDeficit?.length ?? 0)}
+                    provenance={cost.provenance?.authorityDeficit}
+                  />
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
                   <div className="border border-white/10 bg-white/[0.03] p-5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">Bleeding keywords</h3>
+                      <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">Measured keyword gaps</h3>
                       <ProvenanceChip tag={competitiveProvenance.bleeding} />
                     </div>
                     <div className="mt-4 space-y-3">
@@ -411,7 +503,7 @@ function CompleteReport({ audit }: { audit: Audit }) {
                           <div key={item.keyword} className="border border-white/10 p-3">
                             <p className="font-mono text-xs text-white">{item.keyword}</p>
                             <p className="mt-1 text-sm text-white/60">
-                              ~{formatNumber(item.monthlyVolume ?? 0)} monthly searches you're invisible for
+                              ~{formatNumber(item.monthlyVolume ?? 0)} searches/month · competitor rank {item.bestCompetitorPosition ?? "not available"}
                             </p>
                           </div>
                         ))
@@ -423,33 +515,31 @@ function CompleteReport({ audit }: { audit: Audit }) {
 
                   <div className="border border-white/10 bg-white/[0.03] p-5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">Marketplaces ranking above you</h3>
-                      <ProvenanceChip tag={marketplaceProvenanceForTest(competitive.marketplaces ?? [], competitiveProvenance.marketplaces)} />
+                      <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">Visible math</h3>
+                      <ProvenanceChip tag={revenueAtRisk?.provenance} />
                     </div>
+                    <p className="mt-4 font-mono text-xs leading-6 text-white/70">
+                      {revenueAtRisk?.formula?.expression ?? "Formula unavailable"}
+                    </p>
                     <div className="mt-4 space-y-3">
-                      {(competitive.marketplaces ?? []).length ? (
-                        (competitive.marketplaces ?? []).slice(0, 5).map((item) => (
-                          <div key={item.domain} className="grid grid-cols-[1fr_auto] gap-3 border border-white/10 p-3 text-sm">
-                            <span className="font-mono text-white">{item.domain}</span>
-                            <span className="text-white/60">{formatPercent(item.shareOfVoice)}</span>
+                      {formulaInputs.slice(0, 4).map((input) => (
+                        <div key={input.keyword} className="border border-white/10 p-3 font-mono text-[11px] leading-5 text-white/65">
+                          <div className="text-white">{input.keyword}</div>
+                          <div>
+                            {formatNumber(input.search_volume ?? 0)} volume × {formatPercent(input.position_ctr ?? 0)} CTR × ${formatNullableNumber(input.value_per_click)} CPC = ${formatNullableNumber(input.estimated_value)}
                           </div>
-                        ))
-                      ) : (
-                        <p className="font-mono text-xs leading-6 text-white/60">No measured marketplace domains in the capped set.</p>
-                      )}
+                        </div>
+                      ))}
                     </div>
+                    <p className="mt-4 font-mono text-[10px] leading-5 text-white/45">
+                      Sources: search volume and CPC from Hubbly Intelligence; CTR from a standard organic position curve.
+                    </p>
                   </div>
                 </div>
-
-                {(competitive.named_without_serp_presence ?? []).length > 0 && (
-                  <p className="font-mono text-xs leading-6 text-white/55">
-                    Named without measured SERP presence: {(competitive.named_without_serp_presence ?? []).map((item) => item.name).filter(Boolean).join(", ")}.
-                  </p>
-                )}
               </div>
             ) : (
               <p className="font-mono text-xs leading-6 text-white/60">
-                {competitiveEmptyCopyForTest(competitive.status)}
+                Competitive cost cannot be calculated until measured competitor data is available.
               </p>
             )}
           </ReportSection>
@@ -579,23 +669,51 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </p>
           </ReportSection>
 
-          <ReportSection eyebrow="Section 6" title="Your 30-day execution plan" provenance="recommendation">
-            {isA16zReport && (
-              <CorrectionNote>
-                [NOTE: Section 6 email sample rewritten to use a16z → founder POV.]
-              </CorrectionNote>
-            )}
-            <div className="grid gap-5 lg:grid-cols-3">
-              <PlanColumn title="Week 1 — Foundation" items={displayedGtmPlan?.week_1} />
-              <PlanColumn title="Week 2-3 — Outreach" items={displayedGtmPlan?.week_2_3} />
-              <PlanColumn title="Week 4 — Optimize" items={displayedGtmPlan?.week_4} />
-            </div>
-            {isA16zReport && (
-              <div className="mt-5 border border-[#FF6B35]/30 bg-[#FF6B35]/[0.05] p-5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF6B35]">
-                  Corrected outbound sample
+          <ReportSection eyebrow="Act 3" title="The Hubbly game plan" provenance={gamePlan?.provenance ?? "recommendation"}>
+            {gamePlan?.status === "recommendation" && gamePlan.moves?.length ? (
+              <div className="grid gap-5 lg:grid-cols-2">
+                {gamePlan.moves.map((move, index) => (
+                  <div key={`${move.capability_id}-${index}`} className="border border-white/10 bg-white/[0.03] p-5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#FF6B35]">
+                        {move.capability_label || move.capability_id}
+                      </p>
+                      <ProvenanceChip tag={move.provenance ?? "recommendation"} />
+                    </div>
+                    <h3 className="mt-4 text-xl font-semibold text-white">{move.title}</h3>
+                    <div className="mt-4 space-y-3 text-sm leading-6 text-white/70">
+                      <p>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">Measured gap</span>
+                        <br />
+                        {move.measured_gap}
+                      </p>
+                      {move.why_this && (
+                        <p>
+                          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">Why this move</span>
+                          <br />
+                          {move.why_this}
+                        </p>
+                      )}
+                      <p>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">Plan</span>
+                        <br />
+                        {move.plan}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="border border-[#FF6B35]/30 bg-[#FF6B35]/[0.05] p-6">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
+                    {gamePlan?.label ?? "Game plan generating…"}
+                  </p>
+                  <ProvenanceChip tag="recommendation" />
+                </div>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68">
+                  Hubbly is generating a constrained Rank plan from the measured competitive gaps. The scan will show this section when synthesis is available.
                 </p>
-                <p className="mt-3 text-sm leading-7 text-white/76">{A16Z_CORRECTED_EMAIL.body}</p>
               </div>
             )}
           </ReportSection>
@@ -875,6 +993,16 @@ function formatNullableNumber(value?: number | null) {
 
 function formatPercent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 100)}%` : "not available"
+}
+
+function formatIntentMix(value?: Record<string, number | string>) {
+  if (!value) return "not available"
+  const parts = ["commercial", "comparison", "local", "informational"]
+    .map((key) => [key, value[key]] as const)
+    .filter(([, count]) => typeof count === "number" && count > 0)
+    .map(([key, count]) => `${key}: ${count}`)
+
+  return parts.length ? parts.join(" · ") : "not available"
 }
 
 function formatPlanValue(value: unknown): string {

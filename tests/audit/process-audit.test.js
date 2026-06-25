@@ -68,6 +68,18 @@ const sandbox = {
         }),
       }
     }
+    if (specifier === "./rank-capabilities") {
+      const capabilities = [
+        { id: "rank.on_page_optimization", label: "On-page optimization", description: "Native on-page engine.", tier: "tier_1" },
+        { id: "rank.structured_data_schema", label: "Structured data schema", description: "JSON-LD schema graph.", tier: "tier_1" },
+        { id: "rank.aeo_llms_txt", label: "AEO llms.txt", description: "llms.txt and AI-crawler policy.", tier: "tier_1" },
+        { id: "rank.instant_indexing", label: "Instant indexing", description: "IndexNow submission.", tier: "tier_1" },
+      ]
+      return {
+        enabledRankCapabilities: () => capabilities,
+        rankCapabilityById: (id) => capabilities.find((capability) => capability.id === id) ?? null,
+      }
+    }
     return require(specifier)
   },
   process,

@@ -34,6 +34,9 @@ function loadTsModule(relativePath) {
       if (specifier === "./scan-model-config") {
         return loadTsModule("lib/audit/scan-model-config.ts")
       }
+      if (specifier === "./rank-capabilities") {
+        return loadTsModule("lib/audit/rank-capabilities.ts")
+      }
       return require(specifier)
     },
     process,
@@ -195,7 +198,7 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
               provenance: "measured",
               keywords: [
                 { keyword: "payments api pricing", monthlyVolume: 1200, position: 1, provenance: "measured" },
-                { keyword: "merchant services", monthlyVolume: 300, position: 4, provenance: "measured" },
+                { keyword: "merchant services", monthlyVolume: 300, position: 4, valuePerClick: 12, provenance: "measured" },
               ],
             },
             {
@@ -229,8 +232,19 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
   assert.equal(competitive.battlefield[0].shareOfVoice, 0.5667)
   assert.equal(competitive.battlefield[0].yourShareOfVoice, 0.3667)
   assert.equal(competitive.battlefield[0].referringDomains, 2200)
+  assert.equal(competitive.diagnosis.rows[0].domain, "stripe.example")
+  assert.equal(competitive.diagnosis.rows[0].shareOfVoice, 0.3667)
+  assert.equal(competitive.diagnosis.rows[1].authorityDeficit, 1000)
   assert.equal(competitive.bleeding[0].keyword, "merchant services")
   assert.equal(competitive.bleeding[0].monthlyVolume, 300)
+  assert.equal(competitive.bleeding[0].bestCompetitorPosition, 4)
+  assert.equal(competitive.cost.revenueAtRisk.monthly, 302)
+  assert.equal(competitive.cost.revenueAtRisk.provenance, "inferred")
+  assert.equal(competitive.cost.revenueAtRisk.formula.expression, "sum(search_volume * position_ctr * value_per_click)")
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].sources.search_volume, "Hubbly Intelligence ranked keyword volume")
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].sources.position_ctr, "standard organic CTR curve")
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].sources.value_per_click, "Hubbly Intelligence keyword CPC")
+  assert.equal(competitive.cost.authorityDeficit[0].provenance, "measured")
   assert.equal(competitive.bleedingMonthly, 300)
   assert.equal(competitive.marketplaces[0].domain, "g2.com")
   assert.equal(competitive.named_without_serp_presence[0].name, "Checkout.com")
