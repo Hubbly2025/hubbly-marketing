@@ -68,7 +68,7 @@
     {
       "slug": "payments",
       "display": "Payments",
-      "aliases": ["payments", "payment", "payments api", "payment api", "payment processing", "payments infrastructure", "financial infrastructure", "checkout", "merchant billing"]
+      "aliases": ["payments", "payment", "payments api", "payment api", "payment processing", "payment processing infrastructure", "payment processing platform", "payments processing platform", "payments infrastructure", "payment infrastructure", "financial infrastructure", "financial infrastructure platform", "fintech payments", "payment processor", "checkout", "merchant billing"]
     },
     {
       "slug": "seafood_restaurant",

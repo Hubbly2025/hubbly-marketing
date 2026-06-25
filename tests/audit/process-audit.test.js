@@ -176,6 +176,30 @@ assert.equal(stripeWithIncidentalConsumerCopy.business_model, "b2b_saas")
 assert.equal(stripeWithIncidentalConsumerCopy.category, "payments")
 assert.equal(stripeWithIncidentalConsumerCopy.buyer_type, "business")
 
+const stripeWithIncidentalRestaurantTestimonial = buildSiteProfileForTest({
+  domain: "stripe.example",
+  scannedAt,
+  analysis: {
+    company_name: "Stripe",
+    product: "Programmable financial infrastructure for businesses to accept payments online and in person.",
+    industry: "Payments and financial infrastructure",
+    business_model: "b2b_saas",
+    buyer_type: "business",
+    category: "payment_processing_infrastructure",
+    icp: {
+      primary: {
+        title: "Head of payments",
+      },
+    },
+    outreach_angle: "Stripe helps businesses manage payments, billing, checkout, merchant acquiring, and payouts.",
+  },
+  scrapedContent: "Stripe provides programmable financial infrastructure that lets businesses accept payments online and in person, automate billing and payouts, and manage checkout. Goodtill partners with Stripe to onboard 400+ new restaurants in under 4 weeks.",
+})
+
+assert.equal(stripeWithIncidentalRestaurantTestimonial.business_model, "b2b_saas")
+assert.equal(stripeWithIncidentalRestaurantTestimonial.category, "payments")
+assert.equal(stripeWithIncidentalRestaurantTestimonial.buyer_type, "business")
+
 Promise.all([
   estimateIntentDataForTest(stripeProfile, {
     async fetchKeywordDemand() {

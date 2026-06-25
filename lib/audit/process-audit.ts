@@ -1855,9 +1855,34 @@ function normalizeVocabValue(value?: string | null) {
 
 function detectCategoryFromSignals(value: string, industry?: string | null) {
   const combined = `${industry ?? ""} ${value}`.toLowerCase()
+  const categoryScores = [
+    {
+      category: "payments",
+      score: scoreSignalMatches(combined, [
+        { pattern: /\bfinancial infrastructure\b/g, weight: 4 },
+        { pattern: /\bpayment(?:s)?\b/g, weight: 3 },
+        { pattern: /\bcheckout\b/g, weight: 2 },
+        { pattern: /\bmerchant\b/g, weight: 2 },
+        { pattern: /\bbilling\b/g, weight: 2 },
+        { pattern: /\bpayout(?:s)?\b/g, weight: 2 },
+      ]),
+    },
+    {
+      category: "seafood_restaurant",
+      score: scoreSignalMatches(combined, [
+        { pattern: /\bseafood\b/g, weight: 4 },
+        { pattern: /\bcrab\b/g, weight: 4 },
+        { pattern: /\bcrab shack\b/g, weight: 6 },
+        { pattern: /\bmenu\b/g, weight: 2 },
+        { pattern: /\breservation(?:s)?\b/g, weight: 2 },
+        { pattern: /\bdining\b/g, weight: 2 },
+        { pattern: /\brestaurant(?:s)?\b/g, weight: 1 },
+      ]),
+    },
+  ].sort((a, b) => b.score - a.score)
 
-  if (/crab|seafood|restaurant|menu|reservation|dining/.test(combined)) return "seafood_restaurant"
-  if (/payment|checkout|merchant|billing|payout|financial infrastructure/.test(combined)) return "payments"
+  if (categoryScores[0]?.score >= 3) return categoryScores[0].category
+
   if (/insurance/.test(combined)) return "insurance"
   if (/mortgage|lending|loan/.test(combined)) return "mortgage"
   if (/real estate|housing|property/.test(combined)) return "real_estate"
@@ -1871,6 +1896,13 @@ function detectCategoryFromSignals(value: string, industry?: string | null) {
   if (/saas|software|platform|devtool|analytics|crm|api/.test(combined)) return "saas"
 
   return null
+}
+
+function scoreSignalMatches(value: string, signals: Array<{ pattern: RegExp; weight: number }>) {
+  return signals.reduce((score, signal) => {
+    const matches = value.match(signal.pattern)
+    return score + (matches?.length ?? 0) * signal.weight
+  }, 0)
 }
 
 function detectBuyerTypeFromSignals(value: string, businessModel: string | null, category: string | null) {

@@ -109,6 +109,14 @@ const cases = [
     expected: { business_model: "b2b_saas", buyer_type: "business", category: "payments" },
   },
   {
+    input: { business_model: "b2b_saas", buyer_type: "business", category: "payment_processing_infrastructure" },
+    expected: { business_model: "b2b_saas", buyer_type: "business", category: "payments" },
+  },
+  {
+    input: { business_model: "b2b_saas", buyer_type: "business", category: "payment_processing_platform" },
+    expected: { business_model: "b2b_saas", buyer_type: "business", category: "payments" },
+  },
+  {
     input: { business_model: "restaurant", buyer_type: "Local diner", category: "seafood restaurant" },
     expected: { business_model: "local_service", buyer_type: "consumer", category: "seafood_restaurant" },
   },
