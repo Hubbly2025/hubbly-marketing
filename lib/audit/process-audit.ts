@@ -1654,7 +1654,7 @@ function containsOutcomeGuarantee(value: string) {
     .filter(Boolean)
 
   return sentences.some((sentence) => {
-    if (/\bwill\s+rank\b|\brank\s+#?1\b|\b#1\s+ranking\b|\b10x\b|\bdouble your\b|\btriple your\b|\bcertain to\b|\bassured\b/.test(sentence)) {
+    if (/\bwill\s+rank\b|\bwill\s+outrank\b|\byou\s+will\s+(?:outrank|beat|overtake|surpass)\b|\bwill\s+(?:overtake|surpass)\b|\boutrank\s+(?:[a-z0-9-]+\.)+[a-z]{2,}\b|\brank\s+#?1\b|\b#1\s+ranking\b|\b10x\b|\bdouble your\b|\btriple your\b|\bcertain to\b|\bassured\b/.test(sentence)) {
       return true
     }
 
