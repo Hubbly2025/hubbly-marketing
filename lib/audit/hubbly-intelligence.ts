@@ -69,16 +69,17 @@ class RemoteHubblyIntelligenceClient implements HubblyIntelligenceClient {
   async fetchKeywordDemand(request: HubblyIntelligenceRequest): Promise<HubblyIntelligenceKeywordDemand> {
     const auth = this.authHeader()
     if (!auth || !this.config.baseUrl) return { keywords: [] }
+    const keywordSeeds = buildKeywordSeeds(request)
 
     const response = await this.postJson("/keywords_data/google_ads/search_volume/live", [
       {
-        keywords: buildKeywordSeeds(request),
+        keywords: keywordSeeds,
         location_name: "United States",
         language_name: "English",
       },
     ], auth, 20000)
 
-    return { keywords: parseKeywordDemandResponse(response) }
+    return { keywords: parseKeywordDemandResponse(response, keywordSeeds) }
   }
 
   async fetchSerpPositions(request: HubblyIntelligenceSerpRequest): Promise<{ domains: HubblyIntelligenceDomainPositions[] }> {
@@ -161,6 +162,7 @@ class RemoteHubblyIntelligenceClient implements HubblyIntelligenceClient {
         },
       ], auth, 45000)
 
+      assertSuccessfulTasks(payload, "/backlinks/summary/live")
       return parseBacklinkSummaryResponse(payload, domain)
     }))
 
@@ -236,9 +238,10 @@ function buildKeywordSeeds(request: HubblyIntelligenceRequest) {
   return uniqueStrings(seeds.map(canonicalizeDisplayKeyword)).slice(0, 25)
 }
 
-function parseKeywordDemandResponse(payload: unknown): HubblyIntelligenceKeyword[] {
+function parseKeywordDemandResponse(payload: unknown, requestedKeywords: string[]): HubblyIntelligenceKeyword[] {
   const tasks = (payload as DataForSeoResponse | null)?.tasks ?? []
   const keywords: HubblyIntelligenceKeyword[] = []
+  const requestedSet = new Set(requestedKeywords.map(canonicalizeDisplayKeyword).filter(Boolean))
 
   for (const task of tasks) {
     for (const result of task.result ?? []) {
@@ -249,6 +252,7 @@ function parseKeywordDemandResponse(payload: unknown): HubblyIntelligenceKeyword
         const record = asRecord(item)
         const keyword = canonicalizeDisplayKeyword(stringValue(record?.keyword))
         if (!keyword) continue
+        if (requestedSet.size > 0 && !requestedSet.has(keyword)) continue
 
         keywords.push({
           keyword,
@@ -260,6 +264,27 @@ function parseKeywordDemandResponse(payload: unknown): HubblyIntelligenceKeyword
   }
 
   return keywords
+}
+
+function assertSuccessfulTasks(payload: unknown, endpoint: string) {
+  const tasks = (payload as DataForSeoResponse | null)?.tasks ?? []
+  const failedTask = tasks.find((task) => {
+    const statusCode = numberValue(asRecord(task)?.status_code)
+    return statusCode !== null && statusCode !== 20000
+  })
+  if (!failedTask) return
+
+  const record = asRecord(failedTask)
+  const statusCode = numberValue(record?.status_code)
+  const statusMessage = stringValue(record?.status_message) ?? "Hubbly Intelligence task failed."
+  throw new HubblyIntelligenceTaskError(endpoint, statusCode, statusMessage)
+}
+
+class HubblyIntelligenceTaskError extends Error {
+  constructor(endpoint: string, readonly statusCode: number | null, statusMessage: string) {
+    super(`${endpoint} task failed${statusCode ? ` (${statusCode})` : ""}: ${statusMessage}`)
+    this.name = "HubblyIntelligenceTaskError"
+  }
 }
 
 function parseCompetitorsDomainResponse(payload: unknown, targetDomain: string): HubblyIntelligenceCompetitorDomain[] {

@@ -44,6 +44,8 @@ function loadTsModule(relativePath, fetchImpl) {
 const calls = []
 const fetchImpl = async (url, init) => {
   calls.push({ url, init })
+  const requestBody = JSON.parse(init.body)
+  const requestedKeywords = requestBody[0]?.keywords ?? []
   return {
     ok: true,
     async json() {
@@ -59,26 +61,7 @@ const fetchImpl = async (url, init) => {
             status_message: "Ok.",
             cost: 0.075,
             result_count: 3,
-            result: [
-              {
-                keyword: "Payments API Pricing",
-                search_volume: 1200,
-                competition: "HIGH",
-                competition_index: 81,
-                location_code: 2840,
-                language_code: "en",
-              },
-              {
-                keyword: "1/2 oz payment coin",
-                search_volume: 50,
-                competition: "LOW",
-              },
-              {
-                keyword: "software for ops",
-                search_volume: 800,
-                competition_index: 64,
-              },
-            ],
+            result: keywordRowsForRequest(requestedKeywords),
           },
         ],
       }
@@ -119,10 +102,27 @@ createHubblyIntelligenceClient({
   ])
 
   assert.equal(JSON.stringify(demand.keywords), JSON.stringify([
-    { keyword: "payments api pricing", monthlyVolume: 1200, competition: "HIGH" },
-    { keyword: "1/2 oz payment coin", monthlyVolume: 50, competition: "LOW" },
-    { keyword: "software for ops", monthlyVolume: 800, competition: "64" },
+    { keyword: "payments", monthlyVolume: 1000, competition: "HIGH" },
+    { keyword: "payments pricing", monthlyVolume: 900, competition: "81" },
+    { keyword: "payments api", monthlyVolume: 700, competition: "64" },
   ]))
+
+  return createHubblyIntelligenceClient({
+    apiKey: "login:password",
+    baseUrl: "https://example.test/v3",
+    cadence: { free: "on_demand", autopilot: "weekly", workforce: "daily" },
+  }).fetchKeywordDemand({
+    domain: "joes.example",
+    category: "seafood_restaurant",
+    buyerType: "consumer",
+    businessModel: "local_service",
+  })
+}).then((restaurantDemand) => {
+  assert.equal(JSON.stringify(restaurantDemand.keywords), JSON.stringify([
+    { keyword: "seafood restaurant", monthlyVolume: 1100, competition: "MEDIUM" },
+    { keyword: "seafood restaurant near me", monthlyVolume: 950, competition: "HIGH" },
+  ]))
+  assert(!restaurantDemand.keywords.some((item) => item.keyword.includes("payments")))
 
   return createHubblyIntelligenceClient({
     cadence: { free: "on_demand", autopilot: "weekly", workforce: "daily" },
@@ -134,9 +134,46 @@ createHubblyIntelligenceClient({
   })
 }).then((emptyDemand) => {
   assert.equal(JSON.stringify(emptyDemand.keywords), "[]")
-  assert.equal(calls.length, 1)
+  assert.equal(calls.length, 2)
   console.log("hubbly intelligence live adapter: 1 passed")
 }).catch((error) => {
   console.error(error)
   process.exit(1)
 })
+
+function keywordRowsForRequest(requestedKeywords) {
+  const requested = new Set(requestedKeywords)
+  const rows = [
+    keywordRow("payments", 1000, "HIGH"),
+    keywordRow("payments pricing", 900, 81),
+    keywordRow("payments api", 700, 64),
+    keywordRow("seafood restaurant", 1100, "MEDIUM"),
+    keywordRow("seafood restaurant near me", 950, "HIGH"),
+    keywordRow("0 apr business loan", 500, "HIGH"),
+  ]
+
+  if (requested.has("payments")) {
+    return rows
+  }
+
+  if (requested.has("seafood restaurant")) {
+    return [
+      keywordRow("seafood restaurant", 1100, "MEDIUM"),
+      keywordRow("seafood restaurant near me", 950, "HIGH"),
+      keywordRow("payments", 1000, "HIGH"),
+    ]
+  }
+
+  return []
+}
+
+function keywordRow(keyword, searchVolume, competition) {
+  return {
+    keyword,
+    search_volume: searchVolume,
+    competition,
+    competition_index: typeof competition === "number" ? competition : undefined,
+    location_code: 2840,
+    language_code: "en",
+  }
+}

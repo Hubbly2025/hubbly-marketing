@@ -46,6 +46,21 @@ const labsPath = "/data" + "forseo_labs/google"
 const fetchImpl = async (url, init) => {
   calls.push({ url, init, body: JSON.parse(init.body) })
 
+  if (url.startsWith("https://access-denied.test") && url.endsWith("/backlinks/summary/live")) {
+    return jsonResponse({
+      status_code: 20000,
+      status_message: "Ok.",
+      cost: 0,
+      tasks_count: 1,
+      tasks_error: 1,
+      tasks: [{
+        status_code: 40204,
+        status_message: "Access denied. Visit Plans and Subscriptions to activate your subscription and get access to this API",
+        result: null,
+      }],
+    })
+  }
+
   if (url.endsWith(`${labsPath}/competitors_domain/live`)) {
     return jsonResponse({
       tasks: [{
@@ -291,6 +306,23 @@ client.fetchCompetitorSerpData({
     "merchant account fees",
   ]))
 
+  const accessDeniedClient = createHubblyIntelligenceClient({
+    apiKey: "login:password",
+    baseUrl: "https://access-denied.test/v3",
+    cadence: { free: "on_demand", autopilot: "weekly", workforce: "daily" },
+  })
+  return assert.rejects(
+    () => accessDeniedClient.fetchBacklinkSummaries({
+      domain: "stripe.example",
+      category: "payments",
+      buyerType: "business",
+      businessModel: "b2b_saas",
+      keywords: [],
+      competitorDomains: ["adyen.com"],
+    }),
+    /Access denied/,
+  )
+}).then(() => {
   console.log("hubbly intelligence competitive live adapter: 1 passed")
 }).catch((error) => {
   console.error(error)
