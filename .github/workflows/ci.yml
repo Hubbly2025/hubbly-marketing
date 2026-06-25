@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: types · tests · honesty gate · vendor wall
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Test suite + honesty smoke gate
+        run: pnpm test
+
+      - name: Honesty gate must FAIL on fabricated data
+        run: |
+          if node scripts/audit-data-source-smoke.js tests/fixtures/audit-smoke/fabricated-intent.json; then
+            echo "::error::Honesty smoke gate PASSED on fabricated data — gate is broken."
+            exit 1
+          else
+            echo "Honesty gate correctly REJECTED fabricated data."
+          fi
+
+      - name: Vendor-wall check
+        run: |
+          MATCHES=$(grep -rin "dataforseo" \
+            --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' \
+            lib components app scripts tests 2>/dev/null \
+            | grep -vi "lib/audit/hubbly-intelligence.ts" \
+            | grep -vi "lib/audit/hubbly-intelligence-config.ts" \
+            || true)
+          if [ -n "$MATCHES" ]; then
+            echo "::error::Vendor name leaked outside adapter/config:"
+            echo "$MATCHES"
+            exit 1
+          else
+            echo "Vendor wall intact."
+          fi
