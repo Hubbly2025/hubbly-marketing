@@ -5,6 +5,7 @@ export type HubblyIntelligenceKeyword = {
   keyword: string
   monthlyVolume: number | null
   competition?: string | null
+  valuePerClick?: number | null
 }
 
 export type HubblyIntelligenceKeywordDemand = {
@@ -260,10 +261,12 @@ function parseKeywordDemandResponse(payload: unknown, requestedKeywords: string[
         if (!keyword) continue
         if (requestedSet.size > 0 && !requestedSet.has(keyword)) continue
 
+        const cpc = numberValue(record?.cpc)
         keywords.push({
           keyword,
           monthlyVolume: numberValue(record?.search_volume),
           competition: competitionValue(record?.competition ?? record?.competition_index),
+          ...(cpc !== null ? { valuePerClick: cpc } : {}),
         })
       }
     }
@@ -345,7 +348,7 @@ function parseSerpAdvancedResponse(
   domains: string[],
   rankedResponses: HubblyIntelligenceDomainPositions[],
 ): HubblyIntelligenceDomainPositions[] {
-  const domainSet = new Set(domains)
+  void domains
   const volumeByKeyword = new Map<string, number | null>()
   for (const domain of rankedResponses) {
     for (const item of domain.keywords) {
@@ -368,7 +371,7 @@ function parseSerpAdvancedResponse(
         const record = asRecord(item)
         if (record?.type !== "organic") continue
         const domain = normalizeDomain(stringValue(record?.domain))
-        if (!domainSet.has(domain)) continue
+        if (!domain) continue
         const entries = byDomain.get(domain) ?? []
         entries.push({
           keyword,
@@ -394,7 +397,7 @@ function mergeExactPositions(
 ) {
   const exactByDomain = new Map(exactResponses.map((item) => [item.domain, item]))
 
-  return rankedResponses.map((ranked) => {
+  const merged = rankedResponses.map((ranked) => {
     const exact = exactByDomain.get(ranked.domain)
     if (!exact) return ranked
     const byKeyword = new Map(ranked.keywords.map((item) => [item.keyword, item]))
@@ -411,6 +414,15 @@ function mergeExactPositions(
       keywords: Array.from(byKeyword.values()),
     }
   })
+
+  const rankedDomains = new Set(rankedResponses.map((item) => item.domain))
+  for (const exact of exactResponses) {
+    if (!rankedDomains.has(exact.domain)) {
+      merged.push(exact)
+    }
+  }
+
+  return merged
 }
 
 function parseBacklinkSummaryResponse(payload: unknown, domain: string): HubblyIntelligenceBacklinkSummary {

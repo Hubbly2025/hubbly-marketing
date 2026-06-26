@@ -108,7 +108,7 @@ createHubblyIntelligenceClient({
   ])
 
   assert.equal(JSON.stringify(demand.keywords), JSON.stringify([
-    { keyword: "payments", monthlyVolume: 1000, competition: "HIGH" },
+    { keyword: "payments", monthlyVolume: 1000, competition: "HIGH", valuePerClick: 12.5 },
     { keyword: "payments pricing", monthlyVolume: 900, competition: "81" },
     { keyword: "payments api", monthlyVolume: 700, competition: "64" },
     { keyword: "payments api pricing", monthlyVolume: 600, competition: "HIGH" },
@@ -183,6 +183,7 @@ function keywordRow(keyword, searchVolume, competition) {
   return {
     keyword,
     search_volume: searchVolume,
+    ...(keyword === "payments" ? { cpc: 12.5 } : {}),
     competition,
     competition_index: typeof competition === "number" ? competition : undefined,
     location_code: 2840,

@@ -95,7 +95,7 @@ type AuditAnalysis = {
 type IntentData = {
   status?: string
   top_signals?: string[]
-  keyword_volumes?: Array<{ keyword?: string; monthlyVolume?: number }>
+  keyword_volumes?: Array<{ keyword?: string; monthlyVolume?: number; valuePerClick?: number | null }>
 }
 
 type RankGamePlanMove = {
@@ -120,22 +120,28 @@ type RankGamePlan = {
 }
 
 const ORGANIC_CTR_CURVE: Record<number, number> = {
-  1: 0.276,
-  2: 0.158,
-  3: 0.111,
-  4: 0.084,
-  5: 0.063,
-  6: 0.049,
-  7: 0.039,
-  8: 0.033,
-  9: 0.027,
-  10: 0.024,
+  1: 0.285,
+  2: 0.157,
+  3: 0.11,
+  4: 0.08,
+  5: 0.072,
+  6: 0.051,
+  7: 0.04,
+  8: 0.032,
+  9: 0.028,
+  10: 0.025,
+}
+
+const ORGANIC_CTR_CURVE_SOURCE = {
+  name: "SISTRIX mobile average CTR curve",
+  year: 2020,
+  url: "https://www.sistrix.com/blog/why-almost-everything-you-knew-about-google-ctr-is-no-longer-valid/",
 }
 
 const COMPETITIVE_FORMULA_SOURCES = {
   search_volume: "Hubbly Intelligence ranked keyword volume",
   competitor_position: "Hubbly Intelligence SERP position",
-  position_ctr: "standard organic CTR curve",
+  position_ctr: `${ORGANIC_CTR_CURVE_SOURCE.name} ${ORGANIC_CTR_CURVE_SOURCE.year}`,
   value_per_click: "Hubbly Intelligence keyword CPC",
 }
 
@@ -1006,8 +1012,9 @@ async function buildMeasuredIntentData(siteProfile: SiteProfile, client: HubblyI
         keyword: normalizeIntentKeyword(item.keyword),
         monthlyVolume: Number.isFinite(item.monthlyVolume) ? Number(item.monthlyVolume) : null,
         competition: typeof item.competition === "string" ? item.competition : null,
+        valuePerClick: Number.isFinite(item.valuePerClick) ? Number(item.valuePerClick) : null,
       }))
-      .filter((item): item is { keyword: string; monthlyVolume: number; competition: string | null } => Boolean(item.keyword) && Number(item.monthlyVolume) > 0)
+      .filter((item): item is { keyword: string; monthlyVolume: number; competition: string | null; valuePerClick: number | null } => Boolean(item.keyword) && Number(item.monthlyVolume) > 0)
       .sort((a, b) => b.monthlyVolume - a.monthlyVolume)
 
     if (!measuredKeywords.length) {
@@ -1131,36 +1138,58 @@ async function buildCompetitiveIntelligence(
     const measuredDomains = competitorResponse.competitors
       .filter((item) => item.provenance === "measured" && item.domain)
       .slice(0, 3)
+    const competitorDomains = measuredDomains.map((item) => item.domain)
+    const positionsResponse = await client.fetchSerpPositions({
+      domain: siteProfile.domain,
+      category,
+      buyerType: siteProfile.buyer_type,
+      businessModel: siteProfile.business_model,
+      keywords: priorityKeywords,
+      competitorDomains,
+    })
 
-    if (!measuredDomains.length) {
+    const serpRankerDomains = selectSerpRankerDomains(positionsResponse.domains, siteProfile.domain, priorityKeywords)
+
+    if (!serpRankerDomains.length) {
       return insufficient()
     }
 
-    const competitorDomains = measuredDomains.map((item) => item.domain)
-    const [positionsResponse, backlinkResponse] = await Promise.all([
-      client.fetchSerpPositions({
-        domain: siteProfile.domain,
-        category,
-        buyerType: siteProfile.buyer_type,
-        businessModel: siteProfile.business_model,
-        keywords: priorityKeywords,
-        competitorDomains,
-      }),
-      client.fetchBacklinkSummaries({
-        domain: siteProfile.domain,
-        category,
-        buyerType: siteProfile.buyer_type,
-        businessModel: siteProfile.business_model,
-        keywords: priorityKeywords,
-        competitorDomains,
-      }),
-    ])
+    const competitivePositions = positionsResponse.domains.filter((item) =>
+      item.domain === siteProfile.domain || serpRankerDomains.includes(item.domain),
+    )
+
+    const backlinkResponse = await client.fetchBacklinkSummaries({
+      domain: siteProfile.domain,
+      category,
+      buyerType: siteProfile.buyer_type,
+      businessModel: siteProfile.business_model,
+      keywords: priorityKeywords,
+      competitorDomains: serpRankerDomains,
+    }).catch((error) => {
+      logHubblyIntelligenceError("competitive_backlinks", error)
+      return { summaries: [] }
+    })
 
     const targetPositions = positionsResponse.domains.find((item) => item.domain === siteProfile.domain)
     const backlinkByDomain = new Map(backlinkResponse.summaries.map((item) => [item.domain, item]))
-	    const targetBacklinks = backlinkByDomain.get(siteProfile.domain)
-	    const targetShareOfVoice = calculateShareOfVoice(targetPositions, priorityKeywords)
-    const battlefield = measuredDomains
+    const backlinkProvenance = backlinkByDomain.size ? "measured" as const : "data_unavailable" as const
+    const measuredDomainByName = new Map(measuredDomains.map((item) => [item.domain, item]))
+    const targetBacklinks = backlinkByDomain.get(siteProfile.domain)
+    const targetShareOfVoice = calculateShareOfVoice(targetPositions, priorityKeywords)
+    const serpRankers = serpRankerDomains.map((domain) => {
+      const measuredDomain = measuredDomainByName.get(domain)
+      const positions = positionsResponse.domains.find((item) => item.domain === domain)
+      return {
+        domain,
+        kind: measuredDomain?.kind ?? (isMarketplaceDomain(domain) ? "marketplace" : "strategic_competitor"),
+        label: measuredDomain?.label ?? (isMarketplaceDomain(domain) ? "marketplace ranking above you" : "SERP ranker"),
+        intersections: measuredDomain?.intersections ?? null,
+        avgPosition: measuredDomain?.avgPosition ?? averageMeasuredPosition(positions),
+        provenance: "measured" as const,
+      }
+    })
+
+    const battlefield = serpRankers
       .filter((domain) => domain.kind === "strategic_competitor")
       .map((domain) => {
         const positions = positionsResponse.domains.find((item) => item.domain === domain.domain)
@@ -1174,12 +1203,14 @@ async function buildCompetitiveIntelligence(
           yourShareOfVoice: targetShareOfVoice,
           referringDomains: backlinks?.referringDomains ?? null,
           yourReferringDomains: targetBacklinks?.referringDomains ?? null,
+          enrichment_provenance: backlinks ? "measured" as const : "data_unavailable" as const,
+          domain_source: "measured" as const,
           narrative: matchNarrative(domain.domain, namedCompetitors),
           provenance: "measured" as const,
         }
       })
 
-    const marketplaces = measuredDomains
+    const marketplaces = serpRankers
       .filter((domain) => domain.kind === "marketplace")
       .map((domain) => ({
         domain: domain.domain,
@@ -1190,36 +1221,39 @@ async function buildCompetitiveIntelligence(
           priorityKeywords,
         ),
         referringDomains: backlinkByDomain.get(domain.domain)?.referringDomains ?? null,
+        enrichment_provenance: backlinkByDomain.has(domain.domain) ? "measured" as const : "data_unavailable" as const,
+        domain_source: "measured" as const,
         provenance: "measured" as const,
       }))
 
-	    const bleeding = buildBleedingKeywords(positionsResponse.domains, siteProfile.domain, priorityKeywords)
-	    const measuredNarrativeDomains = new Set(measuredDomains.map((item) => item.domain))
-	    const diagnosis = buildCompetitiveDiagnosis({
-	      targetDomain: siteProfile.domain,
-	      measuredDomains,
-	      positions: positionsResponse.domains,
-	      backlinkByDomain,
-	      priorityKeywords,
-	      targetShareOfVoice,
-	    })
-	    const cost = buildCompetitiveCost(bleeding, diagnosis.rows)
+    const keywordMetrics = keywordMetricMap(intentData)
+    const bleeding = buildBleedingKeywords(competitivePositions, siteProfile.domain, priorityKeywords, keywordMetrics)
+    const measuredNarrativeDomains = new Set(serpRankers.map((item) => item.domain))
+    const diagnosis = buildCompetitiveDiagnosis({
+      targetDomain: siteProfile.domain,
+      measuredDomains: serpRankers,
+      positions: competitivePositions,
+      backlinkByDomain,
+      priorityKeywords,
+      targetShareOfVoice,
+    })
+    const cost = buildCompetitiveCost(bleeding, diagnosis.rows)
 
-	    return {
-	      status: battlefield.length || marketplaces.length || bleeding.length ? "measured" : "insufficient_signal",
+    return {
+      status: battlefield.length || marketplaces.length || bleeding.length ? "measured" : "insufficient_signal",
       caps: {
         keyword_count: priorityKeywords.length,
-        competitor_count: measuredDomains.length,
+        competitor_count: serpRankers.length,
         max_keywords: 5,
         max_competitors: 3,
       },
       battlefield,
-	      marketplaces,
-	      bleeding,
-	      bleedingMonthly: bleeding.reduce((sum, item) => sum + item.monthlyVolume, 0),
-	      diagnosis,
-	      cost,
-	      named_without_serp_presence: namedCompetitors.filter((item) => {
+      marketplaces,
+      bleeding,
+      bleedingMonthly: bleeding.reduce((sum, item) => sum + item.monthlyVolume, 0),
+      diagnosis,
+      cost,
+      named_without_serp_presence: namedCompetitors.filter((item) => {
         const name = typeof item.name === "string" ? item.name : ""
         return name && !Array.from(measuredNarrativeDomains).some((domain) => narrativeMatchesDomain(domain, name))
       }),
@@ -1228,7 +1262,7 @@ async function buildCompetitiveIntelligence(
         battlefield: "measured",
         marketplaces: marketplaces.length ? "measured" : "estimated",
         bleeding: bleeding.length ? "measured" : "estimated",
-        backlinks: "measured",
+        backlinks: backlinkProvenance,
       },
     }
   } catch (error) {
@@ -1324,6 +1358,39 @@ function priorityKeywordSet(intentData: IntentData) {
   return uniqueStrings([...volumeKeywords, ...signalKeywords]).slice(0, 5)
 }
 
+function keywordMetricMap(intentData: IntentData) {
+  const keywordVolumes = Array.isArray(intentData.keyword_volumes) ? intentData.keyword_volumes : []
+  const metrics = new Map<string, { monthlyVolume: number | null; valuePerClick: number | null }>()
+  for (const item of keywordVolumes) {
+    const keyword = normalizeIntentKeyword(item.keyword ?? "")
+    if (!keyword) continue
+    metrics.set(keyword, {
+      monthlyVolume: Number.isFinite(item.monthlyVolume) ? Number(item.monthlyVolume) : null,
+      valuePerClick: Number.isFinite(item.valuePerClick) ? Number(item.valuePerClick) : null,
+    })
+  }
+
+  return metrics
+}
+
+function selectSerpRankerDomains(
+  domains: HubblyIntelligenceDomainPositions[],
+  targetDomain: string,
+  priorityKeywords: string[],
+) {
+  return domains
+    .filter((domain) => domain.domain !== targetDomain)
+    .map((domain) => ({
+      domain: domain.domain,
+      shareOfVoice: calculateShareOfVoice(domain, priorityKeywords),
+      bestPosition: bestMeasuredPosition(domain),
+    }))
+    .filter((domain) => domain.bestPosition !== null)
+    .sort((a, b) => b.shareOfVoice - a.shareOfVoice || (a.bestPosition ?? 999) - (b.bestPosition ?? 999))
+    .map((domain) => domain.domain)
+    .slice(0, 3)
+}
+
 function calculateShareOfVoice(domainPositions: HubblyIntelligenceDomainPositions | undefined, priorityKeywords: string[]) {
   if (!domainPositions || !priorityKeywords.length) return 0
   const positionByKeyword = new Map(domainPositions.keywords.map((item) => [item.keyword, item.position]))
@@ -1392,6 +1459,7 @@ function buildCompetitiveCost(
     monthlyVolume: number
     competitorDomains: string[]
     bestCompetitorPosition?: number | null
+    targetPosition?: number | null
     valuePerClick?: number | null
   }>,
   diagnosisRows: Array<{ domain: string; kind: string; referringDomains: number | null; authorityDeficit: number | null; provenance: "measured" }>,
@@ -1404,14 +1472,27 @@ function buildCompetitiveCost(
       const estimatedValue = ctr !== null && valuePerClick !== null
         ? Math.round(item.monthlyVolume * ctr * valuePerClick)
         : null
+      const ctrSource = position && ctr !== null
+        ? `inferred (CTR curve: ${ORGANIC_CTR_CURVE_SOURCE.name} ${ORGANIC_CTR_CURVE_SOURCE.year}, position ${Math.min(Math.round(position), 10)})`
+        : "inferred (CTR curve unavailable: no measured competitor position)"
 
       return {
         keyword: item.keyword,
         search_volume: item.monthlyVolume,
+        target_position: item.targetPosition ?? null,
+        target_ctr: ctrForPosition(item.targetPosition ?? null) ?? 0,
         competitor_position: position,
         position_ctr: ctr,
+        position_ctr_provenance: ctrSource,
+        position_ctr_source_url: ORGANIC_CTR_CURVE_SOURCE.url,
         value_per_click: valuePerClick,
         estimated_value: estimatedValue,
+        excluded_from_sum: estimatedValue === null,
+        exclusion_reason: valuePerClick === null
+          ? "missing measured CPC"
+          : ctr === null
+            ? "missing measured competitor position"
+            : null,
         sources: COMPETITIVE_FORMULA_SOURCES,
       }
     })
@@ -1427,6 +1508,7 @@ function buildCompetitiveCost(
         expression: "sum(search_volume * position_ctr * value_per_click)",
         inputs: formulaInputs,
         sources: COMPETITIVE_FORMULA_SOURCES,
+        ctr_curve: ORGANIC_CTR_CURVE_SOURCE,
       },
     },
     authorityDeficit: diagnosisRows
@@ -1693,6 +1775,15 @@ function averageMeasuredPosition(domainPositions: HubblyIntelligenceDomainPositi
   return round2(positions.reduce((sum, position) => sum + position, 0) / positions.length)
 }
 
+function bestMeasuredPosition(domainPositions: HubblyIntelligenceDomainPositions | undefined) {
+  const positions = (domainPositions?.keywords ?? [])
+    .map((item) => item.position)
+    .filter((position): position is number => typeof position === "number" && Number.isFinite(position))
+  if (!positions.length) return null
+
+  return Math.min(...positions)
+}
+
 function measuredRankings(domainPositions: HubblyIntelligenceDomainPositions | undefined, priorityKeywords: string[]) {
   const positionByKeyword = new Map((domainPositions?.keywords ?? []).map((item) => [item.keyword, item.position]))
   return priorityKeywords.map((keyword) => ({
@@ -1725,6 +1816,10 @@ function authorityDeficit(targetReferringDomains: number | null, competitorRefer
   return Math.max(competitorReferringDomains - targetReferringDomains, 0)
 }
 
+function isMarketplaceDomain(domain: string) {
+  return /(^|\.)?(yelp|tripadvisor|g2|capterra|softwareadvice|trustpilot|reddit|youtube|facebook|linkedin|instagram|amazon)\./i.test(domain)
+}
+
 function ctrForPosition(position?: number | null) {
   if (!position || position < 1) return null
 
@@ -1735,13 +1830,16 @@ function buildBleedingKeywords(
   domains: HubblyIntelligenceDomainPositions[],
   targetDomain: string,
   priorityKeywords: string[],
+  keywordMetrics: Map<string, { monthlyVolume: number | null; valuePerClick: number | null }>,
 ) {
-  const targetKeywords = new Set(domains.find((item) => item.domain === targetDomain)?.keywords.map((item) => item.keyword) ?? [])
+  const targetPositions = new Map((domains.find((item) => item.domain === targetDomain)?.keywords ?? [])
+    .map((item) => [item.keyword, item.position ?? null]))
   const bleeding = new Map<string, {
     keyword: string
     monthlyVolume: number
     competitorDomains: string[]
     bestCompetitorPosition: number | null
+    targetPosition: number | null
     valuePerClick: number | null
     provenance: "measured"
   }>()
@@ -1749,23 +1847,29 @@ function buildBleedingKeywords(
   for (const domain of domains) {
     if (domain.domain === targetDomain) continue
     for (const item of domain.keywords) {
-      if (!priorityKeywords.includes(item.keyword) || targetKeywords.has(item.keyword) || !item.monthlyVolume) continue
+      if (!priorityKeywords.includes(item.keyword) || !item.position) continue
+      const targetPosition = targetPositions.get(item.keyword) ?? null
+      if (targetPosition && targetPosition <= item.position) continue
+      const metrics = keywordMetrics.get(item.keyword)
+      const monthlyVolume = metrics?.monthlyVolume ?? item.monthlyVolume
+      if (!monthlyVolume) continue
       const existing = bleeding.get(item.keyword)
       if (existing) {
         existing.competitorDomains.push(domain.domain)
         if (item.position && (!existing.bestCompetitorPosition || item.position < existing.bestCompetitorPosition)) {
           existing.bestCompetitorPosition = item.position
         }
-        if (existing.valuePerClick === null && typeof item.valuePerClick === "number") {
-          existing.valuePerClick = item.valuePerClick
+        if (existing.valuePerClick === null && metrics?.valuePerClick !== null && metrics?.valuePerClick !== undefined) {
+          existing.valuePerClick = metrics.valuePerClick
         }
       } else {
         bleeding.set(item.keyword, {
           keyword: item.keyword,
-          monthlyVolume: item.monthlyVolume,
+          monthlyVolume,
           competitorDomains: [domain.domain],
           bestCompetitorPosition: item.position ?? null,
-          valuePerClick: item.valuePerClick ?? null,
+          targetPosition,
+          valuePerClick: metrics?.valuePerClick ?? item.valuePerClick ?? null,
           provenance: "measured",
         })
       }

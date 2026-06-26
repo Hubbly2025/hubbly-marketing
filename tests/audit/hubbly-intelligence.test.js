@@ -80,7 +80,7 @@ const measuredClient = {
     assert.equal(request.businessModel, "b2b_saas")
     return {
       keywords: [
-        { keyword: "payments API pricing", monthlyVolume: 1200 },
+        { keyword: "payments API pricing", monthlyVolume: 1200, valuePerClick: 18.5 },
         { keyword: " best payment processing software ", monthlyVolume: 800 },
         { keyword: "merchant services", monthlyVolume: 300, competition: "HIGH" },
         { keyword: "1/2 oz payment coin", monthlyVolume: 0 },
@@ -104,6 +104,7 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
     "best payment processing software",
     "merchant services",
   ]))
+  assert.equal(intent.keyword_volumes[0].valuePerClick, 18.5)
   assert.equal(intent.provenance.monthly, "measured")
   assert.equal(intent.provenance.top_signals, "measured")
 
@@ -235,17 +236,38 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
   assert.equal(competitive.diagnosis.rows[0].domain, "stripe.example")
   assert.equal(competitive.diagnosis.rows[0].shareOfVoice, 0.3667)
   assert.equal(competitive.diagnosis.rows[1].authorityDeficit, 1000)
-  assert.equal(competitive.bleeding[0].keyword, "merchant services")
-  assert.equal(competitive.bleeding[0].monthlyVolume, 300)
-  assert.equal(competitive.bleeding[0].bestCompetitorPosition, 4)
-  assert.equal(competitive.cost.revenueAtRisk.monthly, 302)
+  assert.equal(JSON.stringify(competitive.bleeding.map((item) => item.keyword)), JSON.stringify([
+    "payments api pricing",
+    "best payment processing software",
+    "merchant services",
+  ]))
+  assert.equal(competitive.bleeding[0].monthlyVolume, 1200)
+  assert.equal(competitive.bleeding[0].bestCompetitorPosition, 1)
+  assert.equal(competitive.bleeding[0].targetPosition, 3)
+  assert.equal(competitive.bleeding[2].keyword, "merchant services")
+  assert.equal(competitive.bleeding[2].bestCompetitorPosition, 4)
+  assert.equal(competitive.bleeding[2].targetPosition, null)
+  assert.equal(competitive.cost.revenueAtRisk.monthly, 6615)
   assert.equal(competitive.cost.revenueAtRisk.provenance, "inferred")
   assert.equal(competitive.cost.revenueAtRisk.formula.expression, "sum(search_volume * position_ctr * value_per_click)")
   assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].sources.search_volume, "Hubbly Intelligence ranked keyword volume")
-  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].sources.position_ctr, "standard organic CTR curve")
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].sources.position_ctr, "SISTRIX mobile average CTR curve 2020")
   assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].sources.value_per_click, "Hubbly Intelligence keyword CPC")
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].target_ctr, 0.11)
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].position_ctr, 0.285)
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].position_ctr_provenance, "inferred (CTR curve: SISTRIX mobile average CTR curve 2020, position 1)")
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].position_ctr_source_url, "https://www.sistrix.com/blog/why-almost-everything-you-knew-about-google-ctr-is-no-longer-valid/")
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[0].value_per_click, 18.5)
+  assert.equal(competitive.cost.revenueAtRisk.formula.ctr_curve.name, "SISTRIX mobile average CTR curve")
+  assert.equal(competitive.cost.revenueAtRisk.formula.ctr_curve.year, 2020)
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[1].excluded_from_sum, true)
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[1].exclusion_reason, "missing measured CPC")
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[2].target_ctr, 0)
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[2].position_ctr, 0.08)
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[2].position_ctr_provenance, "inferred (CTR curve: SISTRIX mobile average CTR curve 2020, position 4)")
+  assert.equal(competitive.cost.revenueAtRisk.formula.inputs[2].value_per_click, 12)
   assert.equal(competitive.cost.authorityDeficit[0].provenance, "measured")
-  assert.equal(competitive.bleedingMonthly, 300)
+  assert.equal(competitive.bleedingMonthly, 2300)
   assert.equal(competitive.marketplaces[0].domain, "g2.com")
   assert.equal(competitive.named_without_serp_presence[0].name, "Checkout.com")
 
@@ -254,10 +276,10 @@ buildMeasuredIntentDataForTest(stripeProfile, measuredClient).then((intent) => {
       return { competitors: [] }
     },
     async fetchSerpPositions() {
-      throw new Error("positions should not be fetched without measured domains")
+      return { domains: [] }
     },
     async fetchBacklinkSummaries() {
-      throw new Error("backlinks should not be fetched without measured domains")
+      throw new Error("backlinks should not be fetched without SERP rankers")
     },
   })
 }).then((emptyCompetitive) => {
