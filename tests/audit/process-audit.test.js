@@ -134,6 +134,9 @@ const restaurantProfile = buildSiteProfileForTest({
     company_name: "Joe's Crab Shack",
     product: "Casual seafood restaurant with crab buckets, cocktails, and family dining.",
     industry: "Seafood restaurant",
+    business_model: "b2c_restaurant_franchise",
+    buyer_type: "consumer",
+    category: "casual_seafood_restaurant",
     icp: {
       primary: {
         title: "Local diner",
@@ -200,6 +203,74 @@ assert.equal(stripeWithIncidentalRestaurantTestimonial.business_model, "b2b_saas
 assert.equal(stripeWithIncidentalRestaurantTestimonial.category, "payments")
 assert.equal(stripeWithIncidentalRestaurantTestimonial.buyer_type, "business")
 
+const priorityGoldProfile = buildSiteProfileForTest({
+  domain: "prioritygold.com",
+  scannedAt,
+  analysis: {
+    company_name: "Priority Gold",
+    product: "Priority Gold sells physical gold, silver, platinum, and palladium coins and bars and helps customers set up precious metals IRAs.",
+    industry: "Precious metals dealing and gold IRA services",
+    business_model: "b2c_ecommerce",
+    buyer_type: "consumer",
+    category: "precious_metals_dealer",
+    icp: {
+      primary: {
+        title: "Individual investor",
+      },
+    },
+    outreach_angle: "Gold IRA rollover and precious metals investing for retirement savers.",
+  },
+  scrapedContent: "0.5 oz United States Mint proof gold American Eagle coins. Priority Gold helps customers buy gold, silver, and precious metals for retirement investment and IRA rollover planning.",
+})
+
+assert.equal(priorityGoldProfile.category, "gold_ira")
+assert.equal(priorityGoldProfile.raw_category, "precious_metals_dealer")
+assert.notEqual(priorityGoldProfile.category, "home_services")
+
+const proofGoldFallbackProfile = buildSiteProfileForTest({
+  domain: "proof-gold.example",
+  scannedAt,
+  analysis: {
+    company_name: "Proof Gold",
+    product: "Proof gold American Eagle coins for collectors and retirement investors.",
+    industry: "Precious metals",
+    business_model: "b2c_ecommerce",
+    buyer_type: "consumer",
+    category: "unknown",
+    icp: {
+      primary: {
+        title: "Individual investor",
+      },
+    },
+  },
+  scrapedContent: "0.5 oz United States Mint proof gold American Eagle coins for retirement investment and precious metals buyers.",
+})
+
+assert.equal(proofGoldFallbackProfile.category, "gold_ira")
+assert.notEqual(proofGoldFallbackProfile.category, "home_services")
+
+const unmappedConfidentProfile = buildSiteProfileForTest({
+  domain: "widgets.example",
+  scannedAt,
+  analysis: {
+    company_name: "Widget Co",
+    product: "Autonomous procurement workspace for quantum widget operations.",
+    industry: "Quantum widget operations",
+    business_model: "b2b_services",
+    buyer_type: "business",
+    category: "quantum_widget_operations",
+    icp: {
+      primary: {
+        title: "Operations leader",
+      },
+    },
+  },
+  scrapedContent: "Quantum widget teams coordinate specialized operations, compliance reviews, and vendor workflows.",
+})
+
+assert.equal(unmappedConfidentProfile.category, null)
+assert.equal(unmappedConfidentProfile.raw_category, "quantum_widget_operations")
+
 Promise.all([
   estimateIntentDataForTest(stripeProfile, {
     async fetchKeywordDemand() {
@@ -221,9 +292,32 @@ Promise.all([
       }
     },
   }),
-]).then(([stripeIntent, restaurantIntent]) => {
+  estimateIntentDataForTest(priorityGoldProfile, {
+    async fetchKeywordDemand(request) {
+      assert.equal(request.category, "gold_ira")
+      return {
+        keywords: [
+          { keyword: "gold ira", monthlyVolume: 5000 },
+          { keyword: "precious metals ira", monthlyVolume: 1200 },
+        ],
+      }
+    },
+  }),
+  estimateIntentDataForTest(unmappedConfidentProfile, {
+    async fetchKeywordDemand(request) {
+      assert.equal(request.category, "quantum_widget_operations")
+      return {
+        keywords: [
+          { keyword: "quantum widget operations", monthlyVolume: 100 },
+        ],
+      }
+    },
+  }),
+]).then(([stripeIntent, restaurantIntent, priorityGoldIntent, unmappedIntent]) => {
   assert.equal(stripeIntent.status, "measured")
   assert.equal(restaurantIntent.status, "measured")
+  assert.equal(priorityGoldIntent.status, "measured")
+  assert.equal(unmappedIntent.status, "measured")
   assert.equal(JSON.stringify(stripeIntent.top_signals), JSON.stringify([
     "payments api pricing",
     "payment processing software",
@@ -231,6 +325,13 @@ Promise.all([
   assert.equal(JSON.stringify(restaurantIntent.top_signals), JSON.stringify([
     "seafood restaurant near me",
     "crab shack menu",
+  ]))
+  assert.equal(JSON.stringify(priorityGoldIntent.top_signals), JSON.stringify([
+    "gold ira",
+    "precious metals ira",
+  ]))
+  assert.equal(JSON.stringify(unmappedIntent.top_signals), JSON.stringify([
+    "quantum widget operations",
   ]))
   assert.notDeepEqual(stripeIntent.top_signals, restaurantIntent.top_signals)
   assert.equal(JSON.stringify(stripeIntent.geographies), "[]")

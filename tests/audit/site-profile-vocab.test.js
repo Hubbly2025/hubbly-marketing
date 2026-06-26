@@ -117,6 +117,22 @@ const cases = [
     expected: { business_model: "b2b_saas", buyer_type: "business", category: "payments" },
   },
   {
+    input: { business_model: "b2c_ecommerce", buyer_type: "consumer", category: "precious_metals_dealer" },
+    expected: { business_model: "b2c_ecommerce", buyer_type: "consumer", category: "gold_ira" },
+  },
+  {
+    input: { business_model: "restaurant", buyer_type: "consumer", category: "casual_seafood_restaurant" },
+    expected: { business_model: "local_service", buyer_type: "consumer", category: "seafood_restaurant" },
+  },
+  {
+    input: { business_model: "b2b_saas", buyer_type: "business", category: "payments_infrastructure" },
+    expected: { business_model: "b2b_saas", buyer_type: "business", category: "payments" },
+  },
+  {
+    input: { business_model: "b2b_services", buyer_type: "business", category: "business_services_platform" },
+    expected: { business_model: "b2b_services", buyer_type: "business", category: null },
+  },
+  {
     input: { business_model: "restaurant", buyer_type: "Local diner", category: "seafood restaurant" },
     expected: { business_model: "local_service", buyer_type: "consumer", category: "seafood_restaurant" },
   },

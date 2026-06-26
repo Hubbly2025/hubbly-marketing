@@ -34,6 +34,7 @@ type SiteProfile = {
   buyer_type: string | null
   industry: string | null
   category: string | null
+  raw_category: string | null
   positioning: {
     value: string | null
     source_span: string | null
@@ -54,6 +55,7 @@ type SiteProfileValueInput = {
   business_model?: string | null
   buyer_type?: string | null
   category?: string | null
+  raw_category?: string | null
 }
 
 type ScrapedPage = {
@@ -73,6 +75,7 @@ type AuditAnalysis = {
   business_model?: string
   buyer_type?: string
   category?: string
+  raw_category?: string
   positioning?: {
     value?: string | null
     source_span?: string | null
@@ -257,7 +260,8 @@ export async function processAudit(auditId: string, url: string, scanGuard?: Sca
     })
     normalizedAnalysis.business_model = siteProfile.business_model ?? undefined
     normalizedAnalysis.buyer_type = siteProfile.buyer_type ?? undefined
-    normalizedAnalysis.category = siteProfile.category ?? undefined
+    normalizedAnalysis.category = siteProfile.category ?? siteProfile.raw_category ?? undefined
+    normalizedAnalysis.raw_category = siteProfile.raw_category ?? undefined
     normalizedAnalysis.positioning = siteProfile.positioning
     normalizedAnalysis.provenance = {
       ...siteProfile.provenance,
@@ -649,10 +653,15 @@ Your previous response was not usable. Return only compact valid JSON with every
 }
 
 function buildAnalysisPrompt(scrapedContent: string) {
+  const categoryAllowlist = siteProfileVocab.categories.map((entry) => entry.slug).join(", ")
+
   return `You are a senior GTM strategist analyzing a company website to build a precise revenue intelligence report.
 
 Website content:
 ${scrapedContent}
+
+Canonical category allowlist:
+${categoryAllowlist}
 
 Respond with JSON only. Be extremely specific — no generic answers.
 
@@ -662,7 +671,8 @@ Respond with JSON only. Be extremely specific — no generic answers.
   "industry": "Specific industry — not just software or services",
   "business_model": "Detected business model such as b2b_saas, b2b_services, local_service, b2c_ecommerce, marketplace, or other",
   "buyer_type": "Detected primary buyer archetype: business or consumer",
-  "category": "Normalized specific category, lowercase snake_case",
+  "category": "Choose exactly one canonical category slug from the allowlist above. Use other only if none fit.",
+  "raw_category": "The more specific category you infer from the page, lowercase snake_case, e.g. precious_metals_dealer or casual_seafood_restaurant",
   "positioning": {
     "value": "One sentence describing the site's positioning",
     "source_span": "Exact copied source text from the website that supports the positioning"
@@ -925,8 +935,11 @@ function buildSiteProfile(params: {
     business_model: params.analysis.business_model,
     buyer_type: params.analysis.buyer_type,
     category: params.analysis.category,
+    raw_category: params.analysis.raw_category,
   })
-  const category = directValues.category ?? detectCategoryFromSignals(text, industry)
+  const rawCategory = normalizeText(params.analysis.raw_category) ?? normalizeText(params.analysis.category)
+  const category = directValues.category
+    ?? (hasConfidentSynthesisCategory(rawCategory) ? null : detectCategoryFromSignals(text, industry))
   const businessModel = normalizeBusinessModel(params.analysis.business_model)
     ?? detectBusinessModelFromSignals(text, normalizeBuyerType(params.analysis.buyer_type), category)
   const buyerType = normalizeBuyerType(params.analysis.buyer_type) ?? detectBuyerTypeFromSignals(text, businessModel, category)
@@ -943,6 +956,7 @@ function buildSiteProfile(params: {
     buyer_type: buyerType,
     industry,
     category,
+    raw_category: rawCategory,
     positioning: {
       value: positioningValue,
       source_span: sourceSpan,
@@ -955,6 +969,7 @@ function buildSiteProfile(params: {
       buyer_type: buyerType ? "inferred" : "estimated",
       industry: industry ? "inferred" : "estimated",
       category: category ? "inferred" : "estimated",
+      raw_category: rawCategory ? "inferred" : "estimated",
       positioning: sourceSpan ? "inferred" : "estimated",
       observed_evidence: "measured",
       model: toPublicModelProvenance(getScanModelConfig("free")),
@@ -973,7 +988,7 @@ function emptyObservedEvidence(): ObservedEvidence {
 }
 
 async function buildMeasuredIntentData(siteProfile: SiteProfile, client: HubblyIntelligenceClient) {
-  const category = siteProfile.category
+  const category = siteProfile.category ?? siteProfile.raw_category
 
   if (!category || !siteProfile.buyer_type || !siteProfile.business_model) {
     return insufficientIntentData(category)
@@ -1099,15 +1114,16 @@ async function buildCompetitiveIntelligence(
 ) {
   const priorityKeywords = priorityKeywordSet(intentData)
   const insufficient = () => insufficientCompetitiveIntelligence(priorityKeywords.length)
+  const category = siteProfile.category ?? siteProfile.raw_category
 
-  if (!siteProfile.category || !siteProfile.buyer_type || !siteProfile.business_model || !priorityKeywords.length) {
+  if (!category || !siteProfile.buyer_type || !siteProfile.business_model || !priorityKeywords.length) {
     return insufficient()
   }
 
   try {
     const competitorResponse = await client.fetchCompetitorSerpData({
       domain: siteProfile.domain,
-      category: siteProfile.category,
+      category,
       buyerType: siteProfile.buyer_type,
       businessModel: siteProfile.business_model,
       keywords: priorityKeywords,
@@ -1124,7 +1140,7 @@ async function buildCompetitiveIntelligence(
     const [positionsResponse, backlinkResponse] = await Promise.all([
       client.fetchSerpPositions({
         domain: siteProfile.domain,
-        category: siteProfile.category,
+        category,
         buyerType: siteProfile.buyer_type,
         businessModel: siteProfile.business_model,
         keywords: priorityKeywords,
@@ -1132,7 +1148,7 @@ async function buildCompetitiveIntelligence(
       }),
       client.fetchBacklinkSummaries({
         domain: siteProfile.domain,
-        category: siteProfile.category,
+        category,
         buyerType: siteProfile.buyer_type,
         businessModel: siteProfile.business_model,
         keywords: priorityKeywords,
@@ -1829,7 +1845,7 @@ function normalizeSiteProfileValues(input: SiteProfileValueInput) {
   return {
     business_model: normalizeBusinessModel(input.business_model),
     buyer_type: normalizeBuyerType(input.buyer_type),
-    category: normalizeCategory(input.category),
+    category: normalizeCategory(input.category) ?? normalizeCategory(input.raw_category),
   }
 }
 
@@ -1846,6 +1862,10 @@ function canonicalizeSiteProfileValue(
     if (entry.aliases.some((alias) => normalizeVocabValue(alias) === normalized)) return entry.slug
   }
 
+  if (field === "categories") {
+    return fuzzyCanonicalizeCategory(normalized)
+  }
+
   return null
 }
 
@@ -1853,9 +1873,110 @@ function normalizeVocabValue(value?: string | null) {
   return normalizeText(value)?.toLowerCase().replace(/[_-]+/g, " ").replace(/[^a-z0-9\s]+/g, " ").replace(/\s+/g, " ").trim() ?? null
 }
 
+const GENERIC_CATEGORY_TOKENS = new Set([
+  "ai",
+  "and",
+  "automation",
+  "b2b",
+  "b2c",
+  "business",
+  "company",
+  "consumer",
+  "digital",
+  "for",
+  "general",
+  "local",
+  "online",
+  "operations",
+  "platform",
+  "product",
+  "service",
+  "services",
+  "software",
+  "solution",
+  "solutions",
+  "system",
+  "technology",
+  "tool",
+  "tools",
+])
+
+const WEAK_SYNTHESIS_CATEGORIES = new Set([
+  "default",
+  "general",
+  "general service",
+  "general services",
+  "local service",
+  "local services",
+  "misc",
+  "miscellaneous",
+  "other",
+  "service",
+  "services",
+  "unknown",
+  "uncategorized",
+])
+
+function fuzzyCanonicalizeCategory(normalized: string) {
+  const valueTokens = meaningfulCategoryTokens(normalized)
+  if (valueTokens.length < 2) return null
+
+  const scores = siteProfileVocab.categories
+    .map((entry) => {
+      const labels = [entry.slug, entry.display, ...entry.aliases].filter(Boolean)
+      const best = labels.reduce((bestScore, label) => {
+        const labelTokens = meaningfulCategoryTokens(normalizeVocabValue(label) ?? "")
+        if (labelTokens.length < 2) return bestScore
+        const overlap = labelTokens.filter((token) => valueTokens.includes(token))
+        if (overlap.length < 2) return bestScore
+        const precision = overlap.length / valueTokens.length
+        const coverage = overlap.length / labelTokens.length
+        const score = (precision + coverage) / 2
+        return Math.max(bestScore, score)
+      }, 0)
+
+      return { slug: entry.slug, score: best }
+    })
+    .sort((a, b) => b.score - a.score)
+
+  const [best, runnerUp] = scores
+  if (!best || best.score < 0.66) return null
+  if (runnerUp && best.score - runnerUp.score < 0.15) return null
+
+  return best.slug
+}
+
+function meaningfulCategoryTokens(value: string) {
+  return value
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 1 && !GENERIC_CATEGORY_TOKENS.has(token))
+}
+
+function hasConfidentSynthesisCategory(value: string | null) {
+  const normalized = normalizeVocabValue(value)
+  if (!normalized) return false
+  if (WEAK_SYNTHESIS_CATEGORIES.has(normalized)) return false
+  return meaningfulCategoryTokens(normalized).length > 0
+}
+
 function detectCategoryFromSignals(value: string, industry?: string | null) {
   const combined = `${industry ?? ""} ${value}`.toLowerCase()
   const categoryScores = [
+    {
+      category: "gold_ira",
+      score: scoreSignalMatches(combined, [
+        { pattern: /\bprecious metals?\b/g, weight: 4 },
+        { pattern: /\bgold ira\b/g, weight: 5 },
+        { pattern: /\bsilver ira\b/g, weight: 5 },
+        { pattern: /\bself[-\s]?directed ira\b/g, weight: 5 },
+        { pattern: /\bira(?:s)?\b/g, weight: 3 },
+        { pattern: /\bgold\b/g, weight: 3 },
+        { pattern: /\bsilver\b/g, weight: 2 },
+        { pattern: /\bbullion\b/g, weight: 3 },
+        { pattern: /\binvest(?:or|ing|ment|ments)?\b/g, weight: 1 },
+      ]),
+    },
     {
       category: "payments",
       score: scoreSignalMatches(combined, [
@@ -1879,6 +2000,26 @@ function detectCategoryFromSignals(value: string, industry?: string | null) {
         { pattern: /\brestaurant(?:s)?\b/g, weight: 1 },
       ]),
     },
+    {
+      category: "finance",
+      score: scoreSignalMatches(combined, [
+        { pattern: /\bfinance\b/g, weight: 3 },
+        { pattern: /\bfinancial\b/g, weight: 2 },
+        { pattern: /\bwealth\b/g, weight: 3 },
+        { pattern: /\bbank(?:ing)?\b/g, weight: 3 },
+        { pattern: /\binvest(?:or|ing|ment|ments)?\b/g, weight: 2 },
+      ]),
+    },
+    {
+      category: "home_services",
+      score: scoreSignalMatches(combined, [
+        { pattern: /\bhome services?\b/g, weight: 5 },
+        { pattern: /\broof(?:ing)?\b/g, weight: 3 },
+        { pattern: /\bplumb(?:ing|er)?\b/g, weight: 3 },
+        { pattern: /\bhvac\b/g, weight: 3 },
+        { pattern: /\bcontractor(?:s)?\b/g, weight: 3 },
+      ]),
+    },
   ].sort((a, b) => b.score - a.score)
 
   if (categoryScores[0]?.score >= 3) return categoryScores[0].category
@@ -1888,7 +2029,7 @@ function detectCategoryFromSignals(value: string, industry?: string | null) {
   if (/real estate|housing|property/.test(combined)) return "real_estate"
   if (/recruit|talent|staffing|hiring/.test(combined)) return "recruiting"
   if (/solar/.test(combined)) return "solar"
-  if (/home service|roof|plumb|hvac|contractor/.test(combined)) return "home_services"
+  if (/\bhome services?\b|\broof(?:ing)?\b|\bplumb(?:ing|er)?\b|\bhvac\b|\bcontractor(?:s)?\b/.test(combined)) return "home_services"
   if (/commerce|retail|shop|consumer brand/.test(combined)) return "ecommerce"
   if (/agency|marketing/.test(combined)) return "marketing_agency"
   if (/health|medical|clinic/.test(combined)) return "healthcare"
@@ -1956,7 +2097,7 @@ function humanizeCategory(category: string) {
 }
 
 function buildGeographies(siteProfile: SiteProfile) {
-  if (!siteProfile.buyer_type || !siteProfile.business_model || !siteProfile.category) {
+  if (!siteProfile.buyer_type || !siteProfile.business_model || !(siteProfile.category ?? siteProfile.raw_category)) {
     return []
   }
 
