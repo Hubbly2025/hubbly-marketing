@@ -1,3 +1,5 @@
+import type { SeoReport } from "@/lib/seo-report/types"
+
 export type Persona = {
   title?: string
   company_size?: string
@@ -37,6 +39,7 @@ export type Audit = {
     gtm_gaps?: string[]
     outreach_angle?: string
     sample_email?: SampleEmail
+    seo_report?: SeoReport
     error?: string
   }
   competitors?: Competitor[]

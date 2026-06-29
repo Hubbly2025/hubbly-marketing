@@ -22,6 +22,7 @@ import {
   ReportSection,
   SnapshotRow,
 } from "./report-parts"
+import { SeoSection } from "./seo-section"
 
 export function AuditReportPage({ auditId }: { auditId: string }) {
   const [audit, setAudit] = useState<Audit | null>(null)
@@ -219,6 +220,10 @@ function CompleteReport({ audit }: { audit: Audit }) {
               These people are searching right now. Your competitors are already contacting some of them.
             </p>
           </ReportSection>
+
+          {analysis.seo_report ? (
+            <SeoSection seo={analysis.seo_report} companyName={companyName} />
+          ) : null}
 
           <ReportSection eyebrow="Section 4A" title="Your invisible pipeline">
             <div className="grid gap-8 border border-white/10 bg-white/[0.03] p-6 md:p-10 lg:grid-cols-[1fr_0.8fr]">

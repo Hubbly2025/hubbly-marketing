@@ -1,3 +1,6 @@
+import { runSignalAudit } from "@/lib/seo-report/pipeline"
+import type { SeoReport } from "@/lib/seo-report/types"
+
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
 
 const SCRAPE_PATHS = [
@@ -140,11 +143,25 @@ export async function processAudit(auditId: string, url: string) {
     const intentData = estimateIntentData(normalizedAnalysis.industry)
     const gtmPlan = buildGtmPlan(normalizedAnalysis, intentData, companyName)
 
+    // Signal SEO report runs as a separate pass. Failure is non-fatal — a Signal
+    // error must not fail the marketing audit. If it throws (including the
+    // pipeline's own persistAudit to signal_audits), we log and proceed without
+    // an seo_report field.
+    let seoReport: SeoReport | undefined
+    try {
+      const signalResult = await runSignalAudit(url)
+      seoReport = signalResult.audit.seoReport
+    } catch (error) {
+      log("warn", "seo_report", "Signal SEO report failed; continuing without it", {
+        error: getErrorMessage(error),
+      })
+    }
+
     await markProgress("complete", 100, manualReview ? "Fallback report ready for manual review" : "Audit report complete")
     await updateAuditLead(supabase, auditId, {
       status: "complete",
       error_message: manualReview?.reason ?? null,
-      analysis: normalizedAnalysis,
+      analysis: { ...normalizedAnalysis, seo_report: seoReport },
       competitors: normalizedAnalysis.competitors ?? [],
       intent_data: intentData,
       gtm_plan: gtmPlan,
