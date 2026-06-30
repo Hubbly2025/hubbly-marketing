@@ -71,7 +71,9 @@ export class DataForSeoSource implements SignalDataSource {
     console.info("signal.dataforseo.auth_ok", {
       domain,
       endpoint: endpointBase,
-      login: maskLogin(getDataForSeoEnv().login)
+      login: maskLogin(getDataForSeoEnv().login),
+      loginLength: getDataForSeoEnv().login?.length ?? 0,
+      passwordLength: getDataForSeoEnv().password?.length ?? 0
     });
 
     const startedAt = Date.now();
