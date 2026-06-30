@@ -1,7 +1,7 @@
 import type { Classification } from "./classifier";
 import type { BacklinkSummary, CompetitorRow, GapKeyword, KeywordRow } from "./datasource";
 import { brandLabelFromDomain, cleanDisplayKeywords, isRankableGapKeyword, normalizeDisplayKeyword } from "./keyword-filter";
-import { buildBusinessContext, filterRelevantGaps, filterRelevantKeywords, isCategoryCompetitor, type BusinessContext } from "./relevance";
+import { buildBusinessContext, filterEvidenceRelevantKeywords, filterRelevantGaps, filterRelevantKeywords, isCategoryCompetitor, type BusinessContext } from "./relevance";
 import type {
   ExternalApiStatus,
   KeywordCluster,
@@ -27,6 +27,9 @@ import { stripNavFromText } from "./nav-scrubber";
 
 const MEASURED = { provenance: "measured" as const, source: "DataForSEO", label: "Measured · Hubbly" };
 const RECOMMENDED = { provenance: "recommended" as const, source: "Hubbly recommendation", label: "Recommendation" };
+const AUTHORITY_KEYWORD_FLOOR = 2000;
+const AUTHORITY_TRAFFIC_FLOOR = 5000;
+const DISPLAY_KEYWORD_FLOOR = 3;
 
 function measured(value: string, note?: string): ReportMetric {
   return { value, ...MEASURED, note };
@@ -82,14 +85,25 @@ export function buildSeoReport(input: SynthesisInput): SeoReport {
   const externalApiStatus: ExternalApiStatus = input.externalApiStatus ?? (dataforseoReturned ? "measured" : "unavailable");
   const hasMeasuredStatus = externalApiStatus === "measured";
   const gaps = hasMeasuredStatus ? rawGaps : [];
-  const reportKeywords = hasMeasuredStatus ? rankableKeywords : [];
+  const authorityGuardrailTriggered = hasMeasuredStatus && hasMacroAuthority(overview);
+  const reportKeywords = hasMeasuredStatus
+    ? authorityGuardrailTriggered && rankableKeywords.length < DISPLAY_KEYWORD_FLOOR
+      ? fillAuthorityDisplayKeywords(rankableKeywords, displayKeywords, businessContext)
+      : rankableKeywords
+    : [];
   const reportCompetitors = hasMeasuredStatus ? competitors : null;
   const reportBacklinks = hasMeasuredStatus ? backlinks : null;
   const reportOverview = hasMeasuredStatus ? overview : { organicCount: null, etv: null };
   const gapVolumeTotal = gaps.reduce((sum, gap) => sum + (typeof gap.volume === "number" ? gap.volume : 0), 0);
   const competitorGap = buildCompetitorGap(gaps);
   const gapState: SeoReport["gapState"] =
-    externalApiStatus === "empty" ? "greenfield" : gaps.length > 0 ? "gaps" : reportKeywords.length > 0 ? "defend" : "greenfield";
+    externalApiStatus === "empty"
+      ? "greenfield"
+      : gaps.length > 0
+        ? "gaps"
+        : reportKeywords.length > 0 || authorityGuardrailTriggered
+          ? "defend"
+          : "greenfield";
 
   return {
     title: "Hubbly Signal Full SEO Audit + 90-Day Domination Plan",
@@ -99,9 +113,9 @@ export function buildSeoReport(input: SynthesisInput): SeoReport {
     dataforseoReturned: hasMeasuredStatus && dataforseoReturned,
     externalApiStatus,
     measuredVia: `Measured by Hubbly · live search + on-page analysis ${date}`,
-    scorecard: buildScorecard(reportKeywords, reportOverview, gaps, gapVolumeTotal, gapState, externalApiStatus),
+    scorecard: buildScorecard(reportKeywords, reportOverview, gaps, gapVolumeTotal, gapState, externalApiStatus, authorityGuardrailTriggered),
     strengths: buildStrengths(displayKeywords, cleanedPageText),
-    weaknesses: buildWeaknesses(reportKeywords, gaps, gapState, externalApiStatus),
+    weaknesses: buildWeaknesses(reportKeywords, gaps, gapState, externalApiStatus, authorityGuardrailTriggered),
     keywordAnalysis: {
       clusters: buildClusters(reportKeywords),
       semanticNote: keywordAnalysisNote(externalApiStatus)
@@ -128,6 +142,23 @@ function buildCompetitorGap(gaps: GapKeyword[]): Array<{ domain: string; gapCoun
   const counts = new Map<string, number>();
   for (const gap of gaps) counts.set(gap.competitorDomain, (counts.get(gap.competitorDomain) || 0) + 1);
   return [...counts.entries()].map(([domain, gapCount]) => ({ domain, gapCount })).sort((a, b) => b.gapCount - a.gapCount);
+}
+
+function hasMacroAuthority(overview: DomainOverview): boolean {
+  return (overview.organicCount ?? 0) > AUTHORITY_KEYWORD_FLOOR || (overview.etv ?? 0) > AUTHORITY_TRAFFIC_FLOOR;
+}
+
+function fillAuthorityDisplayKeywords<T extends KeywordRow>(current: T[], displayKeywords: T[], businessContext: BusinessContext): T[] {
+  if (current.length >= DISPLAY_KEYWORD_FLOOR) return current;
+  const existing = new Set(current.map((row) => normalizeDisplayKeyword(row.keyword).toLowerCase()));
+  const evidenceBackfill = filterEvidenceRelevantKeywords(
+    displayKeywords
+      .filter((row) => !existing.has(normalizeDisplayKeyword(row.keyword).toLowerCase()))
+      .sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0)),
+    businessContext
+  );
+
+  return [...current, ...evidenceBackfill].slice(0, Math.max(DISPLAY_KEYWORD_FLOOR, current.length));
 }
 
 function buildCompetitors(competitors: CompetitorRow[] | null | undefined, businessContext: BusinessContext): ReportCompetitors | null {
@@ -179,7 +210,8 @@ function buildScorecard(
   gaps: GapKeyword[] = [],
   gapVolumeTotal = 0,
   gapState: SeoReport["gapState"] = "defend",
-  externalApiStatus: ExternalApiStatus = "measured"
+  externalApiStatus: ExternalApiStatus = "measured",
+  authorityGuardrailTriggered = false
 ): SeoReport["scorecard"] {
   if (externalApiStatus === "empty") {
     return {
@@ -199,7 +231,7 @@ function buildScorecard(
         "Recommended multi-engine build (Google, Bing, Grok, Perplexity, ChatGPT)",
         "AI-engine visibility is not measured here. Hubbly recommends a GEO/AEO build; measured AI visibility ships once a source is wired."
       ),
-      verdict: buildVerdict(keywords, gaps, gapVolumeTotal, gapState, externalApiStatus)
+      verdict: buildVerdict(keywords, gaps, gapVolumeTotal, gapState, externalApiStatus, authorityGuardrailTriggered)
     };
   }
 
@@ -221,7 +253,7 @@ function buildScorecard(
         "Recommended multi-engine build (Google, Bing, Grok, Perplexity, ChatGPT)",
         "AI-engine visibility is not measured here. Hubbly recommends a GEO/AEO build; measured AI visibility ships once a source is wired."
       ),
-      verdict: buildVerdict(keywords, gaps, gapVolumeTotal, gapState, externalApiStatus)
+      verdict: buildVerdict(keywords, gaps, gapVolumeTotal, gapState, externalApiStatus, authorityGuardrailTriggered)
     };
   }
 
@@ -259,7 +291,7 @@ function buildScorecard(
       "Recommended multi-engine build (Google, Bing, Grok, Perplexity, ChatGPT)",
       "AI-engine visibility is not measured here. Hubbly recommends a GEO/AEO build; measured AI visibility ships once a source is wired."
     ),
-    verdict: buildVerdict(keywords, gaps, gapVolumeTotal, gapState, externalApiStatus)
+    verdict: buildVerdict(keywords, gaps, gapVolumeTotal, gapState, externalApiStatus, authorityGuardrailTriggered)
   };
 }
 
@@ -268,7 +300,8 @@ function buildVerdict(
   gaps: GapKeyword[] = [],
   gapVolumeTotal = 0,
   gapState: SeoReport["gapState"] = "defend",
-  externalApiStatus: ExternalApiStatus = "measured"
+  externalApiStatus: ExternalApiStatus = "measured",
+  authorityGuardrailTriggered = false
 ): string {
   if (externalApiStatus === "empty") {
     return "No meaningful organic presence yet — expected for a new or recently launched site. There isn't enough ranking data to build a competitive gap analysis. Here's how Hubbly would establish one.";
@@ -278,6 +311,9 @@ function buildVerdict(
   }
   if (gapState === "greenfield") {
     return "No meaningful organic presence yet after relevance filtering — this is a greenfield build. Signal will not manufacture competitor demand; start with the core category pages, proof, and measured tracking.";
+  }
+  if (authorityGuardrailTriggered && gaps.length === 0) {
+    return "Established organic presence detected from raw measured authority totals. The opportunity is defending the existing footprint, expanding mid-funnel demand, and tightening AI-engine visibility rather than treating the site as greenfield.";
   }
   const strong = keywords.filter((row) => (row.currentRank ?? 99) <= 3);
   const parts: string[] = [];
@@ -352,7 +388,8 @@ function buildWeaknesses(
   keywords: KeywordRow[],
   gaps: GapKeyword[] = [],
   gapState: SeoReport["gapState"] = "defend",
-  externalApiStatus: ExternalApiStatus = "measured"
+  externalApiStatus: ExternalApiStatus = "measured",
+  authorityGuardrailTriggered = false
 ): ReportPoint[] {
   if (externalApiStatus === "empty") {
     return [
@@ -395,6 +432,17 @@ function buildWeaknesses(
         provenance: "recommended",
         label: "Recommendation",
         basis: "After excluding off-domain terms, Signal found no relevant competitor-gap demand to size. Start with the greenfield category build instead of a padded gap list."
+      }
+    ];
+  }
+
+  if (authorityGuardrailTriggered && keywords.length === 0 && gaps.length === 0) {
+    return [
+      {
+        claim: "Established organic footprint detected, but displayed keyword evidence is sparse",
+        provenance: "recommended",
+        label: "Recommendation",
+        basis: "Raw measured authority totals crossed the guardrail, so Hubbly will not label the site greenfield. Displayed terms still require brand or on-page evidence."
       }
     ];
   }
