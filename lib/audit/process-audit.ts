@@ -90,13 +90,24 @@ export async function processAudit(auditId: string, url: string) {
     const { pages: scrapedPages, diagnostics: scrapeDiagnostics } = await scrapeWebsiteDeep(url, log)
     const companyName = extractCompanyName(scrapedPages, url)
     const scrapedContent = formatScrapedContent(scrapedPages, companyName)
+    const hasMarketingScrape = scrapedPages.some((page) => page.content.trim().length > 0)
 
     // Lower threshold and allow partial audits with limited content
-    const contentLength = scrapedContent.trim().length
+    const contentLength = hasMarketingScrape ? scrapedContent.trim().length : 0
     const isLowContent = contentLength < 150
     let manualReview: AuditDebugState["manual_review"] | undefined
 
-    if (isLowContent) {
+    if (!hasMarketingScrape) {
+      log("warn", "scraping", "GTM analysis limited — site blocked automated reads; SEO intelligence will run via fallback pipeline.", {
+        content_length: contentLength,
+        pages_scraped: scrapedPages.length,
+        diagnostics: scrapeDiagnostics,
+      })
+      manualReview = {
+        required: true,
+        reason: "GTM analysis limited — site blocked automated reads; SEO intelligence ran via fallback pipeline.",
+      }
+    } else if (isLowContent) {
       log("warn", "scraping", "Limited content extracted, will generate partial audit", {
         content_length: contentLength,
         pages_scraped: scrapedPages.length,
@@ -108,24 +119,28 @@ export async function processAudit(auditId: string, url: string) {
       }
     }
 
-    await markProgress("analyzing", 45, "Analyzing GTM strategy with Claude", {
+    await markProgress("analyzing", 45, hasMarketingScrape ? "Analyzing GTM strategy with Claude" : "Skipping GTM strategy analysis; no marketing scrape text", {
       content_length: scrapedContent.length,
       pages_scraped: scrapedPages.length,
     })
 
     let analysis: AuditAnalysis
-    try {
-      // Use a simplified prompt if we have very little content
-      analysis = await analyzeWithClaude(scrapedContent, log, isLowContent)
-    } catch (error) {
-      const friendlyMessage = toFriendlyError(error)
-      log("error", "analysis", friendlyMessage, { raw_error: getErrorMessage(error) })
-      analysis = buildFallbackAnalysis(companyName, scrapedContent)
-      manualReview = {
-        required: true,
-        reason: manualReview?.reason 
-          ? `${manualReview.reason} Claude analysis also failed.`
-          : "Claude analysis failed. Fallback report generated for manual review.",
+    if (!hasMarketingScrape) {
+      analysis = buildBlockedMarketingAnalysis(companyName)
+    } else {
+      try {
+        // Use a simplified prompt if we have very little content
+        analysis = await analyzeWithClaude(scrapedContent, log, isLowContent)
+      } catch (error) {
+        const friendlyMessage = toFriendlyError(error)
+        log("error", "analysis", friendlyMessage, { raw_error: getErrorMessage(error) })
+        analysis = buildFallbackAnalysis(companyName, scrapedContent)
+        manualReview = {
+          required: true,
+          reason: manualReview?.reason
+            ? `${manualReview.reason} Claude analysis also failed.`
+            : "Claude analysis failed. Fallback report generated for manual review.",
+        }
       }
     }
 
@@ -140,7 +155,7 @@ export async function processAudit(auditId: string, url: string) {
         manual_review: manualReview,
       },
     }
-    const intentData = estimateIntentData(normalizedAnalysis.industry)
+    const intentData = hasMarketingScrape ? estimateIntentData(normalizedAnalysis.industry) : buildLimitedIntentData()
     const gtmPlan = buildGtmPlan(normalizedAnalysis, intentData, companyName)
 
     // Signal SEO report runs as a separate pass. Failure is non-fatal — a Signal
@@ -148,13 +163,19 @@ export async function processAudit(auditId: string, url: string) {
     // pipeline's own persistAudit to signal_audits), we log and proceed without
     // an seo_report field.
     let seoReport: SeoReport | undefined
+    let signalUsable = false
     try {
       const signalResult = await runSignalAudit(url)
       seoReport = signalResult.audit.seoReport
+      signalUsable = hasUsableSignalAudit(signalResult.audit)
     } catch (error) {
       log("warn", "seo_report", "Signal SEO report failed; continuing without it", {
         error: getErrorMessage(error),
       })
+    }
+
+    if (!hasMarketingScrape && !signalUsable) {
+      throw new AuditPipelineError("scrape_failed", "Both marketing and SEO fallback scrapers failed to read the site", true)
     }
 
     await markProgress("complete", 100, manualReview ? "Fallback report ready for manual review" : "Audit report complete")
@@ -265,7 +286,11 @@ async function scrapeWebsiteDeep(
     .filter((page): page is ScrapedPage => Boolean(page))
 
   if (!pages.length) {
-    throw new AuditPipelineError("scrape_failed", "No website pages could be scraped", true)
+    log("warn", "scraping", "audit.scrape.empty_marketing_continuing", {
+      provider: scrapingBeeApiKey ? "scrapingbee" : "direct_fetch",
+      diagnostics,
+    })
+    return { pages, diagnostics }
   }
 
   log("info", "scraping", `Scraped ${pages.length} readable page${pages.length === 1 ? "" : "s"}`, {
@@ -835,6 +860,57 @@ function buildFallbackAnalysis(companyName: string, scrapedContent: string): Aud
       body: `Saw how ${companyName} is positioning around ${industry}. Teams in this market often lose demand because interest is not routed into follow-up fast enough. Hubbly can turn that website interest into targeted outreach and booked meetings. Worth mapping the first segment?`,
     },
   }
+}
+
+function buildBlockedMarketingAnalysis(companyName: string): AuditAnalysis {
+  return {
+    company_name: companyName,
+    product: "GTM analysis limited — the marketing scraper could not read public website content.",
+    industry: "Unknown",
+    icp: {
+      primary: {
+        title: "Buyer to confirm",
+        company_size: "Unknown",
+        pain_point: "Public marketing content was not readable by the GTM scraper.",
+        trigger: "Run SEO intelligence from the fallback pipeline first, then confirm GTM details manually.",
+      },
+      secondary: { title: "", company_size: "", pain_point: "", trigger: "" },
+      emerging: { title: "", company_size: "", pain_point: "", trigger: "" },
+    },
+    competitors: [],
+    gtm_gaps: ["GTM analysis limited because public marketing content was blocked."],
+    outreach_angle: "Analysis pending until readable marketing content is available.",
+    sample_email: {
+      subject: "Analysis pending",
+      body: "GTM analysis is limited because the public site blocked automated reads. Hubbly still ran the SEO fallback pipeline where available.",
+    },
+  }
+}
+
+function buildLimitedIntentData() {
+  return {
+    category: "insufficient_signal",
+    monthly: 0,
+    weekly: 0,
+    highIntent: 0,
+    high_intent: 0,
+    label: "Demand data unavailable because the GTM scraper could not read public marketing content. SEO intelligence may still be available from the fallback pipeline.",
+    top_signals: [],
+    geographies: [],
+  }
+}
+
+function hasUsableSignalAudit(audit: { status?: string; scrape?: { pagesRead?: unknown[] }; seoReport?: Partial<SeoReport> } | undefined) {
+  if (!audit) return false
+  if ((audit.scrape?.pagesRead ?? []).length > 0) return true
+  const report = audit.seoReport
+  if (!report) return false
+  if (audit.status === "ready") return true
+  if (report.dataforseoReturned) return true
+  if (report.externalApiStatus === "measured") return true
+  if ((report.keywordAnalysis?.clusters ?? []).length > 0) return true
+  if ((report.gapKeywords ?? []).length > 0) return true
+  return false
 }
 
 function inferIndustryFromContent(content: string) {

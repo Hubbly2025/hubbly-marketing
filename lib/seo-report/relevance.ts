@@ -13,6 +13,8 @@ export type BusinessContext = {
   buyer_type: BuyerType;
   category_terms: string[];
   brand_terms: string[];
+  brand_token_sequences: string[][];
+  page_tokens: Set<string>;
 };
 
 export type RelevanceResult = {
@@ -49,7 +51,26 @@ const CATEGORY_TERMS_BY_MODEL: Record<BusinessModel, string[]> = {
     "wealth"
   ],
   b2c_high_consideration: ["service", "provider", "consultation", "quote", "reviews"],
-  local_service: ["near me", "local", "licensed", "repair", "installation", "schedule"],
+  local_service: [
+    "near me",
+    "local",
+    "licensed",
+    "repair",
+    "installation",
+    "schedule",
+    "plumber",
+    "plumbing",
+    "hvac",
+    "electrician",
+    "electrical",
+    "drain",
+    "leak",
+    "water heater",
+    "cleaning",
+    "service",
+    "contractor",
+    "emergency"
+  ],
   marketplace: ["marketplace", "providers", "vendors", "buyers", "sellers"],
   investor_vc: ["venture capital", "vc", "startup", "founders", "portfolio", "investment"],
   media_content: ["newsletter", "podcast", "publication", "articles", "subscribe"],
@@ -60,6 +81,36 @@ const AGGREGATOR_OR_DIRECTORY_TERMS = /\b(capterra|g2|getapp|software advice|tru
 const DICTIONARY_OR_DEFINITION_TERMS = /\b(definition|meaning|dictionary|synonym|thesaurus|pronunciation|tolerance)\b/i;
 const BUSINESS_MODIFIER_TERMS = /\b(best|top|companies|company|fees?|cost|costs|pricing|review|reviews|vs|versus|alternative|alternatives|guide|software|platform|services?)\b/i;
 const COMPETITOR_SHARED_KEYWORD_FLOOR = 10;
+const TOKEN_STOPWORDS = new Set([
+  "about",
+  "after",
+  "also",
+  "best",
+  "call",
+  "company",
+  "contact",
+  "cost",
+  "from",
+  "good",
+  "home",
+  "into",
+  "local",
+  "near",
+  "number",
+  "only",
+  "page",
+  "phone",
+  "pricing",
+  "review",
+  "service",
+  "services",
+  "that",
+  "their",
+  "there",
+  "this",
+  "with",
+  "your"
+]);
 const NON_COMPETITOR_DOMAINS = new Set([
   "merriam-webster.com",
   "dictionary.com",
@@ -73,24 +124,38 @@ const NON_COMPETITOR_DOMAINS = new Set([
   "bbb.org"
 ]);
 
-export function buildBusinessContext(domain: string, classification: Classification, pageText: string): BusinessContext {
+export function buildBusinessContext(domain: string, classification: Classification, pageText: string, companyName?: string | null): BusinessContext {
   const category = CATEGORY_TERMS_BY_MODEL[classification.business_model] || [];
   const source = `${classification.rationale || ""} ${pageText || ""}`;
   const sourceTerms = category.filter((term) => phraseMatches(source, term));
   const brand = brandLabelFromDomain(domain);
+  const brandTerms = unique([brand, splitBrand(brand), companyName || ""].filter(Boolean));
 
   return {
     domain,
     business_model: classification.business_model,
     buyer_type: classification.buyer_type,
     category_terms: unique([...sourceTerms, ...category]),
-    brand_terms: unique([brand, splitBrand(brand)].filter(Boolean))
+    brand_terms: brandTerms,
+    brand_token_sequences: brandTerms
+      .map((term) => tokenizeAndClean(term).filter(isSignificantBrandToken))
+      .filter((tokens) => tokens.length > 0),
+    page_tokens: new Set(tokenizeAndClean(source).filter(isSignificantContentToken))
   };
 }
 
 export function classifyKeywordRelevance(keyword: string, context: BusinessContext): RelevanceResult {
   const value = normalize(keyword);
   if (!value) return { decision: "off_domain", reason: "empty_keyword" };
+  const tokens = tokenizeAndClean(value);
+
+  if (hasBrandTokenMatch(tokens, context)) {
+    return { decision: "on_domain", reason: "brand_token_match" };
+  }
+
+  if (hasPageTextTokenMatch(tokens, context)) {
+    return { decision: "on_domain", reason: "page_text_token_match" };
+  }
 
   if (AGGREGATOR_OR_DIRECTORY_TERMS.test(value) && context.business_model !== "marketplace") {
     return { decision: "off_domain", reason: "aggregator_or_directory" };
@@ -119,10 +184,36 @@ export function classifyKeywordRelevance(keyword: string, context: BusinessConte
   return { decision: "off_domain", reason: "no_category_match" };
 }
 
+export function classifyKeywordEvidenceRelevance(keyword: string, context: BusinessContext): RelevanceResult {
+  const value = normalize(keyword);
+  if (!value) return { decision: "off_domain", reason: "empty_keyword" };
+  const tokens = tokenizeAndClean(value);
+
+  if (hasBrandTokenMatch(tokens, context)) {
+    return { decision: "on_domain", reason: "brand_token_match" };
+  }
+
+  if (hasPageTextTokenMatch(tokens, context)) {
+    return { decision: "on_domain", reason: "page_text_token_match" };
+  }
+
+  return { decision: "off_domain", reason: "no_evidence_match" };
+}
+
 export function filterRelevantKeywords<T extends KeywordRow>(keywords: T[], context: BusinessContext): T[] {
   const out: T[] = [];
   for (const row of keywords) {
     const result = classifyKeywordRelevance(row.keyword, context);
+    if (result.decision === "on_domain") out.push(row);
+    else logExclusion(context.domain, row.keyword, result.reason, "keyword");
+  }
+  return out;
+}
+
+export function filterEvidenceRelevantKeywords<T extends KeywordRow>(keywords: T[], context: BusinessContext): T[] {
+  const out: T[] = [];
+  for (const row of keywords) {
+    const result = classifyKeywordEvidenceRelevance(row.keyword, context);
     if (result.decision === "on_domain") out.push(row);
     else logExclusion(context.domain, row.keyword, result.reason, "keyword");
   }
@@ -161,6 +252,19 @@ function isDictionaryOrDefinitionIntent(value: string): boolean {
 
 function hasCategoryMatch(value: string, context: BusinessContext): boolean {
   return context.category_terms.some((term) => phraseMatches(value, term));
+}
+
+function hasBrandTokenMatch(tokens: string[], context: BusinessContext): boolean {
+  if (!tokens.length) return false;
+  const tokenSet = new Set(tokens);
+  return context.brand_token_sequences.some((sequence) => {
+    if (sequence.length === 1) return sequence[0].length >= 4 && tokenSet.has(sequence[0]);
+    return sequence.every((token) => tokenSet.has(token));
+  });
+}
+
+function hasPageTextTokenMatch(tokens: string[], context: BusinessContext): boolean {
+  return tokens.some((token) => isSignificantContentToken(token) && context.page_tokens.has(token));
 }
 
 function hasAnyCategoryToken(value: string, context: BusinessContext): boolean {
@@ -217,8 +321,28 @@ function normalize(value: string): string {
   return normalizeSignalKeyword(value);
 }
 
+export function tokenizeAndClean(value: string): string[] {
+  return value
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 3);
+}
+
 function unique(values: string[]): string[] {
   return [...new Set(values.map(normalize).filter(Boolean))];
+}
+
+function isSignificantBrandToken(token: string): boolean {
+  return token.length > 3 && !TOKEN_STOPWORDS.has(token);
+}
+
+function isSignificantContentToken(token: string): boolean {
+  return token.length > 3 && !TOKEN_STOPWORDS.has(token);
 }
 
 function collapseRepeatedLetters(value: string): string {
