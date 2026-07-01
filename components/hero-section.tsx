@@ -104,17 +104,45 @@ export function HeroSection() {
           ))}
         </div>
 
-        <div className="mt-8 md:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6">
-          <a
-            href="#audit"
-            className="group inline-flex items-center justify-center gap-3 bg-accent px-5 py-3 md:px-6 md:py-4 font-mono text-xs md:text-sm uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200 min-h-[48px]"
+        <form
+          action="/api/audit/form"
+          method="post"
+          onSubmit={(e) => {
+            const input = e.currentTarget.elements.namedItem("url") as HTMLInputElement | null
+            if (input) {
+              const cleaned = input.value.trim()
+              if (cleaned && !/^https?:\/\//i.test(cleaned)) {
+                input.value = `https://${cleaned.replace(/^\/+/, "")}`
+              }
+            }
+          }}
+          className="mt-8 md:mt-12 flex flex-col sm:flex-row items-stretch gap-3 max-w-2xl"
+        >
+          <input
+            name="url"
+            type="text"
+            inputMode="url"
+            placeholder="Drop your website, see what Hubbly finds"
+            required
+            aria-label="Your website URL"
+            className="flex-1 w-full bg-input border border-border px-4 md:px-5 py-3 md:py-4 font-mono text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[48px]"
+          />
+          <button
+            type="submit"
+            className="group inline-flex items-center justify-center gap-3 bg-accent px-5 py-3 md:px-6 md:py-4 font-mono text-xs md:text-sm uppercase tracking-widest text-background hover:bg-accent/90 transition-all duration-200 min-h-[48px] whitespace-nowrap"
           >
-            <ScrambleTextOnHover text="Run free audit" as="span" duration={0.6} />
+            <ScrambleTextOnHover text="See what Hubbly finds" as="span" duration={0.6} />
             <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
-          </a>
+          </button>
+        </form>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 max-w-2xl">
+          <span className="font-mono text-[11px] md:text-xs text-muted-foreground">
+            Free · takes 2 minutes · no credit card
+          </span>
           <a
             href="/pricing"
-            className="font-mono text-xs md:text-sm uppercase tracking-widest text-foreground/70 hover:text-foreground transition-colors duration-200 border border-border/50 px-5 py-3 md:px-6 md:py-4 text-center min-h-[48px] flex items-center justify-center"
+            className="font-mono text-[11px] md:text-xs uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors duration-200"
           >
             See pricing →
           </a>
