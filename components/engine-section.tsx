@@ -15,14 +15,15 @@ const agents = [
   { id: "icp", label: "ICP", sublabel: "Audience", position: { x: 50, y: 5 }, layer: "understand" },
   { id: "strategy", label: "STRATEGY", sublabel: "Plan", position: { x: 70, y: 8 }, layer: "understand" },
   // EXECUTE layer (middle ring)
-  { id: "scout", label: "SCOUT", sublabel: "Find", position: { x: 90, y: 30 }, layer: "execute" },
-  { id: "score", label: "SCORE", sublabel: "Rank", position: { x: 95, y: 50 }, layer: "execute" },
-  { id: "writer", label: "WRITER", sublabel: "Draft", position: { x: 90, y: 70 }, layer: "execute" },
-  { id: "sender", label: "SENDER", sublabel: "Launch", position: { x: 70, y: 88 }, layer: "execute" },
-  { id: "voice", label: "VOICE", sublabel: "Call", position: { x: 50, y: 95 }, layer: "execute" },
-  { id: "booker", label: "BOOKER", sublabel: "Book", position: { x: 30, y: 88 }, layer: "execute" },
+  { id: "discover", label: "DISCOVER", sublabel: "Find", position: { x: 90, y: 26 }, layer: "execute" },
+  { id: "score", label: "SCORE", sublabel: "Rank", position: { x: 96, y: 44 }, layer: "execute" },
+  { id: "write", label: "WRITE", sublabel: "Draft", position: { x: 95, y: 62 }, layer: "execute" },
+  { id: "send", label: "SEND", sublabel: "Launch", position: { x: 84, y: 80 }, layer: "execute" },
+  { id: "call", label: "CALL", sublabel: "Voice", position: { x: 65, y: 92 }, layer: "execute" },
+  { id: "listen", label: "LISTEN", sublabel: "Replies", position: { x: 42, y: 95 }, layer: "execute" },
+  { id: "book", label: "BOOK", sublabel: "Meetings", position: { x: 22, y: 88 }, layer: "execute" },
   // IMPROVE layer (left side)
-  { id: "track", label: "TRACK", sublabel: "Monitor", position: { x: 10, y: 70 }, layer: "improve" },
+  { id: "track", label: "TRACK", sublabel: "Monitor", position: { x: 8, y: 70 }, layer: "improve" },
   { id: "optimize", label: "OPTIMIZE", sublabel: "Learn", position: { x: 5, y: 50 }, layer: "improve" },
   { id: "advisor", label: "ADVISOR", sublabel: "Advise", position: { x: 10, y: 30 }, layer: "improve" },
 ]
@@ -283,7 +284,7 @@ export function EngineSection() {
         <AgentNetwork />
         <div className="mt-6 text-center">
           <span className="font-mono text-xs text-muted-foreground">
-            12 specialized agents. 3 operating layers. 1 shared memory.
+            One shared memory across intelligence, execution, and improvement.
           </span>
         </div>
       </div>

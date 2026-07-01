@@ -42,7 +42,7 @@ export function FooterSection() {
             <li><a href="#how-it-works" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">How Hubbly works</a></li>
             <li><a href="/platform" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Platform</a></li>
             <li><a href="#faq" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">FAQ</a></li>
-            <li><a href="/demo" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Get pricing</a></li>
+            <li><a href="/pricing" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Pricing</a></li>
           </ul>
         </div>
         <div>
@@ -84,10 +84,6 @@ export function FooterSection() {
       <div className="flex flex-wrap items-center gap-6 mb-8 pb-8 border-b border-border/20">
         <div className="flex items-center gap-2">
           <span className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center text-accent text-[10px]">✓</span>
-          <span className="font-mono text-xs text-muted-foreground">SOC 2 Compliant</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center text-accent text-[10px]">✓</span>
           <span className="font-mono text-xs text-muted-foreground">GDPR Ready</span>
         </div>
         <div className="flex items-center gap-2">
@@ -101,7 +97,7 @@ export function FooterSection() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <span className="font-mono text-sm text-muted-foreground">Austin, Texas</span>
           <span className="hidden sm:inline text-muted-foreground/40">|</span>
-          <span className="font-mono text-sm text-muted-foreground">Hubbly is the autonomous growth engine for modern enterprise teams.</span>
+          <span className="font-mono text-sm text-muted-foreground">Hubbly is the autonomous revenue operating system for SMBs and mid-market teams.</span>
         </div>
         <p className="font-mono text-sm text-muted-foreground">
           © 2026 Hubbly. All rights reserved.

@@ -11,7 +11,7 @@ export function OrganizationSchema() {
     url: `${siteUrl}/`,
     logo: `${siteUrl}/logo.png`,
     description:
-      "Hubbly is an autonomous growth engine: 12 specialized AI agents across 3 operating layers, sharing one memory, that turn a website into pipeline via market research, ICP creation, multi-channel outreach, voice, and booking.",
+      "Hubbly is an autonomous revenue operating system for SMBs and mid-market teams. Drop in a website and Hubbly learns the market, ranks content across search and AI engines, finds in-market buyers, runs outreach and voice, and books meetings from one shared memory.",
     foundingDate: "2025",
     sameAs: [
       "https://twitter.com/hubblyio",

@@ -59,17 +59,9 @@ export function SocialProofSection() {
       </div>
 
       <div ref={quoteRef} className="max-w-2xl">
-        <p className="font-mono text-sm md:text-base text-foreground/80 leading-relaxed mb-8">
+        <p className="font-mono text-sm md:text-base text-foreground/80 leading-relaxed">
           Hubbly is designed for operators who want one system to research, execute, and improve across sales, marketing, SEO, and pipeline generation without losing context between tools, teams, or campaigns.
         </p>
-        <blockquote className="border-l-2 border-accent pl-6 md:pl-8">
-          <p className="font-mono text-sm md:text-base text-foreground/90 leading-relaxed italic mb-6">
-            &quot;Hubbly replaced our fragmented GTM stack in week one. We moved from hours of manual campaign operations to a review-and-approve workflow, and qualified meetings followed almost immediately.&quot;
-          </p>
-          <footer className="font-mono text-xs text-muted-foreground">
-            — Founder, Texas-based mortgage brokerage · 14 reps · Name available under NDA
-          </footer>
-        </blockquote>
       </div>
     </section>
   )

@@ -157,11 +157,6 @@ export function HowItWorksSection() {
                     {stage.sub}
                   </span>
                 </div>
-                {/* Approval gate indicator */}
-                <div className="mt-2 flex items-center justify-center gap-1">
-                  <span className="text-green-500 text-[10px]">✓</span>
-                  <span className="font-mono text-[7px] md:text-[8px] text-muted-foreground/60 uppercase tracking-wider">Approval</span>
-                </div>
                 {/* Arrow connector (except last) */}
                 {index < intelligenceStages.length - 1 && (
                   <div className="absolute top-1/2 -right-2 md:-right-3 transform -translate-y-1/2 text-green-500/40 text-xs hidden md:block">→</div>
@@ -278,7 +273,8 @@ export function HowItWorksSection() {
       {/* Closing statement */}
       <div className="mt-10 border-l-2 border-accent pl-6 max-w-2xl">
         <p className="font-mono text-sm text-foreground uppercase tracking-widest">
-          Five approval gates between intelligence and execution. Your team stays in control.
+          Full autopilot by default. Rails always on: snapshot before every change, verify after every publish,
+          auto-rollback on regression. Approval gates are an opt-in toggle.
         </p>
       </div>
     </section>

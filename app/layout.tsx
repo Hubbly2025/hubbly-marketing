@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     template: "%s | Hubbly",
   },
   description:
-    "Drop your website in and Hubbly goes to work — analyzing your business, mapping your market, building campaigns, running outreach, placing calls, and booking meetings. 12 agents. 3 layers. 1 autonomous growth engine.",
+    "Drop your website in. Hubbly does your marketing and sales — one autonomous system that learns your market, ranks your content, finds in-market buyers, runs outreach and calls, and books the meetings.",
   applicationName: "Hubbly",
   keywords: [
     "autonomous growth engine",
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     title: "Hubbly — Autonomous Growth Engine",
     description:
-      "Drop your website in. Hubbly goes to work. 12 agents. 3 layers. 1 autonomous growth engine.",
+      "Drop your website in. Hubbly does your marketing and sales — one autonomous system that ranks your content, finds buyers, runs outreach and calls, and books meetings.",
     images: [
       {
         url: "/og/hubbly-og.png",
@@ -89,7 +89,7 @@ export const metadata: Metadata = {
     site: "@hubblyio",
     creator: "@hubblyio",
     title: "Hubbly — Autonomous Growth Engine",
-    description: "Drop your website in. Hubbly goes to work. 12 agents. 3 layers. 1 autonomous growth engine.",
+    description: "Drop your website in. Hubbly does your marketing and sales — ranks content, finds buyers, runs outreach and calls, and books meetings.",
     images: ["/og/hubbly-og.png"],
   },
 

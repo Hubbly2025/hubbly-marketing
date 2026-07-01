@@ -24,7 +24,7 @@ const cards = [
   },
   {
     title: "Governed, not chaotic",
-    description: "Human approvals sit between intelligence and execution, so your team controls what goes live and how the system behaves.",
+    description: "Safety rails are always on — snapshot, verify, rollback. Approval gates exist when you want them, off when you don't.",
   },
   {
     title: "Built for outcomes, not tool sprawl",
