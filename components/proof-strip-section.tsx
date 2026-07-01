@@ -9,9 +9,8 @@ if (typeof window !== "undefined") {
 }
 
 const stats = [
-  { number: "498M+", label: "Intent-qualified records" },
-  { number: "43K+", label: "Live buyer intent topics" },
-  { number: "12", label: "Specialized agents" },
+  { number: "498M+", label: "Identity records" },
+  { number: "20B+", label: "Intent signals across 40K+ live topics" },
   { number: "3", label: "Operating layers" },
   { number: "Under 15 min", label: "Website to campaign draft" },
   { number: "1", label: "Coordinated growth system" },
@@ -70,7 +69,7 @@ export function ProofStripSection() {
         </p>
       </div>
 
-      <div ref={statsRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-10">
+      <div ref={statsRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 md:gap-10">
         {stats.map((stat, index) => (
           <div key={index} className="text-left">
             <div className="font-[var(--font-bebas)] text-2xl md:text-3xl tracking-tight text-accent mb-2">

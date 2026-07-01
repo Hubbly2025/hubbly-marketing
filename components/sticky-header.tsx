@@ -70,7 +70,7 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
               href="/autopilot"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
-              SEO on Autopilot
+              Rank
             </a>
             <a
               href="/signal"
@@ -79,34 +79,34 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
               Signal
             </a>
             <a
-              href="/voice"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Voice
-            </a>
-            <a
               href="/send"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
               Send
             </a>
             <a
-              href="/architecture"
+              href="/voice"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
-              Architecture
+              Voice
             </a>
             <button
               onClick={() => scrollToSection("how-it-works")}
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
-              How It Works
+              How it works
             </button>
+            <a
+              href="/pricing"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Pricing
+            </a>
             <button
               onClick={() => scrollToSection("audit")}
               className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
             >
-              Run Free Audit
+              Run free audit
             </button>
           </div>
 
@@ -115,7 +115,7 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
             onClick={() => scrollToSection("audit")}
             className="md:hidden inline-flex items-center min-h-[40px] font-mono text-[11px] uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
           >
-            Free Audit
+            Run free audit
           </button>
         </nav>
       </div>

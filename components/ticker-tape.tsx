@@ -1,9 +1,7 @@
 "use client"
 
 const tickerItems = [
-  { text: "RECON ANALYZED rocketmortgage.com IN 87 SECONDS", delay: 0 },
   { text: "ICP MAPPED 2,340 BUYERS IN TEXAS", delay: 0.7 },
-  { text: "COMPETITOR INTEL — 5 PROFILES BUILT FOR ETHOS", delay: 1.4 },
   { text: "GTM STRATEGY APPROVED — TEXAS LIFE INSURANCE", delay: 2.1 },
   { text: "CREATIVE GENERATED 3 ADS · 5 EMAILS · 1 VIDEO", delay: 2.8 },
   { text: "DISCOVER FOUND 847 BUYERS IN FLORIDA", delay: 3.5 },

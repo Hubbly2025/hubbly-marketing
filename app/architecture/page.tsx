@@ -3,7 +3,7 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Hubbly Architecture — The Autonomous Growth Engine",
-  description: "See how Hubbly's 12-agent revenue system uses shared memory, approval gates, and coordinated execution to turn a website into pipeline.",
+  description: "See how Hubbly's multi-agent revenue system uses shared memory, approval gates, and coordinated execution to turn a website into pipeline.",
   alternates: { canonical: "https://hubbly.io/architecture" },
 }
 
@@ -51,7 +51,7 @@ const automatedPoints = [
 const faqs = [
   {
     question: "How does Hubbly's multi-agent system work?",
-    answer: "Hubbly runs through 12 specialized revenue agents organized into 3 operating layers. Those agents share one operating memory, which lets research, targeting, messaging, outreach, voice, booking, and tracking stay coordinated across the full pipeline.",
+    answer: "Hubbly runs through specialized revenue agents organized across intelligence, execution, and optimization. Those agents share one operating memory, which lets research, targeting, messaging, outreach, voice, booking, and tracking stay coordinated across the full pipeline.",
   },
   {
     question: "What is the Shared Memory & Context Layer?",
@@ -63,7 +63,7 @@ const faqs = [
   },
   {
     question: "What agents does Hubbly use?",
-    answer: "Hubbly uses 12 specialized agents organized in 3 layers: Intelligence (Recon, Research, ICP, Strategy, Creative), Execution (Discover, Score, Write, Send, Call, Listen, Book), and Optimization (Track, Optimize, Advisor behaviors within the improvement loop).",
+    answer: "Hubbly organizes its agents across three areas of work: Intelligence (Recon, Research, ICP, Strategy, Creative), Execution (Discover, Score, Write, Send, Call, Listen, Book), and Optimization (Track, Optimize, Advisor behaviors within the improvement loop).",
   },
 ]
 
@@ -84,7 +84,7 @@ const productJsonLd = {
   "@context": "https://schema.org",
   "@type": "Product",
   name: "Hubbly Autonomous Growth Engine",
-  description: "An autonomous growth engine with 12 specialized AI agents, shared memory architecture, and human-in-the-loop oversight.",
+  description: "An autonomous growth engine with specialized AI agents, shared memory architecture, and human-in-the-loop oversight.",
   brand: {
     "@type": "Brand",
     name: "Hubbly",
@@ -135,21 +135,21 @@ export default function ArchitecturePage() {
           </p>
 
           <p className="font-mono text-sm md:text-base text-muted-foreground mb-16 leading-relaxed">
-            Unlike disconnected point tools, Hubbly does not split research, targeting, copy, outreach, calling, and booking across separate products that lose context at every handoff. It runs through 12 specialized agents, organized in 3 operating layers, all sharing one memory so the system stays aligned from first signal to scheduled meeting.
+            Unlike disconnected point tools, Hubbly does not split research, targeting, copy, outreach, calling, and booking across separate products that lose context at every handoff. It runs through specialized agents, organized across intelligence, execution, and optimization, all sharing one memory so the system stays aligned from first signal to scheduled meeting.
           </p>
 
           <div className="h-px w-full bg-border/30 mb-16" />
 
-          {/* Section 1: The 12-Agent System */}
+          {/* Section 1: The Agent System */}
           <section className="mb-20">
             <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-2">
               01 / The Core Mesh
             </span>
             <h2 className="font-[var(--font-bebas)] text-3xl md:text-5xl tracking-tight mb-6">
-              The 12-Agent System
+              The Agent System
             </h2>
             <p className="font-mono text-sm text-muted-foreground mb-12 leading-relaxed max-w-3xl">
-              Hubbly uses 12 specialized revenue agents instead of one general-purpose chatbot. Each agent has a defined role, a bounded job, and access to the same operating context, which keeps execution coordinated without collapsing everything into one opaque model.
+              Hubbly uses specialized revenue agents instead of one general-purpose chatbot. Each agent has a defined role, a bounded job, and access to the same operating context, which keeps execution coordinated without collapsing everything into one opaque model.
             </p>
 
             {/* Intelligence Layer */}

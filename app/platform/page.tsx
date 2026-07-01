@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "The Hubbly Platform — 12 AI Agents, 3 Layers, One Memory",
-  description: "Inside Hubbly: 12 specialized revenue agents organized in 3 layers (Understand, Execute, Improve) sharing one operating memory with zero handoff loss.",
+  title: "The Hubbly Platform — Agents, Shared Memory, One System",
+  description: "Inside Hubbly: specialized revenue agents organized across Understand, Execute, and Improve, sharing one operating memory with zero handoff loss.",
   alternates: { canonical: "https://hubbly.io/platform" },
 }
 
@@ -14,12 +14,13 @@ const understandAgents = [
 ]
 
 const executeAgents = [
-  { name: "Scout", description: "Finds and enriches accounts and leads from 498M+ intent-qualified records" },
+  { name: "Discover", description: "Finds and enriches accounts and leads from 498M+ identity records" },
   { name: "Score", description: "Ranks opportunities by fit, intent, urgency, and conversion potential" },
-  { name: "Writer", description: "Creates emails, ads, landing copy, scripts, and sales messaging" },
-  { name: "Sender", description: "Launches and manages outbound sequences across email" },
-  { name: "Voice", description: "Places AI calls, qualifies prospects, and captures call outcomes" },
-  { name: "Booker", description: "Schedules meetings and routes qualified opportunities" },
+  { name: "Write", description: "Creates emails, ads, landing copy, scripts, and sales messaging" },
+  { name: "Send", description: "Launches and manages outbound sequences across email" },
+  { name: "Call", description: "Places AI calls, qualifies prospects, and captures call outcomes" },
+  { name: "Listen", description: "Classifies inbound replies and routes interest, objections, and outcomes back into the system" },
+  { name: "Book", description: "Schedules meetings and routes qualified opportunities" },
 ]
 
 const improveAgents = [
@@ -46,11 +47,11 @@ export default function PlatformPage() {
         </span>
         
         <h1 className="font-[var(--font-bebas)] text-4xl md:text-6xl lg:text-7xl tracking-tight mb-6">
-          12 AI agents. 3 layers. One shared memory.
+          Specialized agents. One shared memory. One system.
         </h1>
         
         <p className="font-mono text-sm md:text-base text-muted-foreground mb-16 max-w-3xl leading-relaxed">
-          Hubbly is one product organized into three operating layers: Understand, Execute, and Improve. Each layer uses shared memory so the system gets smarter as it works. Human oversight gates every critical decision.
+          Hubbly is one product organized across Understand, Execute, and Improve. Every layer uses shared memory so the system gets smarter as it works, with safety rails always on and approval gates available whenever you want them.
         </p>
 
         {/* Understand Agents */}
