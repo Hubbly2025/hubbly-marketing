@@ -100,7 +100,7 @@ export function FinalCloseSection() {
               onChange={(e) => setUrl(e.target.value)}
               placeholder="Drop your website, see what Hubbly finds"
               required
-              className="w-full bg-input border border-border px-4 md:px-5 py-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[52px]"
+              className="w-full bg-input border border-border px-4 md:px-5 py-4 font-mono text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[52px]"
             />
             <p className="mt-3 text-left font-mono text-[11px] text-muted-foreground">
               We'll analyze your site, your competitors, and your active buyers.
