@@ -12,7 +12,7 @@ export default function AISalesAutomationPage() {
     <LandingPageTemplate
       eyebrow="Use Case"
       title="AI Sales Automation"
-      subtitle="Automate research, outreach, and booking with 12 AI agents organized in 3 layers."
+      subtitle="Automate research, outreach, and booking with specialized agents that share one operating memory."
       description="Hubbly is an Autonomous Revenue OS that combines AI-powered research, ICP building, enrichment, multi-channel outreach, voice calls, and meeting booking in one system. It replaces the fragmented stack of point solutions most teams stitch together."
       problem={{
         heading: "The problem with current sales automation",
