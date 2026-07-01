@@ -106,7 +106,7 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
               onClick={() => scrollToSection("audit")}
               className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
             >
-              Run free audit
+              Free audit
             </button>
           </div>
 
@@ -115,7 +115,7 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
             onClick={() => scrollToSection("audit")}
             className="md:hidden inline-flex items-center min-h-[40px] font-mono text-[11px] uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
           >
-            Run free audit
+            Free audit
           </button>
         </nav>
       </div>
