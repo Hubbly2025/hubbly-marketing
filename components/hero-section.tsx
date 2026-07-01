@@ -107,16 +107,25 @@ export function HeroSection() {
         <form
           action="/api/audit/form"
           method="post"
+          onSubmit={(e) => {
+            const input = e.currentTarget.elements.namedItem("url") as HTMLInputElement | null
+            if (input) {
+              const cleaned = input.value.trim()
+              if (cleaned && !/^https?:\/\//i.test(cleaned)) {
+                input.value = `https://${cleaned.replace(/^\/+/, "")}`
+              }
+            }
+          }}
           className="mt-8 md:mt-12 flex flex-col sm:flex-row items-stretch gap-3 max-w-2xl"
         >
           <input
             name="url"
             type="text"
             inputMode="url"
-            placeholder="yourwebsite.com"
+            placeholder="Drop your website, see what Hubbly finds"
             required
             aria-label="Your website URL"
-            className="flex-1 w-full bg-background border border-border/50 px-4 md:px-5 py-3 md:py-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[48px]"
+            className="flex-1 w-full bg-input border border-border px-4 md:px-5 py-3 md:py-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[48px]"
           />
           <button
             type="submit"

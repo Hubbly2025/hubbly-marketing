@@ -80,6 +80,14 @@ export function FinalCloseSection() {
         <form
           action="/api/audit/form"
           method="post"
+          onSubmit={() => {
+            if (inputRef.current) {
+              const cleaned = inputRef.current.value.trim()
+              if (cleaned && !/^https?:\/\//i.test(cleaned)) {
+                inputRef.current.value = `https://${cleaned.replace(/^\/+/, "")}`
+              }
+            }
+          }}
           className="flex flex-col sm:flex-row items-stretch justify-center gap-3 mb-6 md:mb-10 max-w-2xl mx-auto"
         >
           <div className="relative flex-1 w-full">
@@ -90,9 +98,9 @@ export function FinalCloseSection() {
               inputMode="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="yourcompany.com"
+              placeholder="Drop your website, see what Hubbly finds"
               required
-              className="w-full bg-background border border-border/50 px-4 md:px-5 py-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[52px]"
+              className="w-full bg-input border border-border px-4 md:px-5 py-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[52px]"
             />
             <p className="mt-3 text-left font-mono text-[11px] text-muted-foreground">
               We'll analyze your site, your competitors, and your active buyers.
