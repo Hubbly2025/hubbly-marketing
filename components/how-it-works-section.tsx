@@ -107,13 +107,6 @@ export function HowItWorksSection() {
 
   return (
     <section ref={sectionRef} id="how-it-works" className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30">
-      {/* Pull quote */}
-      <div className="mb-8 border-l-2 border-accent pl-4 md:pl-6 max-w-3xl">
-        <p className="font-mono text-xs md:text-sm text-foreground uppercase tracking-widest">
-          You approve the strategy. Hubbly runs the work.
-        </p>
-      </div>
-
       {/* Header */}
       <div className="how-header mb-12 md:mb-16">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">04 / HOW IT WORKS</span>

@@ -32,7 +32,11 @@ const faqs = [
   },
   {
     question: "Does Hubbly support industry-specific workflows?",
-    answer: "Yes. The core engine stays the same. The language, approvals, workflows, and compliance logic adapt to your market.",
+    answer: "Yes. The core engine stays the same. The language, workflows, and compliance logic adapt to your market.",
+  },
+  {
+    question: "Do I have to approve everything Hubbly does?",
+    answer: "No. Hubbly runs on full autopilot by default with safety rails always on — snapshot before every change, verify after every publish, auto-rollback on regression. If you prefer to review before anything goes live, approval gates are a single toggle.",
   },
   {
     question: "Does Hubbly support international and multilingual workflows?",

@@ -7,9 +7,9 @@ import { AutopilotEngine } from "@/components/autopilot/autopilot-engine"
 import { Reveal } from "@/components/autopilot/reveal"
 
 export const metadata: Metadata = {
-  title: "Hubbly Autopilot — Your SEO team, running itself",
+  title: "Hubbly Rank — SEO + AEO on autopilot",
   description:
-    "Autopilot turns what your buyers search into pages you own — content, technical fixes, schema, and AI-answer placement. Approval-gated, snapshotted, reversible.",
+    "Hubbly Rank publishes verified content for Google and AI engines — ChatGPT, Perplexity, Bing — with snapshot, verify, and rollback rails always on. $498/mo in the Autopilot tier.",
   alternates: { canonical: "https://hubbly.io/autopilot" },
 }
 
@@ -19,18 +19,18 @@ const faqJsonLd = {
   mainEntity: [
     {
       "@type": "Question",
-      name: "What does Hubbly Autopilot do?",
+      name: "What does Hubbly Rank do?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Autopilot turns what your buyers search into pages you own — content, technical SEO fixes, schema, and AI-answer placement. Every task is approval-gated, snapshotted before changes, and reversible in one click.",
+        text: "Rank turns what your buyers search into pages you own — content, technical SEO fixes, schema, and AI-answer placement. It runs on full autopilot with rails always on: snapshot before every change, verify after every publish, and auto-rollback on regression.",
       },
     },
     {
       "@type": "Question",
-      name: "Will anything publish without my approval?",
+      name: "What happens if a change hurts my rankings?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "No. Autopilot is approval-gated by default. You review the work queue and approve what ships. Every change is snapshotted and can be rolled back in one click.",
+        text: "Rank keeps rails on at all times — every change is snapshotted before it ships and verified after it publishes, and anything that regresses is rolled back automatically. Nothing is a one-way door.",
       },
     },
   ],
@@ -63,7 +63,7 @@ const readers = [
 
 const capabilities = [
   { n: "01", title: "Strategy", copy: "A living plan rebuilt from live rankings, buyer demand, and market changes — not a static audit PDF." },
-  { n: "02", title: "Content", copy: "New pages and refreshes drafted from what buyers actually search, queued for your approval." },
+  { n: "02", title: "Content", copy: "New pages and refreshes drafted from what buyers actually search, published with snapshots and reversible in one click." },
   { n: "03", title: "Technical", copy: "Canonicals, internal links, speed, schema, and structural fixes — applied with snapshots, reversible in one click." },
   { n: "04", title: "Visibility", copy: "Optimizations for both Google rankings and AI answer engines, shipped in the same pass." },
   { n: "05", title: "Pipeline", copy: "Every change traced back to the buyers it reached — pipeline relevance first, traffic second." },
@@ -92,10 +92,12 @@ export default function AutopilotPage() {
           <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-28 pb-16 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                SEO on Autopilot · the execution layer
+                Hubbly Rank · SEO + AEO on autopilot
               </Reveal>
               <Reveal delay={120}>
                 <h1 className="mt-6 font-[var(--font-bebas)] text-5xl leading-[0.95] tracking-tight sm:text-7xl lg:text-[92px]">
+                  Hubbly Rank.
+                  <br />
                   Your SEO team,
                   <br />
                   <span className="text-accent">running itself.</span>
@@ -103,8 +105,9 @@ export default function AutopilotPage() {
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-6 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Hubbly helps you rank on Google and show up in AI answers — through content, technical fixes, schema,
-                  and entity clarity — with every change approval-gated, snapshotted, and reversible.
+                  Rank helps you show up on Google and in AI answers — through content, technical fixes, schema, and
+                  entity clarity — with rails always on: snapshot before every change, verify after every publish,
+                  auto-rollback on regression.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -238,8 +241,8 @@ BUILT FOR RANKINGS AND ANSWERS
               </Reveal>
               <Reveal delay={240}>
                 <p className="mt-4 max-w-[600px] font-mono text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Autonomy without discipline is a liability. The engine ships nothing you haven&apos;t approved, and can
-                  undo anything it ships.
+                  Autonomy without discipline is a liability. Rank runs on full autopilot, snapshots before every
+                  change, verifies after every publish, and can undo anything it ships.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -250,11 +253,13 @@ BUILT FOR RANKINGS AND ANSWERS
                   </svg>
                   <div className="flex-1">
                     <b className="font-mono text-sm font-semibold tracking-wide text-foreground">
-                      Approval-gated by default. Snapshot before every change. One-click rollback.
+                      Full autopilot with rails always on: snapshot before every change, verify after every publish,
+                      auto-rollback on regression. Prefer to review first? Approval gates are one toggle.
                     </b>
                     <p className="mt-1 max-w-[560px] font-mono text-[13.5px] leading-relaxed text-muted-foreground">
-                      You review the queue, approve what ships, and the system keeps a full history it can always
-                      reverse. This isn&apos;t a 90-day project — it&apos;s a permanent member of your team.
+                      The system keeps a full history it can always reverse, and you can put an approval gate in front of
+                      any change whenever you want one. This isn&apos;t a 90-day project — it&apos;s a permanent member of
+                      your team.
                     </p>
                   </div>
                 </div>
@@ -338,7 +343,7 @@ BUILT FOR RANKINGS AND ANSWERS
               <Reveal delay={240}>
                 <p className="mx-auto mt-5 max-w-xl font-mono text-xs leading-relaxed text-muted-foreground md:text-sm">
                   Drop your URL. Get the rankings you&apos;re losing, the AI answers you&apos;re missing, and the exact
-                  queue Hubbly would run for you — free, in about 15 seconds.
+                  queue Hubbly would run for you — free, in about 2 minutes.
                 </p>
               </Reveal>
               <Reveal delay={360}>
@@ -367,7 +372,7 @@ BUILT FOR RANKINGS AND ANSWERS
               </Reveal>
               <Reveal delay={360}>
                 <p className="mt-4 font-mono text-[10.5px] tracking-[0.06em] text-muted-foreground/60">
-                  FREE · NO CREDIT CARD · NOTHING PUBLISHES WITHOUT YOUR APPROVAL
+                  FREE · NO CREDIT CARD · RAILS ALWAYS ON — SNAPSHOT · VERIFY · ROLLBACK
                 </p>
               </Reveal>
             </div>

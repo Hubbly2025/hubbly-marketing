@@ -153,7 +153,7 @@ export function AutopilotEngine() {
   return (
     <div className="mt-14 grid grid-cols-1 gap-[18px] lg:grid-cols-2">
       {/* Work queue */}
-      <Panel title="autopilot — work queue" liveLabel="LIVE">
+      <Panel title="rank — work queue" liveLabel="LIVE">
         <div ref={queueRef} className="font-mono text-[12px] leading-[1.95]">
           {QUEUE.map((row, i) => (
             <div
