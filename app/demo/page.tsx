@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { CalEmbed } from "./cal-embed"
 
-const CALENDAR_URL = "https://cal.com/vince-rabiola-llvenn"
+const CALENDAR_URL = "https://cal.com/vince-rabiola-llvenn/hubbly.io-growth-demo"
 
 export const metadata: Metadata = {
   title: "Book your strategy call",
@@ -88,14 +89,8 @@ export default function DemoPage() {
             </p>
           </div>
 
-          <div className="border border-border/50 bg-card/30 p-3 md:p-4">
-            <iframe
-              src={CALENDAR_URL}
-              title="Book a strategy call with Vince"
-              className="h-[760px] w-full bg-white"
-              loading="lazy"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
+          <div className="min-h-[700px] border border-border/50 bg-card/30 p-3 md:p-4">
+            <CalEmbed />
             <div className="border-t border-border/40 px-2 py-4 text-center">
               <a
                 href={CALENDAR_URL}
