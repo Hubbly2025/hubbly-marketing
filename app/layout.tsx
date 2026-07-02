@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     title: "Hubbly — Autonomous Growth Engine",
     description:
-      "Drop your website in. Hubbly does your marketing and sales — one autonomous system that ranks your content, finds buyers, runs outreach and calls, and books meetings.",
+      "Drop your website in. Hubbly does your marketing and sales — one autonomous system that learns your market, ranks your content, finds in-market buyers, runs outreach and calls, and books the meetings.",
     images: [
       {
         url: "/og/hubbly-og.png",
@@ -89,7 +89,7 @@ export const metadata: Metadata = {
     site: "@hubblyio",
     creator: "@hubblyio",
     title: "Hubbly — Autonomous Growth Engine",
-    description: "Drop your website in. Hubbly does your marketing and sales — ranks content, finds buyers, runs outreach and calls, and books meetings.",
+    description: "Drop your website in. Hubbly does your marketing and sales — one autonomous system that learns your market, ranks your content, finds in-market buyers, runs outreach and calls, and books the meetings.",
     images: ["/og/hubbly-og.png"],
   },
 

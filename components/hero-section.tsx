@@ -122,7 +122,7 @@ export function HeroSection() {
             name="url"
             type="text"
             inputMode="url"
-            placeholder="Drop your website, see what Hubbly finds"
+            placeholder="yourwebsite.com"
             required
             aria-label="Your website URL"
             className="flex-1 w-full bg-input border border-border px-4 md:px-5 py-3 md:py-4 font-mono text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[48px]"

@@ -1,5 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { WhyItWinsSection } from "@/components/why-it-wins-section"
+import { VerticalsSection } from "@/components/verticals-section"
+import { AcquireSection } from "@/components/acquire-section"
+import { FAQSection } from "@/components/faq-section"
 
 export const metadata: Metadata = {
   title: "The Hubbly Platform — Agents, Shared Memory, One System",
@@ -150,6 +154,14 @@ export default function PlatformPage() {
             Get Pricing
           </a>
         </div>
+      </div>
+
+      {/* Relocated from the homepage */}
+      <div className="relative z-10">
+        <WhyItWinsSection />
+        <VerticalsSection />
+        <AcquireSection />
+        <FAQSection />
       </div>
     </main>
   )

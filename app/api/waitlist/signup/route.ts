@@ -16,7 +16,7 @@ type WaitlistPayload = {
   audit_data?: Record<string, unknown>
 }
 
-function isValidEmail(value: unknown) {
+function isValidEmail(value: unknown): value is string {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
 }
 

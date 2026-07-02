@@ -34,6 +34,12 @@
   --sidebar-accent-foreground: oklch(0.97 0 0);
   --sidebar-border: oklch(0.28 0 0);
   --sidebar-ring: oklch(0.7 0.2 45);
+
+  /* Product brand colors (from the deck design system) */
+  --signal: #ff6b35;
+  --rank: #4ecdc4;
+  --send: #ffb347;
+  --voice: #a78bfa;
 }
 
 @theme inline {
@@ -55,6 +61,10 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-signal: var(--signal);
+  --color-rank: var(--rank);
+  --color-send: var(--send);
+  --color-voice: var(--voice);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);

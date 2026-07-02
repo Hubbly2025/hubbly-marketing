@@ -8,20 +8,16 @@ import { StickyHeader } from "@/components/sticky-header"
 
 // Below-the-fold sections are code-split into separate client chunks.
 // SSR stays enabled (default) so the marketing copy remains in the HTML for SEO.
-const EngineSection = dynamic(() => import("@/components/engine-section").then((m) => m.EngineSection))
 const HowItWorksSection = dynamic(() =>
   import("@/components/how-it-works-section").then((m) => m.HowItWorksSection),
 )
 const RankSection = dynamic(() => import("@/components/rank-section").then((m) => m.RankSection))
-const WhyItWinsSection = dynamic(() => import("@/components/why-it-wins-section").then((m) => m.WhyItWinsSection))
 const StackReplacementSection = dynamic(() =>
   import("@/components/stack-replacement-section").then((m) => m.StackReplacementSection),
 )
-const AcquireSection = dynamic(() => import("@/components/acquire-section").then((m) => m.AcquireSection))
-const VerticalsSection = dynamic(() => import("@/components/verticals-section").then((m) => m.VerticalsSection))
-const UseCasesSection = dynamic(() => import("@/components/use-cases-section").then((m) => m.UseCasesSection))
-const SocialProofSection = dynamic(() => import("@/components/social-proof-section").then((m) => m.SocialProofSection))
-const FAQSection = dynamic(() => import("@/components/faq-section").then((m) => m.FAQSection))
+const PricingTeaserSection = dynamic(() =>
+  import("@/components/pricing-teaser-section").then((m) => m.PricingTeaserSection),
+)
 const FinalCloseSection = dynamic(() => import("@/components/final-close-section").then((m) => m.FinalCloseSection))
 const FooterSection = dynamic(() => import("@/components/footer-section").then((m) => m.FooterSection))
 
@@ -44,16 +40,10 @@ export default function Page() {
           <TickerTape />
           <HeroSection />
           <ProofStripSection />
-          <EngineSection />
           <HowItWorksSection />
           <RankSection />
-          <WhyItWinsSection />
           <StackReplacementSection />
-          <AcquireSection />
-          <VerticalsSection />
-          <UseCasesSection />
-          <SocialProofSection />
-          <FAQSection />
+          <PricingTeaserSection />
           <FinalCloseSection />
           <FooterSection />
         </div>
