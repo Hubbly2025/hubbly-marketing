@@ -189,8 +189,9 @@ export function HowItWorksSection() {
                   style={
                     on
                       ? {
-                          borderColor: isActive ? c : `color-mix(in srgb, ${c} 30%, transparent)`,
-                          backgroundColor: `color-mix(in srgb, ${c} ${isActive ? "10%" : "5%"}, transparent)`,
+                          borderColor: isActive ? c : `color-mix(in srgb, ${c} 60%, transparent)`,
+                          backgroundColor: `color-mix(in srgb, ${c} ${isActive ? "26%" : "16%"}, transparent)`,
+                          boxShadow: isActive ? `0 0 20px color-mix(in srgb, ${c} 45%, transparent)` : undefined,
                         }
                       : undefined
                   }
