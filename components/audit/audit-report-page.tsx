@@ -2,22 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react"
 import type { Audit } from "./types"
+import { formatDate, formatNumber, getDomain } from "./audit-utils"
 import {
-  A16Z_CORRECTED_EMAIL,
-  formatDate,
-  formatNumber,
-  getDomain,
-  isAndreessenHorowitzReport,
-  replacePlanEmailPov,
-} from "./audit-utils"
-import {
-  ChecklistItem,
-  CorrectionNote,
   FailedState,
   HubblyLogo,
   MetricCard,
   PersonaCard,
-  PlanColumn,
   ProcessingState,
   ReportSection,
   SnapshotRow,
@@ -25,12 +15,13 @@ import {
 import { SeoSection } from "./seo-section"
 import type { SeoReport } from "@/lib/seo-report/types"
 
-// Primary CTA is the same everywhere — hero, pixel install, closer — so a
-// buyer sees one action, not competing offers. Onboarding starts at /demo
-// (the only live entry point today); the CTA copy frames it as step 1 of
-// installing the Hubbly pixel, not a rival "book a demo" offer.
-const CTA_LABEL = "Start free — install the Hubbly pixel"
-const CTA_HREF = "/demo"
+// Single CTA everywhere — the report is a sales letter with one action.
+// /start is the live self-serve trial form (posts to the existing waitlist
+// API). TODO(stripe): swap CTA_HREF to the Stripe Checkout link once the
+// Autopilot product + price exist in Stripe; the /start form stays as the
+// no-Stripe fallback.
+const CTA_LABEL = "Start my 14-day trial"
+const CTA_HREF = "/start"
 
 // Provenance chip used on every rendered number so the report reads as
 // measured/estimated/modeled/recommendation, never marketing.
@@ -68,18 +59,19 @@ function buildMeasuredIntentTerms(seo: SeoReport | undefined): string[] {
   return quoted.slice(0, 5)
 }
 
-// Section 3 competitor fields are all optional strings — never render the
-// literal "Weakness unavailable" placeholder to a customer; em-dash reads as
-// "not stated" without pretending we ran a check that came up empty.
+// Competitor fields are all optional strings — never render the literal
+// "Weakness unavailable" placeholder to a customer; em-dash reads as "not
+// stated" without pretending we ran a check that came up empty.
 function fieldOrDash(value: string | undefined): string {
   return value && value.trim() ? value : "—"
 }
 
-// Above-the-fold verdict. Three measured/modeled numbers under one headline
-// and a single CTA — the reader can decide from here without scrolling. Each
-// tile carries a provenance chip so we never confuse measured with modeled.
-// Slot 2 auto-upgrades from searches/mo to revenue-at-risk $ when the field
-// ships; Slot 3 shows "not yet measured" until the AI citation count lands.
+// Above-the-fold verdict. Three measured/modeled numbers under one headline.
+// Deliberately NO CTA here — the sales arc doesn't ask for the order before
+// the pain is agitated; the only action above the fold is the scroll cue into
+// the diagnosis. Slot 2 auto-upgrades from searches/mo to revenue-at-risk $
+// when the field ships; Slot 3 shows "not yet measured" until the AI citation
+// count lands.
 function VerdictHero({
   companyName,
   monthly,
@@ -168,18 +160,280 @@ function VerdictHero({
         </div>
       </div>
 
-      <div className="mt-8 flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="mt-8">
+        <a
+          href="#diagnosis"
+          onClick={(event) => {
+            event.preventDefault()
+            document.getElementById("diagnosis")?.scrollIntoView({ behavior: "smooth" })
+          }}
+          className="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35] transition-opacity duration-200 hover:opacity-80"
+        >
+          See exactly where it's going — and what it costs you ↓
+        </a>
+      </div>
+    </section>
+  )
+}
+
+// C5 value bridge — the treatment chain. Every step is a mechanism claim
+// (what Autopilot DOES), never a revenue/ranking/timeline promise. When gap
+// keywords exist, the chain names them and the top competitor so the reader
+// sees their own report threaded through the vehicle; otherwise it degrades
+// to honest category-level copy — never invented keywords, never skipped.
+function buildBridgeSteps({
+  gapKeywords,
+  topGapCompetitor,
+  industry,
+  companyName,
+}: {
+  gapKeywords: string[]
+  topGapCompetitor: string
+  industry?: string
+  companyName: string
+}): Array<{ step: string; copy: string }> {
+  const kw1 = gapKeywords[0]
+  const kw2 = gapKeywords[1]
+  const targetCopy = kw1
+    ? `Starts with the measured gaps above — "${kw1}"${kw2 ? `, "${kw2}"` : ""}${
+        topGapCompetitor ? ` and the rest of the list ${topGapCompetitor} captures today` : ""
+      } — highest measured volume first. No guessed topics.`
+    : `No measured gap keywords in this sample, so it starts at the category level: the core commercial pages ${
+        industry || "this market"
+      } buyers actually search for — measured before anything is written.`
+  return [
+    { step: "Target", copy: targetCopy },
+    {
+      step: "Write",
+      copy: `Drafts each page server-rendered and fact-checks every claim against ${companyName}'s own site. A claim that can't be verified doesn't ship.`,
+    },
+    {
+      step: "Publish",
+      copy: "Ships through approval-gated publish rails to your CMS, on your domain. You see every page before it goes live, and you keep them all.",
+    },
+    {
+      step: "Verify",
+      copy: "Re-reads the live page after publishing — permalink, canonical, schema. Anything off and it fails loudly and stops. No silent half-publishes.",
+    },
+    {
+      step: "Measure",
+      copy: "Tracks every published page with the same measurement engine that built this report — rank data today, AI-engine citations as that sampling ships.",
+    },
+    {
+      step: "Compound",
+      copy: "Runs the loop weekly. Each cycle re-measures the gap list and targets what's still open — the same compounding motion your competitors currently point at you.",
+    },
+  ]
+}
+
+function ValueBridge({
+  eyebrow,
+  companyName,
+  gapKeywords,
+  topGapCompetitor,
+  industry,
+}: {
+  eyebrow: string
+  companyName: string
+  gapKeywords: string[]
+  topGapCompetitor: string
+  industry?: string
+}) {
+  const steps = buildBridgeSteps({ gapKeywords, topGapCompetitor, industry, companyName })
+  return (
+    <ReportSection eyebrow={eyebrow} title="The treatment">
+      <p className="max-w-3xl text-xl leading-9 text-white md:text-2xl">
+        Everything above is the diagnosis. Here's the treatment — specifically for {companyName}.
+      </p>
+
+      <div className="mt-8 divide-y divide-white/10 border border-white/10 bg-white/[0.02]">
+        {steps.map((item, index) => (
+          <div
+            key={item.step}
+            className="grid gap-3 p-5 md:grid-cols-[180px_1fr] md:gap-6 md:p-6"
+          >
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
+                Step {index + 1}
+              </p>
+              <p className="mt-1 font-[var(--font-bebas)] text-3xl leading-none text-[#FF6B35]">
+                {item.step}
+              </p>
+            </div>
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
+                What Autopilot does
+              </p>
+              <p className="mt-2 text-sm leading-7 text-white/78">{item.copy}</p>
+              <div className="mt-3">
+                <ProvenanceChip kind="recommendation" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 border border-[#FF6B35]/40 bg-[#FF6B35]/[0.04] p-5 md:p-6">
+        <p className="font-mono text-sm leading-7 text-white">
+          This entire report was measured live by the same engine, in about two minutes, from
+          nothing but a URL. That was the demo.
+        </p>
+        <div className="mt-3">
+          <ProvenanceChip kind="measured" />
+        </div>
+      </div>
+    </ReportSection>
+  )
+}
+
+// C6 offer stack + close. Anchor pricing is a market-price comparison, not a
+// discount gimmick — real agency/DIY numbers a buyer can verify. One CTA.
+const OFFER_STACK: Array<{ name: string; detail: string }> = [
+  {
+    name: "Rank SEO agent",
+    detail: "Plans, writes, and publishes measured pages against your gap keywords, weekly.",
+  },
+  {
+    name: "Honesty gate",
+    detail:
+      "Every claim fact-checked against your own site before publishing. Pages that fail don't ship.",
+  },
+  {
+    name: "Publish rails",
+    detail: "Approval-gated publishing straight to your CMS. Your domain, your pages, your control.",
+  },
+  {
+    name: "AI citation tracking",
+    detail: "Measures when AI answer engines cite your domain — the layer search is moving to.",
+  },
+  {
+    name: "Search intent engine",
+    detail: "The measurement layer that built this report, running continuously on your market.",
+  },
+  {
+    name: "Hubbly pixel — included",
+    detail: "Identifies anonymous visitors on your site. Installs during onboarding, after you start.",
+  },
+]
+
+function OfferClose({ companyName }: { companyName: string }) {
+  return (
+    <section id="offer" className="scroll-mt-8 border border-[#FF6B35]/70 bg-[#FF6B35]/[0.06] p-6 md:p-12">
+      <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#FF6B35]">The offer</p>
+      <h2 className="mt-5 max-w-4xl font-[var(--font-bebas)] text-5xl leading-none tracking-tight md:text-7xl">
+        Everything Autopilot runs for {companyName}
+      </h2>
+
+      <div className="mt-8 divide-y divide-white/10 border border-white/10 bg-[#0A0A0A]/60">
+        {OFFER_STACK.map((row) => (
+          <div key={row.name} className="grid gap-2 p-5 md:grid-cols-[260px_1fr] md:gap-6">
+            <p className="font-mono text-sm text-white">{row.name}</p>
+            <p className="text-sm leading-7 text-white/70">{row.detail}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <div className="border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
+            Market-price comparison
+          </p>
+          <p className="mt-3 text-sm leading-7 text-white/78">
+            An agency running this motion: <span className="text-white">$3,000–5,000/mo</span>,
+            usually on a 6-month contract.
+          </p>
+          <p className="mt-2 text-sm leading-7 text-white/78">
+            DIY: <span className="text-white">~$999/mo</span> across a rank tracker, content tools,
+            and plugins — plus your hours every week.
+          </p>
+        </div>
+        <div className="border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between">
+            <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
+              Autopilot · $498/mo
+            </p>
+          </div>
+          <p className="mt-3 font-mono text-xs leading-6 text-white/65">
+            No demo call. No 6-month contract. The price is the price.
+          </p>
+          <p className="mt-2 font-mono text-xs leading-6 text-white/65">
+            14-day trial · cancel anytime · you keep every page it publishes.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-8 flex flex-col items-center gap-3 text-center">
         <a
           href={CTA_HREF}
-          className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
+          className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
         >
           {CTA_LABEL} →
         </a>
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/50">
-          No demo call required · 14-day trial · Cancel anytime
+          Signup takes 30 seconds. No call with anyone.
         </p>
       </div>
     </section>
+  )
+}
+
+// Sticky close bar — appears only AFTER the reader has scrolled past the
+// offer once (never spoils the price before the anchor comparison lands),
+// hides while the offer itself is on screen, and stays dismissed for the tab
+// session (sessionStorage, deliberately not localStorage). No countdowns, no
+// fake scarcity — just the measured number and the price.
+function StickyOfferBar({ gapVolumeMonthly }: { gapVolumeMonthly: number }) {
+  const [seenOffer, setSeenOffer] = useState(false)
+  const [offerInView, setOfferInView] = useState(false)
+  const [dismissed, setDismissed] = useState(true)
+
+  useEffect(() => {
+    setDismissed(window.sessionStorage.getItem("hubbly-offer-bar-dismissed") === "1")
+    const offer = document.getElementById("offer")
+    if (!offer) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          setOfferInView(entry.isIntersecting)
+          if (entry.isIntersecting) setSeenOffer(true)
+        }
+      },
+      { threshold: 0.1 },
+    )
+    observer.observe(offer)
+    return () => observer.disconnect()
+  }, [])
+
+  if (dismissed || !seenOffer || offerInView) return null
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-[#FF6B35]/50 bg-[#0A0A0A]/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-5 py-3 md:flex-row md:justify-between md:px-10">
+        <p className="font-mono text-xs text-white/80">
+          {gapVolumeMonthly > 0
+            ? `~${gapVolumeMonthly.toLocaleString()}/mo searches are going to competitors · Autopilot $498/mo`
+            : "Autopilot · $498/mo · 14-day trial · cancel anytime"}
+        </p>
+        <div className="flex items-center gap-4">
+          <a
+            href={CTA_HREF}
+            className="inline-flex min-h-10 items-center justify-center bg-[#FF6B35] px-5 font-mono text-[11px] uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
+          >
+            {CTA_LABEL} →
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              window.sessionStorage.setItem("hubbly-offer-bar-dismissed", "1")
+              setDismissed(true)
+            }}
+            className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45 transition-colors hover:text-white/70"
+          >
+            Dismiss
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -243,15 +497,13 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const monthly = intent.monthly ?? 0
   const weekly = intent.weekly ?? 0
   const highIntent = intent.highIntent ?? intent.high_intent ?? 0
-  const isA16zReport = isAndreessenHorowitzReport(audit, companyName, domain)
-  const sampleEmail = isA16zReport ? A16Z_CORRECTED_EMAIL : audit.sample_email ?? analysis.sample_email ?? {}
-  const displayedGtmPlan = isA16zReport ? replacePlanEmailPov(audit.gtm_plan) : audit.gtm_plan
   const generatedDate = formatDate(audit.completed_at || audit.created_at)
 
   const seo = analysis.seo_report
   const gapVolumeMonthly = seo?.gapVolumeTotal ?? 0
   const topGapCompetitor =
     seo?.competitorGap?.[0]?.domain ?? seo?.gapKeywords?.[0]?.competitorDomain ?? ""
+  const gapKeywordList = (seo?.gapKeywords ?? []).map((g) => g.keyword).filter(Boolean)
   const measuredIntentTerms = buildMeasuredIntentTerms(seo)
   // Feature-detect on fields that ship in a later payload change; render slot
   // stays in place today with an honest fallback so the hero shape is stable.
@@ -262,6 +514,16 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const detectedTechStack = observed.detected_tech_stack?.length
     ? observed.detected_tech_stack.join(", ")
     : undefined
+
+  // Sales-letter section order: pain (SEO gaps) → agitate (live demand,
+  // competitors) → diagnosis depth (what the engine read, who buys) →
+  // pipeline math → value bridge → offer. Numbering is computed so it stays
+  // monotonic even when the SEO section is absent for older audits.
+  let sectionNumber = 0
+  const nextEyebrow = () => {
+    sectionNumber += 1
+    return `Section ${sectionNumber}`
+  }
 
   return (
     <main className="min-h-screen bg-[#0A0A0A] text-white">
@@ -295,58 +557,12 @@ function CompleteReport({ audit }: { audit: Audit }) {
           industry={analysis.industry}
         />
 
-        <div className="mt-14 space-y-14 md:mt-20 md:space-y-20">
-          <ReportSection eyebrow="Section 1" title="What Hubbly found">
-            <div className="grid gap-4 md:grid-cols-2">
-              <SnapshotRow label="Product/service" value={analysis.product} />
-              <SnapshotRow label="Industry" value={analysis.industry} />
-              <SnapshotRow label="Target market" value={analysis.icp?.primary?.title} />
-              <SnapshotRow label="Current positioning" value={analysis.outreach_angle} />
-              <SnapshotRow label="Primary CTA" value={fieldOrDash(observed.primary_cta_text)} />
-              <SnapshotRow label="Tech stack" value={fieldOrDash(detectedTechStack)} />
-            </div>
-          </ReportSection>
+        <div id="diagnosis" className="mt-14 scroll-mt-8 space-y-14 md:mt-20 md:space-y-20">
+          {seo ? (
+            <SeoSection seo={seo} companyName={companyName} eyebrow={nextEyebrow()} />
+          ) : null}
 
-          <ReportSection eyebrow="Section 2" title="Who actually buys this">
-            <div className="grid gap-5 lg:grid-cols-3">
-              <PersonaCard label="Primary" persona={analysis.icp?.primary} />
-              <PersonaCard label="Secondary" persona={analysis.icp?.secondary} />
-              <PersonaCard label="Emerging" persona={analysis.icp?.emerging} />
-            </div>
-            <p className="mt-6 border-l border-[#FF6B35] pl-4 font-mono text-sm text-white/70">
-              These are the people Hubbly OS would find, contact, and book meetings with automatically.
-            </p>
-          </ReportSection>
-
-          <ReportSection eyebrow="Section 3" title="Who you're up against">
-            <div className="overflow-x-auto border border-white/10">
-              <table className="w-full min-w-[820px] border-collapse text-left">
-                <thead className="bg-white/[0.03] font-mono text-[10px] uppercase tracking-[0.22em] text-[#FF6B35]">
-                  <tr>
-                    <th className="border-b border-white/10 p-4">Competitor</th>
-                    <th className="border-b border-white/10 p-4">Their angle</th>
-                    <th className="border-b border-white/10 p-4">Their weakness</th>
-                    <th className="border-b border-white/10 p-4">Your opening</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {competitors.slice(0, 5).map((competitor, index) => (
-                    <tr key={`${competitor.name}-${index}`} className="border-b border-white/10 last:border-b-0">
-                      <td className="p-4 font-mono text-sm text-white">{competitor.name || "Competitor"}</td>
-                      <td className="p-4 text-sm text-white/70">{fieldOrDash(competitor.their_angle)}</td>
-                      <td className="p-4 text-sm text-white/70">{fieldOrDash(competitor.their_weakness)}</td>
-                      <td className="p-4 text-sm text-white/70">{fieldOrDash(competitor.your_opening)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-5 font-mono text-xs text-white/55">
-              Hubbly identifies prospects actively researching competitor alternatives and contacts them first.
-            </p>
-          </ReportSection>
-
-          <ReportSection eyebrow="Section 4" title="People searching for you right now">
+          <ReportSection eyebrow={nextEyebrow()} title="People searching for you right now">
             <div className="border border-[#FF6B35]/60 bg-[#FF6B35]/[0.04] p-6 md:p-10">
               <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/65">In the last 30 days</p>
               <div className="mt-4 font-[var(--font-bebas)] text-7xl leading-none text-[#FF6B35] md:text-9xl">
@@ -411,11 +627,63 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </div>
 
             <p className="mt-8 font-[var(--font-bebas)] text-4xl leading-none text-[#FF6B35] md:text-6xl">
-              These people are searching right now. Your competitors are already contacting some of them.
+              These people are searching right now. Your competitors are already capturing some of them.
             </p>
           </ReportSection>
 
-          <ReportSection eyebrow="Section 4A" title="Your invisible pipeline">
+          <ReportSection eyebrow={nextEyebrow()} title="Who you're up against">
+            <div className="overflow-x-auto border border-white/10">
+              <table className="w-full min-w-[820px] border-collapse text-left">
+                <thead className="bg-white/[0.03] font-mono text-[10px] uppercase tracking-[0.22em] text-[#FF6B35]">
+                  <tr>
+                    <th className="border-b border-white/10 p-4">Competitor</th>
+                    <th className="border-b border-white/10 p-4">Their angle</th>
+                    <th className="border-b border-white/10 p-4">Their weakness</th>
+                    <th className="border-b border-white/10 p-4">Your opening</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {competitors.slice(0, 5).map((competitor, index) => (
+                    <tr key={`${competitor.name}-${index}`} className="border-b border-white/10 last:border-b-0">
+                      <td className="p-4 font-mono text-sm text-white">{competitor.name || "Competitor"}</td>
+                      <td className="p-4 text-sm text-white/70">{fieldOrDash(competitor.their_angle)}</td>
+                      <td className="p-4 text-sm text-white/70">{fieldOrDash(competitor.their_weakness)}</td>
+                      <td className="p-4 text-sm text-white/70">{fieldOrDash(competitor.your_opening)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-5 font-mono text-xs text-white/55">
+              {gapKeywordList.length > 0
+                ? "Every gap keyword above is a page one of these competitors owns today."
+                : "These are the names competing for the same buyers in the same searches."}
+            </p>
+          </ReportSection>
+
+          <ReportSection eyebrow={nextEyebrow()} title="What Hubbly found">
+            <div className="grid gap-4 md:grid-cols-2">
+              <SnapshotRow label="Product/service" value={analysis.product} />
+              <SnapshotRow label="Industry" value={analysis.industry} />
+              <SnapshotRow label="Target market" value={analysis.icp?.primary?.title} />
+              <SnapshotRow label="Current positioning" value={analysis.outreach_angle} />
+              <SnapshotRow label="Primary CTA" value={fieldOrDash(observed.primary_cta_text)} />
+              <SnapshotRow label="Tech stack" value={fieldOrDash(detectedTechStack)} />
+            </div>
+          </ReportSection>
+
+          <ReportSection eyebrow={nextEyebrow()} title="Who actually buys this">
+            <div className="grid gap-5 lg:grid-cols-3">
+              <PersonaCard label="Primary" persona={analysis.icp?.primary} />
+              <PersonaCard label="Secondary" persona={analysis.icp?.secondary} />
+              <PersonaCard label="Emerging" persona={analysis.icp?.emerging} />
+            </div>
+            <p className="mt-6 border-l border-[#FF6B35] pl-4 font-mono text-sm text-white/70">
+              These are the buyers every measured page Autopilot publishes is written for.
+            </p>
+          </ReportSection>
+
+          <ReportSection eyebrow={nextEyebrow()} title="Your invisible pipeline">
             <div className="grid gap-8 border border-white/10 bg-white/[0.03] p-6 md:p-10 lg:grid-cols-[1fr_0.8fr]">
               <div className="space-y-5 text-lg leading-8 text-white/78">
                 <p>Most companies convert 1-3% of their website visitors.</p>
@@ -437,119 +705,29 @@ function CompleteReport({ audit }: { audit: Audit }) {
                 <p className="mt-3 text-sm text-white/65">
                   identifiable visitors per month for companies in {analysis.industry || "this industry"}.
                 </p>
-                <a
-                  href={CTA_HREF}
-                  className="mt-6 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-5 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
-                >
-                  {CTA_LABEL} →
-                </a>
-              </div>
-            </div>
-          </ReportSection>
-
-          {analysis.seo_report ? (
-            <SeoSection seo={analysis.seo_report} companyName={companyName} />
-          ) : null}
-
-          <ReportSection eyebrow="Section 5" title="What's missing from your motion">
-            <div className="grid gap-3 md:grid-cols-2">
-              {["Website presence", "Product positioning"].map((item) => (
-                <ChecklistItem key={item} complete label={item} />
-              ))}
-              {(analysis.gtm_gaps ?? []).slice(0, 6).map((gap) => (
-                <ChecklistItem key={gap} label={gap} />
-              ))}
-            </div>
-            <p className="mt-6 font-mono text-sm text-white/65">
-              Hubbly OS fills every gap on this list automatically.
-            </p>
-          </ReportSection>
-
-          <ReportSection eyebrow="Section 6" title="Your 30-day execution plan">
-            {isA16zReport && (
-              <CorrectionNote>
-                [NOTE: Section 6 email sample rewritten to use a16z → founder POV.]
-              </CorrectionNote>
-            )}
-            <div className="grid gap-5 lg:grid-cols-3">
-              <PlanColumn title="Week 1 — Foundation" items={displayedGtmPlan?.week_1} />
-              <PlanColumn title="Week 2-3 — Outreach" items={displayedGtmPlan?.week_2_3} />
-              <PlanColumn title="Week 4 — Optimize" items={displayedGtmPlan?.week_4} />
-            </div>
-            {isA16zReport && (
-              <div className="mt-5 border border-[#FF6B35]/30 bg-[#FF6B35]/[0.05] p-5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF6B35]">
-                  Corrected outbound sample
-                </p>
-                <p className="mt-3 text-sm leading-7 text-white/76">{A16Z_CORRECTED_EMAIL.body}</p>
-              </div>
-            )}
-          </ReportSection>
-
-          <ReportSection eyebrow="Section 7" title="What Hubbly would send on your behalf">
-            {isA16zReport && (
-              <CorrectionNote>
-                [NOTE: Section 7 email rewritten from founder → a16z POV to a16z → founder POV.]
-              </CorrectionNote>
-            )}
-            <div className="mx-auto max-w-3xl bg-white p-6 text-[#0A0A0A] shadow-2xl md:p-8">
-              <div className="grid gap-2 border-b border-black/10 pb-4 font-mono text-xs">
-                <p>
-                  <span className="text-black/45">From:</span>{" "}
-                  {isA16zReport ? "American Dynamism at Andreessen Horowitz (via Hubbly OS)" : "Hubbly OS"}
-                </p>
-                <p><span className="text-black/45">To:</span> {analysis.icp?.primary?.title || "Primary buyer"}</p>
-                <p><span className="text-black/45">Subject:</span> {sampleEmail.subject || "Quick question"}</p>
-              </div>
-              <div className="mt-6 whitespace-pre-line text-sm leading-7 text-black/80">
-                {sampleEmail.body || "Sample email unavailable."}
-              </div>
-            </div>
-            <p className="mt-5 text-center font-mono text-xs text-white/55">
-              Hubbly OS generates and sends emails like this automatically — personalized for every lead, at scale.
-            </p>
-          </ReportSection>
-
-          <section className="border border-[#FF6B35]/70 bg-[#FF6B35]/[0.06] p-6 text-center md:p-12">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#FF6B35]">
-              Start your pipeline
-            </p>
-            <h2 className="mt-5 font-[var(--font-bebas)] text-5xl leading-none tracking-tight md:text-8xl">
-              {formatNumber(monthly)} buyers are searching right now. Ready to reach them?
-            </h2>
-            <div className="mt-8 grid gap-3 md:grid-cols-3">
-              {["First pipeline in 10 minutes", "First meeting within 72 hours", "No sales team required"].map((value) => (
-                <div key={value} className="border border-white/10 bg-[#0A0A0A]/50 p-4 font-mono text-xs text-white/75">
-                  {value}
+                <div className="mt-3">
+                  <ProvenanceChip kind="estimated" />
                 </div>
-              ))}
-            </div>
-
-            <div className="mt-8 border border-white/10 bg-[#0A0A0A]/60 p-5 text-left md:p-6">
-              <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between">
-                <p className="font-[var(--font-bebas)] text-3xl leading-none text-white md:text-4xl">
-                  Autopilot · $498/mo
-                </p>
-                <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/60">
-                  14-day trial · Cancel anytime
+                <p className="mt-6 border-t border-white/10 pt-4 font-mono text-xs leading-6 text-white/70">
+                  The pixel is included with Autopilot — it installs during onboarding, after you start.
                 </p>
               </div>
-              <p className="mt-3 font-mono text-xs text-white/65">
-                No demo call. No 6-month contract. The price is the price.
-              </p>
             </div>
+          </ReportSection>
 
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <a
-                href={CTA_HREF}
-                className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
-              >
-                {CTA_LABEL} →
-              </a>
-            </div>
-          </section>
+          <ValueBridge
+            eyebrow={nextEyebrow()}
+            companyName={companyName}
+            gapKeywords={gapKeywordList}
+            topGapCompetitor={topGapCompetitor}
+            industry={analysis.industry}
+          />
+
+          <OfferClose companyName={companyName} />
         </div>
       </div>
+
+      <StickyOfferBar gapVolumeMonthly={gapVolumeMonthly} />
     </main>
   )
 }

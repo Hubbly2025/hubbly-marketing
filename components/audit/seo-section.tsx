@@ -4,9 +4,12 @@ import { ReportSection } from "./report-parts"
 type SeoSectionProps = {
   seo: SeoReport
   companyName: string
+  // Sales-letter restructure moved this section to the top of the report, so
+  // the parent owns the numbering; default preserves the legacy position.
+  eyebrow?: string
 }
 
-export function SeoSection({ seo, companyName }: SeoSectionProps) {
+export function SeoSection({ seo, companyName, eyebrow = "Section 4B" }: SeoSectionProps) {
   const scorecard = seo.scorecard
   const apiStatus = seo.externalApiStatus
 
@@ -15,7 +18,7 @@ export function SeoSection({ seo, companyName }: SeoSectionProps) {
   // the run skipped the call entirely.
   if (apiStatus === "auth_failed" || apiStatus === "unavailable") {
     return (
-      <ReportSection eyebrow="Section 4B" title="Your SEO opportunity">
+      <ReportSection eyebrow={eyebrow} title="Your SEO opportunity">
         <div className="border border-white/10 bg-white/[0.03] p-6 md:p-10">
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/65">
             Measured SEO data unavailable in this run
