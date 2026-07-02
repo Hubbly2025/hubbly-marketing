@@ -76,46 +76,46 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
           </button>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-8">
+          <div className="hidden md:flex items-center gap-5 lg:gap-7">
             <a
               href="/autopilot"
-              className="font-mono text-xs uppercase tracking-widest text-rank hover:opacity-80 transition-opacity"
+              className="font-mono text-sm font-semibold uppercase tracking-wider text-rank hover:opacity-80 transition-opacity"
             >
               Rank
             </a>
             <a
               href="/signal"
-              className="font-mono text-xs uppercase tracking-widest text-signal hover:opacity-80 transition-opacity"
+              className="font-mono text-sm font-semibold uppercase tracking-wider text-signal hover:opacity-80 transition-opacity"
             >
               Signal
             </a>
             <a
               href="/send"
-              className="font-mono text-xs uppercase tracking-widest text-send hover:opacity-80 transition-opacity"
+              className="font-mono text-sm font-semibold uppercase tracking-wider text-send hover:opacity-80 transition-opacity"
             >
               Send
             </a>
             <a
               href="/voice"
-              className="font-mono text-xs uppercase tracking-widest text-voice hover:opacity-80 transition-opacity"
+              className="font-mono text-sm font-semibold uppercase tracking-wider text-voice hover:opacity-80 transition-opacity"
             >
               Voice
             </a>
             <button
               onClick={() => scrollToSection("how-it-works")}
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
             >
               How it works
             </button>
             <a
               href="/pricing"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
             >
               Pricing
             </a>
             <button
               onClick={() => scrollToSection("audit")}
-              className="font-mono text-xs uppercase tracking-widest bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
+              className="font-mono text-sm uppercase tracking-wider bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
             >
               Free audit
             </button>
