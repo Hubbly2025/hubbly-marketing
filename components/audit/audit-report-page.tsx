@@ -23,6 +23,165 @@ import {
   SnapshotRow,
 } from "./report-parts"
 import { SeoSection } from "./seo-section"
+import type { SeoReport } from "@/lib/seo-report/types"
+
+// Primary CTA is the same everywhere — hero, pixel install, closer — so a
+// buyer sees one action, not competing offers. Onboarding starts at /demo
+// (the only live entry point today); the CTA copy frames it as step 1 of
+// installing the Hubbly pixel, not a rival "book a demo" offer.
+const CTA_LABEL = "Start free — install the Hubbly pixel"
+const CTA_HREF = "/demo"
+
+// Provenance chip used on every rendered number so the report reads as
+// measured/estimated/modeled/recommendation, never marketing.
+type ProvenanceKind = "measured" | "estimated" | "modeled" | "recommendation"
+
+function ProvenanceChip({ kind }: { kind: ProvenanceKind }) {
+  const label =
+    kind === "measured"
+      ? "Measured · Hubbly"
+      : kind === "estimated"
+        ? "Estimate · Hubbly Data benchmarks"
+        : kind === "modeled"
+          ? "Modeled · Hubbly"
+          : "Recommendation"
+  return (
+    <span className="inline-flex font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
+      {label}
+    </span>
+  )
+}
+
+// Real commercial terms measured for THIS site. Falls back to strength-claim
+// quoted phrases when no gap keywords are present. Returns [] when neither is
+// available — the caller omits the row rather than shipping template chips
+// like "best finance for growing teams" that instantly falsify a gold-dealer
+// report.
+function buildMeasuredIntentTerms(seo: SeoReport | undefined): string[] {
+  if (!seo) return []
+  const gaps = (seo.gapKeywords ?? []).map((g) => g.keyword).filter(Boolean)
+  if (gaps.length) return gaps.slice(0, 5)
+  const quoted = (seo.strengths ?? [])
+    .map((s) => s.claim.match(/[""]([^""]+)[""]/) || s.claim.match(/"([^"]+)"/))
+    .filter((m): m is RegExpMatchArray => Boolean(m))
+    .map((m) => m[1])
+  return quoted.slice(0, 5)
+}
+
+// Section 3 competitor fields are all optional strings — never render the
+// literal "Weakness unavailable" placeholder to a customer; em-dash reads as
+// "not stated" without pretending we ran a check that came up empty.
+function fieldOrDash(value: string | undefined): string {
+  return value && value.trim() ? value : "—"
+}
+
+// Above-the-fold verdict. Three measured/modeled numbers under one headline
+// and a single CTA — the reader can decide from here without scrolling. Each
+// tile carries a provenance chip so we never confuse measured with modeled.
+// Slot 2 auto-upgrades from searches/mo to revenue-at-risk $ when the field
+// ships; Slot 3 shows "not yet measured" until the AI citation count lands.
+function VerdictHero({
+  companyName,
+  monthly,
+  gapVolumeMonthly,
+  revenueAtRisk,
+  aiCitations,
+  industry,
+}: {
+  companyName: string
+  monthly: number
+  gapVolumeMonthly: number
+  revenueAtRisk?: number
+  aiCitations?: number
+  industry?: string
+}) {
+  const hasRevenue = typeof revenueAtRisk === "number" && revenueAtRisk > 0
+  const hasCitations = typeof aiCitations === "number"
+  const slot2Value = hasRevenue
+    ? `$${Math.round(revenueAtRisk!).toLocaleString()}/mo`
+    : gapVolumeMonthly > 0
+      ? `${formatNumber(gapVolumeMonthly)}/mo`
+      : "—"
+  const slot2Label = hasRevenue
+    ? "Revenue flowing to competitors"
+    : "Searches flowing to competitors"
+  const slot3Value = hasCitations ? formatNumber(aiCitations!) : "Not yet measured"
+  return (
+    <section className="mt-10 border border-[#FF6B35]/70 bg-[#FF6B35]/[0.06] p-6 md:mt-14 md:p-12">
+      <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#FF6B35]">
+        The verdict
+      </p>
+      <h2 className="mt-4 max-w-4xl font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
+        Buyers are searching for what {companyName} sells. The demand is going somewhere else.
+      </h2>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="border border-white/10 bg-[#0A0A0A]/50 p-5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
+            Buyers searching now
+          </p>
+          <p className="mt-3 font-[var(--font-bebas)] text-5xl leading-none text-[#FF6B35] md:text-6xl">
+            {formatNumber(monthly)}
+          </p>
+          <p className="mt-2 text-xs text-white/65">
+            in the last 30 days across {industry || "this category"}
+          </p>
+          <div className="mt-3">
+            <ProvenanceChip kind="estimated" />
+          </div>
+        </div>
+
+        <div className="border border-white/10 bg-[#0A0A0A]/50 p-5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
+            {slot2Label}
+          </p>
+          <p className="mt-3 font-[var(--font-bebas)] text-5xl leading-none text-[#FF6B35] md:text-6xl">
+            {slot2Value}
+          </p>
+          <p className="mt-2 text-xs text-white/65">
+            {hasRevenue
+              ? "modeled from measured gap volume × category CPC × commercial CTR"
+              : gapVolumeMonthly > 0
+                ? "measured commercial keywords where competitors rank and you don't"
+                : "no measured commercial gaps in this sample"}
+          </p>
+          <div className="mt-3">
+            <ProvenanceChip kind={hasRevenue ? "modeled" : "measured"} />
+          </div>
+        </div>
+
+        <div className="border border-white/10 bg-[#0A0A0A]/50 p-5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
+            AI-search citations
+          </p>
+          <p className="mt-3 font-[var(--font-bebas)] text-5xl leading-none text-[#FF6B35] md:text-6xl">
+            {slot3Value}
+          </p>
+          <p className="mt-2 text-xs text-white/65">
+            {hasCitations
+              ? "times an AI answer engine cited your domain in the sample"
+              : "AI-engine citation sampling ships next — the slot is wired"}
+          </p>
+          <div className="mt-3">
+            <ProvenanceChip kind={hasCitations ? "measured" : "recommendation"} />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+        <a
+          href={CTA_HREF}
+          className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
+        >
+          {CTA_LABEL} →
+        </a>
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/50">
+          No demo call required · 14-day trial · Cancel anytime
+        </p>
+      </div>
+    </section>
+  )
+}
 
 export function AuditReportPage({ auditId }: { auditId: string }) {
   const [audit, setAudit] = useState<Audit | null>(null)
@@ -89,6 +248,21 @@ function CompleteReport({ audit }: { audit: Audit }) {
   const displayedGtmPlan = isA16zReport ? replacePlanEmailPov(audit.gtm_plan) : audit.gtm_plan
   const generatedDate = formatDate(audit.completed_at || audit.created_at)
 
+  const seo = analysis.seo_report
+  const gapVolumeMonthly = seo?.gapVolumeTotal ?? 0
+  const topGapCompetitor =
+    seo?.competitorGap?.[0]?.domain ?? seo?.gapKeywords?.[0]?.competitorDomain ?? ""
+  const measuredIntentTerms = buildMeasuredIntentTerms(seo)
+  // Feature-detect on fields that ship in a later payload change; render slot
+  // stays in place today with an honest fallback so the hero shape is stable.
+  const revenueAtRisk = (seo as unknown as { revenueAtRiskMonthly?: number } | undefined)
+    ?.revenueAtRiskMonthly
+  const aiCitations = (seo as unknown as { aiCitationCount?: number } | undefined)?.aiCitationCount
+  const observed = analysis.observed_evidence ?? {}
+  const detectedTechStack = observed.detected_tech_stack?.length
+    ? observed.detected_tech_stack.join(", ")
+    : undefined
+
   return (
     <main className="min-h-screen bg-[#0A0A0A] text-white">
       <div className="mx-auto max-w-7xl px-5 py-8 md:px-10 md:py-12">
@@ -112,6 +286,15 @@ function CompleteReport({ audit }: { audit: Audit }) {
           <div className="h-px w-full bg-[#FF6B35]" />
         </header>
 
+        <VerdictHero
+          companyName={companyName}
+          monthly={monthly}
+          gapVolumeMonthly={gapVolumeMonthly}
+          revenueAtRisk={revenueAtRisk}
+          aiCitations={aiCitations}
+          industry={analysis.industry}
+        />
+
         <div className="mt-14 space-y-14 md:mt-20 md:space-y-20">
           <ReportSection eyebrow="Section 1" title="What Hubbly found">
             <div className="grid gap-4 md:grid-cols-2">
@@ -119,8 +302,8 @@ function CompleteReport({ audit }: { audit: Audit }) {
               <SnapshotRow label="Industry" value={analysis.industry} />
               <SnapshotRow label="Target market" value={analysis.icp?.primary?.title} />
               <SnapshotRow label="Current positioning" value={analysis.outreach_angle} />
-              <SnapshotRow label="Primary CTA" value="Captured from website CTA language during audit" />
-              <SnapshotRow label="Tech stack" value="Public website signals reviewed during audit" />
+              <SnapshotRow label="Primary CTA" value={fieldOrDash(observed.primary_cta_text)} />
+              <SnapshotRow label="Tech stack" value={fieldOrDash(detectedTechStack)} />
             </div>
           </ReportSection>
 
@@ -150,9 +333,9 @@ function CompleteReport({ audit }: { audit: Audit }) {
                   {competitors.slice(0, 5).map((competitor, index) => (
                     <tr key={`${competitor.name}-${index}`} className="border-b border-white/10 last:border-b-0">
                       <td className="p-4 font-mono text-sm text-white">{competitor.name || "Competitor"}</td>
-                      <td className="p-4 text-sm text-white/70">{competitor.their_angle || "Positioning angle unavailable"}</td>
-                      <td className="p-4 text-sm text-white/70">{competitor.their_weakness || "Weakness unavailable"}</td>
-                      <td className="p-4 text-sm text-white/70">{competitor.your_opening || "Opening unavailable"}</td>
+                      <td className="p-4 text-sm text-white/70">{fieldOrDash(competitor.their_angle)}</td>
+                      <td className="p-4 text-sm text-white/70">{fieldOrDash(competitor.their_weakness)}</td>
+                      <td className="p-4 text-sm text-white/70">{fieldOrDash(competitor.your_opening)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -182,18 +365,26 @@ function CompleteReport({ audit }: { audit: Audit }) {
             </div>
 
             <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-              <div>
-                <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
-                  Top intent signals detected
-                </h3>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  {(intent.top_signals ?? []).slice(0, 5).map((signal) => (
-                    <span key={signal} className="border border-[#FF6B35]/50 px-3 py-2 font-mono text-xs text-white/80">
-                      {signal}
-                    </span>
-                  ))}
+              {measuredIntentTerms.length > 0 && (
+                <div>
+                  <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
+                    Commercial terms {companyName} is measured against
+                  </h3>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {measuredIntentTerms.map((term) => (
+                      <span
+                        key={term}
+                        className="border border-[#FF6B35]/50 px-3 py-2 font-mono text-xs text-white/80"
+                      >
+                        {term}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <ProvenanceChip kind="measured" />
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div>
                 <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
@@ -213,6 +404,9 @@ function CompleteReport({ audit }: { audit: Audit }) {
                     </div>
                   ))}
                 </div>
+                <div className="mt-3">
+                  <ProvenanceChip kind="estimated" />
+                </div>
               </div>
             </div>
 
@@ -220,10 +414,6 @@ function CompleteReport({ audit }: { audit: Audit }) {
               These people are searching right now. Your competitors are already contacting some of them.
             </p>
           </ReportSection>
-
-          {analysis.seo_report ? (
-            <SeoSection seo={analysis.seo_report} companyName={companyName} />
-          ) : null}
 
           <ReportSection eyebrow="Section 4A" title="Your invisible pipeline">
             <div className="grid gap-8 border border-white/10 bg-white/[0.03] p-6 md:p-10 lg:grid-cols-[1fr_0.8fr]">
@@ -248,14 +438,18 @@ function CompleteReport({ audit }: { audit: Audit }) {
                   identifiable visitors per month for companies in {analysis.industry || "this industry"}.
                 </p>
                 <a
-                  href="/demo"
+                  href={CTA_HREF}
                   className="mt-6 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-5 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
                 >
-                  Install the Hubbly Pixel — Free →
+                  {CTA_LABEL} →
                 </a>
               </div>
             </div>
           </ReportSection>
+
+          {analysis.seo_report ? (
+            <SeoSection seo={analysis.seo_report} companyName={companyName} />
+          ) : null}
 
           <ReportSection eyebrow="Section 5" title="What's missing from your motion">
             <div className="grid gap-3 md:grid-cols-2">
@@ -330,12 +524,27 @@ function CompleteReport({ audit }: { audit: Audit }) {
                 </div>
               ))}
             </div>
+
+            <div className="mt-8 border border-white/10 bg-[#0A0A0A]/60 p-5 text-left md:p-6">
+              <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between">
+                <p className="font-[var(--font-bebas)] text-3xl leading-none text-white md:text-4xl">
+                  Autopilot · $498/mo
+                </p>
+                <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/60">
+                  14-day trial · Cancel anytime
+                </p>
+              </div>
+              <p className="mt-3 font-mono text-xs text-white/65">
+                No demo call. No 6-month contract. The price is the price.
+              </p>
+            </div>
+
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <a
-                href="/demo"
+                href={CTA_HREF}
                 className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
               >
-                Book a Demo →
+                {CTA_LABEL} →
               </a>
             </div>
           </section>

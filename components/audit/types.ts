@@ -40,6 +40,15 @@ export type Audit = {
     outreach_angle?: string
     sample_email?: SampleEmail
     seo_report?: SeoReport
+    // Present when the earlier evidence-extraction pipeline supplied real
+    // on-page signals. Absent on the current leaner pipeline — Section 1
+    // renders em-dash for missing fields, never the field's description text.
+    observed_evidence?: {
+      primary_cta_text?: string
+      h1?: string
+      key_headers?: string[]
+      detected_tech_stack?: string[]
+    }
     error?: string
   }
   competitors?: Competitor[]

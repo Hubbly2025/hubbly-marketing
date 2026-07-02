@@ -114,6 +114,57 @@ export function SeoSection({ seo, companyName }: SeoSectionProps) {
         </div>
       )}
 
+      {/* Compounding urgency — annualize the measured monthly gap and name the
+          top competitor by domain, so the reader sees a real number tied to a
+          real name, not a template. Only render when we have both. */}
+      {seo.gapState === "gaps" && seo.gapVolumeTotal > 0 && (
+        <div className="mt-8 border border-white/10 bg-white/[0.02] p-6 md:p-8">
+          <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
+            The compounding cost
+          </h3>
+          <p className="mt-3 max-w-3xl text-lg leading-8 text-white/80">
+            {`~${seo.gapVolumeTotal.toLocaleString()} commercial searches per month × 12 = `}
+            <span className="text-white">
+              ~{(seo.gapVolumeTotal * 12).toLocaleString()} searches
+            </span>
+            {` a year that `}
+            {seo.competitorGap?.[0]?.domain ? (
+              <span className="text-white">{seo.competitorGap[0].domain}</span>
+            ) : (
+              <span className="text-white">the current #1 competitor</span>
+            )}
+            {` and its peers capture instead of ${companyName}. Every month
+            without a measured motion widens the gap — competitors compound
+            authority, and clawing back a keyword after a rival owns it takes
+            longer than not losing it in the first place.`}
+          </p>
+        </div>
+      )}
+
+      {/* A1 — measured competitors block. Rendered only when the payload names
+          them. Never invent a competitor list; om-mit the block on null. */}
+      {seo.competitors && seo.competitors.items.length > 0 && (
+        <div className="mt-8">
+          <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
+            Measured organic competitors
+          </h3>
+          <div className="mt-4 divide-y divide-white/10 border border-white/10 bg-white/[0.02]">
+            {seo.competitors.items.slice(0, 8).map((c) => (
+              <div
+                key={c.domain}
+                className="grid grid-cols-[1fr_1fr] items-baseline gap-4 px-4 py-3 md:grid-cols-[240px_1fr]"
+              >
+                <span className="font-mono text-sm text-white">{c.domain}</span>
+                <span className="text-xs text-white/65">{c.basis}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
+            {seo.competitors.label}
+          </p>
+        </div>
+      )}
+
       {/* Strengths & weaknesses — ReportPoint.claim is the field, NOT .text. */}
       {(seo.strengths.length > 0 || seo.weaknesses.length > 0) && (
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
