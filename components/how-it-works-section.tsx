@@ -45,15 +45,15 @@ const intelligenceStages = [
   { label: "CREATIVE", sub: "Assets" },
 ]
 
-const executionStages = [
-  { label: "DISCOVER", sub: "Find buyers", color: "green" },
-  { label: "SCORE", sub: "Rank intent", color: "green" },
-  { label: "WRITE", sub: "Draft outreach", color: "accent" },
-  { label: "SEND", sub: "Launch email", color: "accent" },
-  { label: "CALL", sub: "AI voice", color: "accent" },
-  { label: "LISTEN", sub: "Handle replies", color: "blue" },
-  { label: "BOOK", sub: "Close calendar", color: "blue" },
-  { label: "TRACK", sub: "Log revenue", color: "purple" },
+const executionStages: { label: string; sub: string; tint?: string }[] = [
+  { label: "DISCOVER", sub: "Find buyers" },
+  { label: "SCORE", sub: "Rank intent", tint: "var(--rank)" },
+  { label: "WRITE", sub: "Draft outreach" },
+  { label: "SEND", sub: "Launch email", tint: "var(--send)" },
+  { label: "CALL", sub: "AI voice", tint: "var(--voice)" },
+  { label: "LISTEN", sub: "Handle replies" },
+  { label: "BOOK", sub: "Close calendar" },
+  { label: "TRACK", sub: "Log revenue" },
 ]
 
 export function HowItWorksSection() {
@@ -174,32 +174,42 @@ export function HowItWorksSection() {
           </div>
           
           <div className="grid grid-cols-4 md:grid-cols-8 gap-1.5 md:gap-3">
-            {executionStages.map((stage, index) => (
-              <div
-                key={stage.label}
-                className={cn(
-                  "relative border p-2 md:p-4 text-center transition-all duration-300",
-                  activeExecStage === index
-                    ? "border-accent bg-accent/10 scale-105"
-                    : activeExecStage > index
-                    ? "border-accent/30 bg-accent/5"
-                    : "border-border/40"
-                )}
-              >
-                {activeExecStage === index && (
-                  <div className="absolute inset-0 border border-accent animate-pulse" />
-                )}
-                <span className={cn(
-                  "font-[var(--font-bebas)] text-[10px] md:text-base tracking-wider block",
-                  activeExecStage >= index ? "text-accent" : "text-muted-foreground"
-                )}>
-                  {stage.label}
-                </span>
-                <span className="font-mono text-[7px] md:text-[10px] text-muted-foreground uppercase">
-                  {stage.sub}
-                </span>
-              </div>
-            ))}
+            {executionStages.map((stage, index) => {
+              const on = activeExecStage >= index
+              const isActive = activeExecStage === index
+              const c = stage.tint ?? "var(--accent)"
+              return (
+                <div
+                  key={stage.label}
+                  className={cn(
+                    "relative border p-2 md:p-4 text-center transition-all duration-300",
+                    isActive && "scale-105",
+                    !on && "border-border/40"
+                  )}
+                  style={
+                    on
+                      ? {
+                          borderColor: isActive ? c : `color-mix(in srgb, ${c} 30%, transparent)`,
+                          backgroundColor: `color-mix(in srgb, ${c} ${isActive ? "10%" : "5%"}, transparent)`,
+                        }
+                      : undefined
+                  }
+                >
+                  {isActive && (
+                    <div className="absolute inset-0 border animate-pulse" style={{ borderColor: c }} />
+                  )}
+                  <span
+                    className="font-[var(--font-bebas)] text-[10px] md:text-base tracking-wider block"
+                    style={{ color: on ? c : "var(--muted-foreground)" }}
+                  >
+                    {stage.label}
+                  </span>
+                  <span className="font-mono text-[7px] md:text-[10px] text-muted-foreground uppercase">
+                    {stage.sub}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         </div>
 

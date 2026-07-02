@@ -92,14 +92,14 @@ export default function SendPage() {
         <div className="mx-auto w-full max-w-5xl px-6 pt-28 pb-20 md:pt-32 md:pb-24">
           <Reveal>
             <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              <span className="text-accent">Send</span> · the outbound layer
+              <span className="text-send">Send</span> · the outbound layer
             </p>
           </Reveal>
           <Reveal delay={60}>
             <h1 className="mt-7 font-display text-6xl uppercase leading-[0.92] tracking-tight text-balance md:text-8xl">
               Cold email,
               <br />
-              <span className="text-accent">built in.</span>
+              <span className="text-send">built in.</span>
             </h1>
           </Reveal>
           <Reveal delay={120}>

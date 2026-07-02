@@ -91,7 +91,7 @@ export default function AutopilotPage() {
           {/* HERO */}
           <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-28 pb-16 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
-              <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
+              <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-rank">
                 Hubbly Rank · SEO + AEO on autopilot
               </Reveal>
               <Reveal delay={120}>
@@ -100,7 +100,7 @@ export default function AutopilotPage() {
                   <br />
                   Your SEO team,
                   <br />
-                  <span className="text-accent">running itself.</span>
+                  <span className="text-rank">running itself.</span>
                 </h1>
               </Reveal>
               <Reveal delay={240}>

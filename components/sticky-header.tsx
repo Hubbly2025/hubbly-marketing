@@ -68,25 +68,25 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
           <div className="hidden md:flex items-center gap-6 lg:gap-8">
             <a
               href="/autopilot"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-rank transition-colors"
             >
               Rank
             </a>
             <a
               href="/signal"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-signal transition-colors"
             >
               Signal
             </a>
             <a
               href="/send"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-send transition-colors"
             >
               Send
             </a>
             <a
               href="/voice"
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-voice transition-colors"
             >
               Voice
             </a>
