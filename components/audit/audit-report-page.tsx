@@ -15,30 +15,35 @@ import {
 import { SeoSection } from "./seo-section"
 import type { SeoReport } from "@/lib/seo-report/types"
 
-// Single CTA everywhere — the report is a sales letter with one action.
-// /start is the live self-serve trial form (posts to the existing waitlist
-// API). TODO(stripe): swap CTA_HREF to the Stripe Checkout link once the
-// Autopilot product + price exist in Stripe; the /start form stays as the
-// no-Stripe fallback.
-const CTA_LABEL = "Start my 14-day trial"
-const CTA_HREF = "/start"
+// v3 close: the report sells the whole machine and closes to a strategy
+// call. /demo is the live cal.com booking route — the call is framed as
+// activation, not negotiation, and pricing stays fully public on this page
+// (that's the wedge). /start stays live as the self-serve secondary path.
+// TODO(stripe): when checkout + onboarding are automated, self-serve can
+// take primary again via Stripe Checkout.
+const CTA_LABEL = "Book my strategy call"
+const CTA_HREF = "/demo"
+const SELF_SERVE_HREF = "/start"
 
-// Provenance chip used on every rendered number so the report reads as
-// measured/estimated/modeled/recommendation, never marketing.
+// Provenance chip used on every rendered number and mechanism block so the
+// report reads as measured/estimated/modeled/recommendation, never
+// marketing. `label` overrides the default text when the source needs to be
+// more specific (e.g. identity-resolution match-rate benchmarks).
 type ProvenanceKind = "measured" | "estimated" | "modeled" | "recommendation"
 
-function ProvenanceChip({ kind }: { kind: ProvenanceKind }) {
-  const label =
-    kind === "measured"
+function ProvenanceChip({ kind, label }: { kind: ProvenanceKind; label?: string }) {
+  const text =
+    label ??
+    (kind === "measured"
       ? "Measured · Hubbly"
       : kind === "estimated"
         ? "Estimate · Hubbly Data benchmarks"
         : kind === "modeled"
           ? "Modeled · Hubbly"
-          : "Recommendation"
+          : "Recommendation")
   return (
     <span className="inline-flex font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
-      {label}
+      {text}
     </span>
   )
 }
@@ -176,143 +181,263 @@ function VerdictHero({
   )
 }
 
-// C5 value bridge — the treatment chain. Every step is a mechanism claim
-// (what Autopilot DOES), never a revenue/ranking/timeline promise. When gap
-// keywords exist, the chain names them and the top competitor so the reader
-// sees their own report threaded through the vehicle; otherwise it degrades
-// to honest category-level copy — never invented keywords, never skipped.
-function buildBridgeSteps({
-  gapKeywords,
-  topGapCompetitor,
-  industry,
-  companyName,
-}: {
-  gapKeywords: string[]
-  topGapCompetitor: string
-  industry?: string
-  companyName: string
-}): Array<{ step: string; copy: string }> {
-  const kw1 = gapKeywords[0]
-  const kw2 = gapKeywords[1]
-  const targetCopy = kw1
-    ? `Starts with the measured gaps above — "${kw1}"${kw2 ? `, "${kw2}"` : ""}${
-        topGapCompetitor ? ` and the rest of the list ${topGapCompetitor} captures today` : ""
-      } — highest measured volume first. No guessed topics.`
-    : `No measured gap keywords in this sample, so it starts at the category level: the core commercial pages ${
-        industry || "this market"
-      } buyers actually search for — measured before anything is written.`
-  return [
-    { step: "Target", copy: targetCopy },
-    {
-      step: "Write",
-      copy: `Drafts each page server-rendered and fact-checks every claim against ${companyName}'s own site. A claim that can't be verified doesn't ship.`,
-    },
-    {
-      step: "Publish",
-      copy: "Ships through approval-gated publish rails to your CMS, on your domain. You see every page before it goes live, and you keep them all.",
-    },
-    {
-      step: "Verify",
-      copy: "Re-reads the live page after publishing — permalink, canonical, schema. Anything off and it fails loudly and stops. No silent half-publishes.",
-    },
-    {
-      step: "Measure",
-      copy: "Tracks every published page with the same measurement engine that built this report — rank data today, AI-engine citations as that sampling ships.",
-    },
-    {
-      step: "Compound",
-      copy: "Runs the loop weekly. Each cycle re-measures the gap list and targets what's still open — the same compounding motion your competitors currently point at you.",
-    },
-  ]
-}
+// The machine — v3 centerpiece. One system, four pillars, one flywheel.
+// Every pillar is a mechanism claim (what the machine DOES), never an
+// outcome guarantee. "Up to ~40%" is an identification rate, never framed
+// as recovered revenue or customers. Convert agents roll out with the plan
+// — capability is stated, rollout specifics route to the strategy call, no
+// live-today claims. Gap keywords thread through when measured; category-
+// level copy otherwise — never invented.
+const FLYWHEEL_STEPS = ["Recover", "Target", "Capture", "Convert"] as const
 
-function ValueBridge({
+function MachineSection({
   eyebrow,
   companyName,
-  gapKeywords,
-  topGapCompetitor,
   industry,
+  gapKeywords,
 }: {
   eyebrow: string
   companyName: string
-  gapKeywords: string[]
-  topGapCompetitor: string
   industry?: string
+  gapKeywords: string[]
 }) {
-  const steps = buildBridgeSteps({ gapKeywords, topGapCompetitor, industry, companyName })
+  const kw1 = gapKeywords[0]
+  const kw2 = gapKeywords[1]
+  const targetCopy = kw1 ? (
+    <>
+      The same engine that measured this report runs continuously on your market — surfacing
+      the people searching for <span className="text-white">"{kw1}"</span>
+      {kw2 ? (
+        <>
+          {" "}and <span className="text-white">"{kw2}"</span>
+        </>
+      ) : null}{" "}
+      this week. Not a cold list. Not a lookalike audience. People actively in-market for what
+      you sell, identified while they're deciding.
+    </>
+  ) : (
+    <>
+      The same engine that measured this report runs continuously on your market — surfacing
+      the people searching for what {industry || "this category"} buyers search for, week by
+      week. Not a cold list. Not a lookalike audience. People actively in-market for what you
+      sell, identified while they're deciding.
+    </>
+  )
+
   return (
-    <ReportSection eyebrow={eyebrow} title="The treatment">
+    <ReportSection eyebrow={eyebrow} title="The machine">
       <p className="max-w-3xl text-xl leading-9 text-white md:text-2xl">
-        Everything above is the diagnosis. Here's the treatment — specifically for {companyName}.
+        {companyName}'s revenue problem is a routing problem. The demand exists — it's measured
+        above — it's just flowing to competitors, and the visitors you do get leave anonymous.
+        Hubbly is one machine that reroutes both. Here's each stage, using your numbers.
       </p>
 
-      <div className="mt-8 divide-y divide-white/10 border border-white/10 bg-white/[0.02]">
-        {steps.map((item, index) => (
-          <div
-            key={item.step}
-            className="grid gap-3 p-5 md:grid-cols-[180px_1fr] md:gap-6 md:p-6"
-          >
+      <div className="mt-8 space-y-4">
+        {/* Pillar 1 — RECOVER. Absorbs the former standalone invisible-
+            pipeline section so the 400–1,200 stat is said exactly once. */}
+        <div className="border border-white/10 bg-white/[0.02] p-6 md:p-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
+            Stage 1
+          </p>
+          <h3 className="mt-1 font-[var(--font-bebas)] text-3xl leading-none text-[#FF6B35] md:text-4xl">
+            Recover — your existing traffic
+          </h3>
+          <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_0.8fr]">
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
-                Step {index + 1}
+              <p className="text-sm leading-7 text-white/78">
+                Most sites convert 1–3% of visitors. The other 97%+ leave without a name. The
+                Hubbly pixel identifies <span className="text-white">up to ~40%</span> of those
+                lost visitors — real names, emails, companies — and turns traffic you already
+                paid for into a first-party mail list you own.
               </p>
-              <p className="mt-1 font-[var(--font-bebas)] text-3xl leading-none text-[#FF6B35]">
-                {item.step}
+              <div className="mt-3">
+                <ProvenanceChip
+                  kind="estimated"
+                  label="Estimate · identity-resolution match-rate benchmarks"
+                />
+              </div>
+              <p className="mt-5 font-mono text-sm text-white">
+                That list feeds every other stage of the machine.
               </p>
             </div>
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
-                What Autopilot does
+            <div className="border border-[#FF6B35]/50 p-6">
+              <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/55">
+                Typical monthly opportunity
               </p>
-              <p className="mt-2 text-sm leading-7 text-white/78">{item.copy}</p>
+              <p className="mt-4 font-[var(--font-bebas)] text-6xl leading-none text-[#FF6B35]">
+                400-1,200
+              </p>
+              <p className="mt-3 text-sm text-white/65">
+                identifiable visitors per month for companies in {industry || "this industry"}.
+              </p>
               <div className="mt-3">
-                <ProvenanceChip kind="recommendation" />
+                <ProvenanceChip kind="estimated" />
               </div>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Pillar 2 — TARGET. */}
+        <div className="border border-white/10 bg-white/[0.02] p-6 md:p-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
+            Stage 2
+          </p>
+          <h3 className="mt-1 font-[var(--font-bebas)] text-3xl leading-none text-[#FF6B35] md:text-4xl">
+            Target — in-market buyers
+          </h3>
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-white/78">{targetCopy}</p>
+          <div className="mt-3 flex flex-wrap gap-4">
+            {kw1 ? <ProvenanceChip kind="measured" /> : null}
+            <ProvenanceChip kind="recommendation" />
+          </div>
+        </div>
+
+        {/* Pillar 3 — CAPTURE. Mechanism claims only: built to rank,
+            structured to be cited — never guaranteed placement. */}
+        <div className="border border-white/10 bg-white/[0.02] p-6 md:p-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
+            Stage 3
+          </p>
+          <h3 className="mt-1 font-[var(--font-bebas)] text-3xl leading-none text-[#FF6B35] md:text-4xl">
+            Capture — search and AI answers
+          </h3>
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-white/78">
+            Rank plans, writes, and publishes fact-checked pages against your measured gaps —
+            built to rank on Google and Bing, and structured to be cited by the AI answer
+            engines buyers are moving to:{" "}
+            <span className="text-white">ChatGPT, Perplexity, Gemini, Grok</span>. Every claim
+            is verified before it publishes; pages that fail the check don't ship. Citation
+            tracking then <span className="text-white">measures</span> whether the engines
+            actually cite you — a number, not a vibe.
+          </p>
+          <div className="mt-3">
+            <ProvenanceChip kind="recommendation" />
+          </div>
+          <div className="mt-5 border border-[#FF6B35]/40 bg-[#FF6B35]/[0.04] p-4 md:p-5">
+            <p className="font-mono text-sm leading-7 text-white">
+              This entire report was measured live by the same engine, in about two minutes,
+              from nothing but a URL. That was the demo.
+            </p>
+            <div className="mt-3">
+              <ProvenanceChip kind="measured" />
+            </div>
+          </div>
+        </div>
+
+        {/* Pillar 4 — CONVERT. Capability stated, rollout routed to the
+            call — no live-today claims, no dates. */}
+        <div className="border border-white/10 bg-white/[0.02] p-6 md:p-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
+            Stage 4
+          </p>
+          <h3 className="mt-1 font-[var(--font-bebas)] text-3xl leading-none text-[#FF6B35] md:text-4xl">
+            Convert — outreach that starts warm
+          </h3>
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-white/78">
+            The identified visitors from stage 1 and the in-market searchers from stage 2 don't
+            sit in a spreadsheet. Hubbly's outreach agents —{" "}
+            <span className="text-white">Send</span> for email,{" "}
+            <span className="text-white">Voice</span> for calls,{" "}
+            <span className="text-white">Book</span> for scheduling — contact them while the
+            intent is live, referencing what they were actually searching for. Outreach to
+            someone already looking is not cold outreach; it's answering.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/78">
+            Your strategy call maps the rollout for your business.
+          </p>
+          <div className="mt-3">
+            <ProvenanceChip kind="recommendation" />
+          </div>
+        </div>
       </div>
 
-      <div className="mt-8 border border-[#FF6B35]/40 bg-[#FF6B35]/[0.04] p-5 md:p-6">
-        <p className="font-mono text-sm leading-7 text-white">
-          This entire report was measured live by the same engine, in about two minutes, from
-          nothing but a URL. That was the demo.
+      {/* The flywheel — why one machine beats seven tools. */}
+      <div className="mt-8 border border-white/10 bg-white/[0.03] p-6 md:p-8">
+        <p className="font-mono text-xs uppercase tracking-[0.22em] text-[#FF6B35]">
+          The flywheel
         </p>
-        <div className="mt-3">
-          <ProvenanceChip kind="measured" />
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          {FLYWHEEL_STEPS.map((step, index) => (
+            <div key={step} className="flex items-center gap-3">
+              <span className="border border-[#FF6B35]/50 px-4 py-2 font-mono text-xs uppercase tracking-[0.18em] text-white">
+                {index + 1} · {step}
+              </span>
+              <svg
+                className="h-4 w-4 text-[#FF6B35]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </div>
+          ))}
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-white/55">
+            back to Recover
+          </span>
         </div>
+        <p className="mt-5 max-w-3xl text-sm leading-7 text-white/78">
+          Each stage feeds the next: your traffic builds your list → the intent engine tells
+          you who's buying now → Rank captures the searches and AI answers → outreach converts
+          the searchers → published pages bring more traffic → the loop compounds. Seven
+          separate tools can't do this — the data never connects.{" "}
+          <span className="text-white">
+            One machine can. That's the entire reason Hubbly is one system and not another
+            point tool.
+          </span>
+        </p>
       </div>
     </ReportSection>
   )
 }
 
-// C6 offer stack + close. Anchor pricing is a market-price comparison, not a
-// discount gimmick — real agency/DIY numbers a buyer can verify. One CTA.
-const OFFER_STACK: Array<{ name: string; detail: string }> = [
+// v3 offer — the stack mirrors the four pillars, then transparent two-tier
+// pricing. The wedge: price is public on this page, the call is activation,
+// not negotiation. Anchor is round category ranges only — no fake precision.
+const OFFER_STACK: Array<{
+  pillar: string
+  name: string
+  detail: string
+  chip?: ProvenanceKind
+  chipLabel?: string
+}> = [
   {
-    name: "Rank SEO agent",
-    detail: "Plans, writes, and publishes measured pages against your gap keywords, weekly.",
-  },
-  {
-    name: "Honesty gate",
+    pillar: "Recover",
+    name: "Hubbly pixel",
     detail:
-      "Every claim fact-checked against your own site before publishing. Pages that fail don't ship.",
+      "Identifies up to ~40% of anonymous visitors — real names, emails, companies. Builds the first-party list you own.",
+    chip: "estimated",
+    chipLabel: "Estimate · identity-resolution match-rate benchmarks",
   },
   {
-    name: "Publish rails",
-    detail: "Approval-gated publishing straight to your CMS. Your domain, your pages, your control.",
-  },
-  {
-    name: "AI citation tracking",
-    detail: "Measures when AI answer engines cite your domain — the layer search is moving to.",
-  },
-  {
+    pillar: "Target",
     name: "Search intent engine",
-    detail: "The measurement layer that built this report, running continuously on your market.",
+    detail:
+      "Continuous measurement of who's in-market for your keywords — the same engine that built this report.",
   },
   {
-    name: "Hubbly pixel — included",
-    detail: "Identifies anonymous visitors on your site. Installs during onboarding, after you start.",
+    pillar: "Capture",
+    name: "Rank SEO agent",
+    detail:
+      "Fact-checked pages against your measured gaps — for Google, Bing, and the AI answer engines.",
+  },
+  {
+    pillar: "Capture",
+    name: "AI citation tracking",
+    detail: "Measured share of ChatGPT, Perplexity, Gemini, and Grok answers that cite your domain.",
+  },
+  {
+    pillar: "Capture",
+    name: "Honesty gate + publish rails",
+    detail: "Unverifiable claims never publish. Snapshot, verify, rollback on every page.",
+  },
+  {
+    pillar: "Convert",
+    name: "Send · Voice · Book outreach agents",
+    detail:
+      "Contact identified visitors and live searchers while the intent is live, and book the meetings.",
   },
 ]
 
@@ -321,45 +446,70 @@ function OfferClose({ companyName }: { companyName: string }) {
     <section id="offer" className="scroll-mt-8 border border-[#FF6B35]/70 bg-[#FF6B35]/[0.06] p-6 md:p-12">
       <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#FF6B35]">The offer</p>
       <h2 className="mt-5 max-w-4xl font-[var(--font-bebas)] text-5xl leading-none tracking-tight md:text-7xl">
-        Everything Autopilot runs for {companyName}
+        The whole machine, running for {companyName}
       </h2>
 
       <div className="mt-8 divide-y divide-white/10 border border-white/10 bg-[#0A0A0A]/60">
         {OFFER_STACK.map((row) => (
-          <div key={row.name} className="grid gap-2 p-5 md:grid-cols-[260px_1fr] md:gap-6">
+          <div
+            key={row.name}
+            className="grid gap-2 p-5 md:grid-cols-[110px_240px_1fr] md:gap-6"
+          >
+            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#FF6B35]">
+              {row.pillar}
+            </p>
             <p className="font-mono text-sm text-white">{row.name}</p>
-            <p className="text-sm leading-7 text-white/70">{row.detail}</p>
+            <div>
+              <p className="text-sm leading-7 text-white/70">{row.detail}</p>
+              {row.chip ? (
+                <div className="mt-2">
+                  <ProvenanceChip kind={row.chip} label={row.chipLabel} />
+                </div>
+              ) : null}
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
+      <div className="mt-8 border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
+        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
+          Market-price comparison
+        </p>
+        <p className="mt-3 text-sm leading-7 text-white/78">
+          Buying this as pieces: an SEO agency at{" "}
+          <span className="text-white">$3,000–5,000/mo</span>, plus a visitor-identification
+          tool, an intent-data vendor, and an outreach platform —{" "}
+          <span className="text-white">$5,000–8,000/mo</span> across four contracts that don't
+          share data.
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div className="border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
-            Market-price comparison
+          <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
+            Autopilot · $498/mo
           </p>
-          <p className="mt-3 text-sm leading-7 text-white/78">
-            An agency running this motion: <span className="text-white">$3,000–5,000/mo</span>,
-            usually on a 6-month contract.
-          </p>
-          <p className="mt-2 text-sm leading-7 text-white/78">
-            DIY: <span className="text-white">~$999/mo</span> across a rank tracker, content tools,
-            and plugins — plus your hours every week.
-          </p>
-        </div>
-        <div className="border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
-          <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between">
-            <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
-              Autopilot · $498/mo
-            </p>
-          </div>
           <p className="mt-3 font-mono text-xs leading-6 text-white/65">
-            No demo call. No 6-month contract. The price is the price.
-          </p>
-          <p className="mt-2 font-mono text-xs leading-6 text-white/65">
-            14-day trial · cancel anytime · you keep every page it publishes.
+            Recover + Target + Capture
           </p>
         </div>
+        <div className="border border-[#FF6B35]/50 bg-[#0A0A0A]/60 p-5 md:p-6">
+          <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
+            Workforce · $995/mo
+          </p>
+          <p className="mt-3 font-mono text-xs leading-6 text-white/65">
+            Everything in Autopilot + the Convert outreach agents
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 text-center">
+        <p className="font-mono text-sm text-white">
+          The price is on this page. The call is for activation, not negotiation.
+        </p>
+        <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.22em] text-white/50">
+          14-day trial · cancel anytime · no 6-month contract · you keep every page and every name.
+        </p>
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-3 text-center">
@@ -369,9 +519,16 @@ function OfferClose({ companyName }: { companyName: string }) {
         >
           {CTA_LABEL} →
         </a>
-        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/50">
-          Signup takes 30 seconds. No call with anyone.
+        <p className="max-w-xl font-mono text-xs leading-6 text-white/60">
+          20 minutes. We walk through <span className="text-white">this report</span>, map the
+          machine onto {companyName}, and you leave with the plan whether you buy or not.
         </p>
+        <a
+          href={SELF_SERVE_HREF}
+          className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-white/50 underline-offset-4 transition-colors hover:text-white/80 hover:underline"
+        >
+          Already sold? Skip the call — start self-serve →
+        </a>
       </div>
     </section>
   )
@@ -412,7 +569,7 @@ function StickyOfferBar({ gapVolumeMonthly }: { gapVolumeMonthly: number }) {
         <p className="font-mono text-xs text-white/80">
           {gapVolumeMonthly > 0
             ? `~${gapVolumeMonthly.toLocaleString()}/mo searches are going to competitors · Autopilot $498/mo`
-            : "Autopilot · $498/mo · 14-day trial · cancel anytime"}
+            : "Autopilot $498/mo · Workforce $995/mo · 14-day trial · cancel anytime"}
         </p>
         <div className="flex items-center gap-4">
           <a
@@ -501,8 +658,6 @@ function CompleteReport({ audit }: { audit: Audit }) {
 
   const seo = analysis.seo_report
   const gapVolumeMonthly = seo?.gapVolumeTotal ?? 0
-  const topGapCompetitor =
-    seo?.competitorGap?.[0]?.domain ?? seo?.gapKeywords?.[0]?.competitorDomain ?? ""
   const gapKeywordList = (seo?.gapKeywords ?? []).map((g) => g.keyword).filter(Boolean)
   const measuredIntentTerms = buildMeasuredIntentTerms(seo)
   // Feature-detect on fields that ship in a later payload change; render slot
@@ -515,10 +670,11 @@ function CompleteReport({ audit }: { audit: Audit }) {
     ? observed.detected_tech_stack.join(", ")
     : undefined
 
-  // Sales-letter section order: pain (SEO gaps) → agitate (live demand,
-  // competitors) → diagnosis depth (what the engine read, who buys) →
-  // pipeline math → value bridge → offer. Numbering is computed so it stays
-  // monotonic even when the SEO section is absent for older audits.
+  // Sales-letter section order: pain (SEO gaps first) → agitate (live
+  // demand, competitors) → diagnosis depth (what the engine read, who buys)
+  // → the machine (four pillars + flywheel) → offer + call close. Numbering
+  // is computed so it stays monotonic even when the SEO section is absent
+  // for older audits.
   let sectionNumber = 0
   const nextEyebrow = () => {
     sectionNumber += 1
@@ -679,48 +835,15 @@ function CompleteReport({ audit }: { audit: Audit }) {
               <PersonaCard label="Emerging" persona={analysis.icp?.emerging} />
             </div>
             <p className="mt-6 border-l border-[#FF6B35] pl-4 font-mono text-sm text-white/70">
-              These are the buyers every measured page Autopilot publishes is written for.
+              These are the buyers every stage of the machine is pointed at.
             </p>
           </ReportSection>
 
-          <ReportSection eyebrow={nextEyebrow()} title="Your invisible pipeline">
-            <div className="grid gap-8 border border-white/10 bg-white/[0.03] p-6 md:p-10 lg:grid-cols-[1fr_0.8fr]">
-              <div className="space-y-5 text-lg leading-8 text-white/78">
-                <p>Most companies convert 1-3% of their website visitors.</p>
-                <p>The other 97% leave without a trace.</p>
-                <p className="text-white">With the Hubbly pixel installed on {companyName}:</p>
-                <ul className="space-y-2 font-mono text-sm text-white/70">
-                  <li>→ Every anonymous visitor gets identified</li>
-                  <li>→ Name, company, title, and pages visited</li>
-                  <li>→ Hubbly OS contacts them automatically</li>
-                </ul>
-              </div>
-              <div className="border border-[#FF6B35]/50 p-6">
-                <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/55">
-                  Typical monthly opportunity
-                </p>
-                <p className="mt-4 font-[var(--font-bebas)] text-6xl leading-none text-[#FF6B35]">
-                  400-1,200
-                </p>
-                <p className="mt-3 text-sm text-white/65">
-                  identifiable visitors per month for companies in {analysis.industry || "this industry"}.
-                </p>
-                <div className="mt-3">
-                  <ProvenanceChip kind="estimated" />
-                </div>
-                <p className="mt-6 border-t border-white/10 pt-4 font-mono text-xs leading-6 text-white/70">
-                  The pixel is included with Autopilot — it installs during onboarding, after you start.
-                </p>
-              </div>
-            </div>
-          </ReportSection>
-
-          <ValueBridge
+          <MachineSection
             eyebrow={nextEyebrow()}
             companyName={companyName}
-            gapKeywords={gapKeywordList}
-            topGapCompetitor={topGapCompetitor}
             industry={analysis.industry}
+            gapKeywords={gapKeywordList}
           />
 
           <OfferClose companyName={companyName} />

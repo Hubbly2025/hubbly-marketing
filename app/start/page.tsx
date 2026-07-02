@@ -5,12 +5,12 @@ import { StartForm } from "./start-form"
 export const metadata: Metadata = {
   title: "Start your 14-day Autopilot trial",
   description:
-    "Self-serve signup for Hubbly Autopilot. No demo call, no contract — the trial starts from your inbox.",
+    "Self-serve signup for Hubbly Autopilot. No contract — the trial starts from your inbox.",
   alternates: { canonical: "https://hubbly.io/start" },
 }
 
 const riskReversalLines = [
-  "No demo call. Signup takes 30 seconds.",
+  "Signup takes 30 seconds.",
   "Cancel anytime. No 6-month contract.",
   "You keep every page Autopilot publishes — they live on your domain.",
 ]
@@ -54,11 +54,15 @@ export default function StartPage() {
               ))}
             </div>
             <p className="mt-8 font-mono text-xs leading-6 text-white/45">
-              Questions first? Email{" "}
+              Want the machine mapped onto your business first?{" "}
+              <Link href="/demo" className="text-[#FF6B35] hover:text-[#FF6B35]/80">
+                Book a strategy call
+              </Link>{" "}
+              — 20 minutes, and the price stays the same either way. Or email{" "}
               <a href="mailto:vince@hubbly.io" className="text-[#FF6B35] hover:text-[#FF6B35]/80">
                 vince@hubbly.io
               </a>
-              . But you don&apos;t need permission to start.
+              .
             </p>
           </div>
 

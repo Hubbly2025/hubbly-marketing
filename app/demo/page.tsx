@@ -4,27 +4,28 @@ import Link from "next/link"
 const CALENDAR_URL = "https://cal.com/vince-rabiola-llvenn"
 
 export const metadata: Metadata = {
-  title: "Book a Demo",
-  description: "Book a revenue strategy session with Hubbly and see the autonomous revenue operating system in action.",
+  title: "Book your strategy call",
+  description:
+    "A 20-minute strategy call with Hubbly. We walk through your report, map the machine onto your business, and you leave with the plan whether you buy or not.",
   alternates: { canonical: "https://hubbly.io/demo" },
 }
 
 const sessionItems = [
   {
-    title: "Live product walkthrough",
-    description: "See the audit, campaign approval, outreach, voice, and booking workflow in one pass.",
+    title: "Your report, walked through",
+    description: "We go through your audit line by line — the measured gaps, the competitors capturing them, and what each number means.",
   },
   {
-    title: "Revenue strategy review",
-    description: "Map your current GTM motion, tech stack, bottlenecks, and fastest pipeline opportunities.",
+    title: "The machine, mapped onto you",
+    description: "Recover, Target, Capture, Convert — which stages switch on first for your business and in what order.",
   },
   {
-    title: "Implementation plan",
-    description: "Leave with the first campaign, ICP, message angle, and launch sequence Hubbly would run.",
+    title: "The rollout plan",
+    description: "Leave with the first pages, the ICP, and the launch sequence Hubbly would run. The plan is yours whether you buy or not.",
   },
   {
-    title: "Private beta fit",
-    description: "Talk through access, timeline, and whether Hubbly is the right operating layer for your team.",
+    title: "Activation, not negotiation",
+    description: "The price is already public — Autopilot $498/mo, Workforce $995/mo. The call is for getting you live, not for haggling.",
   },
 ]
 
@@ -46,20 +47,20 @@ export default function DemoPage() {
           </Link>
 
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">
-            Revenue strategy session
+            Strategy call · 20 minutes
           </p>
         </header>
 
         <section className="grid gap-10 py-12 md:py-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
-              Book a demo
+              Book your strategy call
             </p>
             <h1 className="mt-5 font-[var(--font-bebas)] text-5xl leading-none tracking-tight md:text-7xl">
-              Book your revenue strategy session.
+              20 minutes. Your numbers. The plan.
             </h1>
             <p className="mt-5 max-w-xl font-mono text-sm leading-7 text-muted-foreground">
-              Get a personalized walkthrough of Hubbly's autonomous revenue platform and see how the system turns your website, ICP, competitor signals, outreach, voice, and booking into one coordinated pipeline.
+              We walk through your report, map the Recover → Target → Capture → Convert machine onto your business, and you leave with the rollout plan — whether you buy or not. The price is already on the page; the call is for activation, not negotiation.
             </p>
 
             <div className="mt-8 grid gap-4">
@@ -90,7 +91,7 @@ export default function DemoPage() {
           <div className="border border-border/50 bg-card/30 p-3 md:p-4">
             <iframe
               src={CALENDAR_URL}
-              title="Book a demo with Vince"
+              title="Book a strategy call with Vince"
               className="h-[760px] w-full bg-white"
               loading="lazy"
               referrerPolicy="strict-origin-when-cross-origin"

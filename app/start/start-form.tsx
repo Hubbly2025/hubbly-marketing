@@ -59,7 +59,14 @@ export function StartForm() {
           You&apos;re in
         </p>
         <p className="mt-5 max-w-md text-xl leading-8 text-white md:text-2xl">
-          You&apos;re in. Check your email — your Autopilot trial starts there. No call. No demo.
+          You&apos;re in. Check your email — your Autopilot trial starts there.
+        </p>
+        <p className="mt-4 font-mono text-xs leading-6 text-white/55">
+          Prefer a walkthrough first?{" "}
+          <a href="/demo" className="text-[#FF6B35] hover:text-[#FF6B35]/80">
+            Book a strategy call
+          </a>{" "}
+          anytime — the price stays the price either way.
         </p>
       </div>
     )
