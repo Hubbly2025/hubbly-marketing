@@ -13,6 +13,7 @@ export function FinalCloseSection() {
   const contentRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [url, setUrl] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!sectionRef.current) return
@@ -40,6 +41,24 @@ export function FinalCloseSection() {
     if (typeof window === "undefined") return
 
     const params = new URLSearchParams(window.location.search)
+
+    const auditError = params.get("audit_error")
+    if (auditError) {
+      setError(
+        auditError === "invalid"
+          ? "That doesn't look like a valid website URL. Try something like yourwebsite.com."
+          : "We couldn't start your audit just now. Please try again in a moment.",
+      )
+      // Remove the param so a refresh doesn't keep showing the error.
+      params.delete("audit_error")
+      const cleaned = params.toString()
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${cleaned ? `?${cleaned}` : ""}#audit`,
+      )
+    }
+
     const source = params.get("utm_source") || params.get("ref")
     let detectedUrl = ""
 
@@ -76,6 +95,16 @@ export function FinalCloseSection() {
           Drop in your website and see what Hubbly builds — your ICP, competitors, campaign opportunities, search intelligence, and pipeline gaps. No credit card required.
         </p>
 
+        {/* Error banner */}
+        {error && (
+          <div
+            role="alert"
+            className="mx-auto mb-6 max-w-2xl border border-destructive/50 bg-destructive/10 px-4 py-3 font-mono text-xs md:text-sm text-destructive"
+          >
+            {error}
+          </div>
+        )}
+
         {/* URL Input Form */}
         <form
           action="/api/audit/form"
@@ -97,7 +126,10 @@ export function FinalCloseSection() {
               type="text"
               inputMode="url"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => {
+                setUrl(e.target.value)
+                if (error) setError(null)
+              }}
               placeholder="yourwebsite.com"
               required
               className="w-full bg-input border border-border px-4 md:px-5 py-4 font-mono text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200 min-h-[52px]"
