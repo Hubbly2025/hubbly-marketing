@@ -30,14 +30,14 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     normalizedUrl = normalizeAuditUrl(formData.get("url"))
   } catch {
-    return NextResponse.redirect(new URL("/#close", request.url), { status: 303 })
+    return NextResponse.redirect(new URL("/?audit_error=invalid#audit", request.url), { status: 303 })
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!serviceRoleKey) {
-    return NextResponse.redirect(new URL("/#close", request.url), { status: 303 })
+    return NextResponse.redirect(new URL("/?audit_error=unavailable#audit", request.url), { status: 303 })
   }
 
   const response = await fetch(`${supabaseUrl}/rest/v1/audit_leads?select=id`, {
@@ -55,14 +55,14 @@ export async function POST(request: NextRequest) {
   })
 
   if (!response.ok) {
-    return NextResponse.redirect(new URL("/#close", request.url), { status: 303 })
+    return NextResponse.redirect(new URL("/?audit_error=unavailable#audit", request.url), { status: 303 })
   }
 
   const rows = (await response.json()) as Array<{ id: string }>
   const auditId = rows[0]?.id
 
   if (!auditId) {
-    return NextResponse.redirect(new URL("/#close", request.url), { status: 303 })
+    return NextResponse.redirect(new URL("/?audit_error=unavailable#audit", request.url), { status: 303 })
   }
 
   after(async () => {
