@@ -20,9 +20,25 @@ const STEP_COPY: Record<string, string> = {
   complete: "Pricing the gap…",
 }
 
-// Reveal pacing — ~8s total from real payload values before we navigate.
-const STAGGER_MS = 350
-const RISK_SETTLE_MS = 1600
+// Honest coarse progress per backend step — drives the rail + intensity floor.
+const STEP_PROGRESS: Record<string, number> = {
+  queued: 0.08,
+  scraping: 0.28,
+  analyzing: 0.55,
+  building_report: 0.8,
+  complete: 0.95,
+}
+
+// DELIBERATE PACING (product decision): the scan is an unboxing, not a race.
+// The experience runs a minimum of ~60s even if the backend finishes sooner —
+// we HOLD the real data and keep the build going until the floor, then reveal.
+// Pacing/timing is presentation; the revealed number is still the real output.
+const SCAN_MIN_DURATION_MS = 60000
+// If the real scan runs LONGER than the floor, still give the build this long.
+const MIN_BUILD_AFTER_DATA_MS = 6000
+// Count-up duration inside the reveal, then a hold on the number before handoff.
+const RISK_COUNT_MS = 1600
+const REVEAL_HOLD_MS = 900
 
 export function AuditLoadingScreen({ auditId }: { auditId: string }) {
   const router = useRouter()
@@ -37,6 +53,8 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
   const revealStartedRef = useRef(false)
   const timersRef = useRef<number[]>([])
   const navigatedRef = useRef(false)
+  // When the scan experience began — used to enforce the minimum-duration floor.
+  const mountedAtRef = useRef<number>(Date.now())
 
   const emit = useCallback((event: ScanEvent) => {
     if (pushRef.current) pushRef.current(event)
@@ -61,7 +79,10 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
     router.push(`/audit/capture/${auditId}`)
   }, [auditId, router])
 
-  // Stage the reveal from REAL payload values only, then push done.
+  // Stage the reveal from REAL payload values only. The blooms are spread
+  // across the remaining time up to the minimum-duration floor, the crescendo
+  // is told when to crest, and the revenue reveal is gated to the floor so it
+  // never fires early — then done handoff after the count-up + hold.
   const runReveal = useCallback(
     (audit: Audit) => {
       if (revealStartedRef.current) return
@@ -83,38 +104,52 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
 
       const revenueAtRisk = (seo as unknown as { revenueAtRiskMonthly?: number } | undefined)
         ?.revenueAtRiskMonthly
+      const topKeyword = keywords[0] ?? null
 
-      let delay = 250
       const at = (fn: () => void, ms: number) => {
         const id = window.setTimeout(fn, ms)
         timersRef.current.push(id)
       }
 
-      keywords.forEach((label) => {
-        at(() => emit({ type: "keyword", label }), delay)
-        delay += STAGGER_MS
+      // Effective build duration: hold to the floor if the scan finished early,
+      // otherwise a short dressing window if it ran long. This is when the
+      // revenue reveal fires — the whole crescendo is paced to crest here.
+      const elapsed = Date.now() - mountedAtRef.current
+      const remaining = Math.max(MIN_BUILD_AFTER_DATA_MS, SCAN_MIN_DURATION_MS - elapsed)
+
+      // Tell the theater to build so intensity crests exactly at the reveal.
+      emit({ type: "crescendo", revealInMs: remaining })
+
+      // Spread keyword + competitor blooms across ~66% of the window so the
+      // field keeps populating well into the build (accelerating activity does
+      // the rest). Keywords first, then the colder competitor nodes.
+      const items: ScanEvent[] = [
+        ...keywords.map((label): ScanEvent => ({ type: "keyword", label })),
+        ...competitors.map((label): ScanEvent => ({ type: "competitor", label })),
+      ]
+      const bloomWindow = remaining * 0.66
+      const stagger = items.length ? bloomWindow / (items.length + 1) : 0
+      let delay = Math.min(600, stagger || 600)
+      items.forEach((event) => {
+        at(() => emit(event), delay)
+        delay += stagger
       })
 
-      competitors.forEach((label) => {
-        at(() => emit({ type: "competitor", label }), delay)
-        delay += STAGGER_MS
-      })
+      // Beat 5 — the revenue reveal, gated to the floor. Real figure only; if
+      // absent, ScanTheater shows the truthful competitive-map fallback.
+      at(
+        () =>
+          emit({
+            type: "reveal",
+            monthlyUsd: typeof revenueAtRisk === "number" && revenueAtRisk > 0 ? revenueAtRisk : null,
+            label: "estimated · category benchmarks",
+            topKeyword,
+          }),
+        remaining,
+      )
 
-      // Real revenue only. If the payload has no figure, the risk card never renders.
-      if (typeof revenueAtRisk === "number" && revenueAtRisk > 0) {
-        at(
-          () =>
-            emit({
-              type: "risk",
-              monthlyUsd: revenueAtRisk,
-              label: "estimated · category benchmarks",
-            }),
-          delay,
-        )
-        delay += RISK_SETTLE_MS
-      }
-
-      at(() => emit({ type: "done" }), delay + 200)
+      // Beat 6 — hold on the number, then hand off to the existing capture step.
+      at(() => emit({ type: "done" }), remaining + RISK_COUNT_MS + REVEAL_HOLD_MS)
     },
     [emit],
   )
@@ -164,6 +199,9 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
         if (step && step !== lastStepRef.current && STEP_COPY[step]) {
           lastStepRef.current = step
           emit({ type: "status", text: STEP_COPY[step] })
+          if (typeof STEP_PROGRESS[step] === "number") {
+            emit({ type: "progress", value: STEP_PROGRESS[step] })
+          }
         }
 
         setStatus(nextStatus)
