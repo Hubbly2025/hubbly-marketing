@@ -335,38 +335,54 @@ function draw(){
     ctx.lineWidth=(0.6+e[2]*0.5)*(0.6+0.4*d);ctx.stroke();
   });
 
-  pulses=pulses.filter(p=>p.t<1.6);
+  // pulse life: 0..1 travel, 1..4.2 = label (fade-in / hold / fade-out)
+  pulses=pulses.filter(p=>p.t<4.2);
   pulses.forEach(p=>{
     const A=defs[0], B=defs[p.target]!==undefined?defs[p.target]:defs[1];
-    if(B.a<0.5){p.t=1.6;return;}
+    if(B.a<0.5){p.t=4.2;return;}
     if(p.t<=1){
       // travelling dot from your domain (hub) to the target node
       const x=A.sx+(B.sx-A.sx)*p.t, y=A.sy+(B.sy-A.sy)*p.t;
-      const g=ctx.createRadialGradient(x,y,0,x,y,12);
+      const g=ctx.createRadialGradient(x,y,0,x,y,13);
       g.addColorStop(0,'rgba(255,107,53,.95)');g.addColorStop(1,'rgba(255,107,53,0)');
-      ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,12,0,7);ctx.fill();
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,13,0,7);ctx.fill();
       // brighten the travelled edge
       ctx.beginPath();ctx.moveTo(A.sx,A.sy);ctx.lineTo(x,y);
-      ctx.strokeStyle='rgba(255,138,92,'+(0.5*(1-p.t))+')';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.strokeStyle='rgba(255,138,92,'+(0.55*(1-p.t))+')';ctx.lineWidth=1.5;ctx.stroke();
     } else {
-      // arrival ring + floating action label on the target node
-      const k=(p.t-1)/0.6;                     // 0..1 fade
-      const rr=B.sr + k*22;
-      ctx.beginPath();ctx.arc(B.sx,B.sy,rr,0,7);
-      ctx.strokeStyle='rgba(255,138,92,'+(0.6*(1-k))+')';ctx.lineWidth=2;ctx.stroke();
+      // ---- label phase: readable fade-in -> hold -> fade-out ----
+      const life=p.t-1;                        // 0 .. 3.2
+      // opacity envelope: ramp up over 0.35, hold, ramp down over last 0.6
+      let op=1;
+      if(life<0.35) op=life/0.35;
+      else if(life>2.6) op=Math.max(0,(3.2-life)/0.6);
+      // arrival ring only pulses briefly at the start
+      if(life<0.6){
+        const rk=life/0.6, rr=B.sr + rk*24;
+        ctx.beginPath();ctx.arc(B.sx,B.sy,rr,0,7);
+        ctx.strokeStyle='rgba(255,138,92,'+(0.6*(1-rk))+')';ctx.lineWidth=2;ctx.stroke();
+      }
+      // keep the target node lit while its label shows
+      const g2=ctx.createRadialGradient(B.sx,B.sy,0,B.sx,B.sy,B.sr*2.4);
+      g2.addColorStop(0,'rgba(255,107,53,'+(0.3*op)+')');g2.addColorStop(1,'rgba(255,107,53,0)');
+      ctx.fillStyle=g2;ctx.beginPath();ctx.arc(B.sx,B.sy,B.sr*2.4,0,7);ctx.fill();
       if(p.act){
-        ctx.font='600 12px "Space Grotesk"';
-        const tw=ctx.measureText(p.act).width;
-        const bx=Math.min(Math.max(B.sx-tw/2-8,6),W-tw-14), by=B.sy-B.sr-30;
-        ctx.fillStyle='rgba(10,10,10,'+(0.85*(1-k))+')';
-        roundRect(ctx,bx,by,tw+16,22,6);ctx.fill();
-        ctx.strokeStyle='rgba(255,107,53,'+(0.5*(1-k))+')';ctx.lineWidth=1;
-        roundRect(ctx,bx,by,tw+16,22,6);ctx.stroke();
-        ctx.fillStyle='rgba(255,138,92,'+(1-k)+')';ctx.textAlign='left';
-        ctx.fillText(p.act,bx+8,by+15);
+        ctx.font='600 13px "Space Grotesk"';
+        const tw=ctx.measureText(p.act).width, pad=11, h=26;
+        const bx=Math.min(Math.max(B.sx-tw/2-pad,6),W-tw-2*pad-6), by=B.sy-B.sr-h-8;
+        // solid readable pill
+        ctx.fillStyle='rgba(12,12,12,'+(0.92*op)+')';
+        roundRect(ctx,bx,by,tw+2*pad,h,7);ctx.fill();
+        ctx.strokeStyle='rgba(255,107,53,'+(0.7*op)+')';ctx.lineWidth=1.2;
+        roundRect(ctx,bx,by,tw+2*pad,h,7);ctx.stroke();
+        // small leader dot from node to pill
+        ctx.fillStyle='rgba(255,138,92,'+(0.8*op)+')';
+        ctx.beginPath();ctx.arc(B.sx,by+h+4,2,0,7);ctx.fill();
+        ctx.fillStyle='rgba(255,180,136,'+op+')';ctx.textAlign='left';
+        ctx.fillText(p.act,bx+pad,by+17);
       }
     }
-    p.t+=0.02;
+    p.t+= p.t<=1 ? 0.02 : 0.02;   // travel fast, label advances slowly (dwell)
   });
 
   defs.map((n,i)=>({n,i})).sort((a,b)=>a.n.d-b.n.d).forEach(({n})=>{
@@ -402,7 +418,7 @@ function clearSay(){caption.classList.remove('show');}
 const KWNODES=[1,2,3,4,5], COMPNODES=[6,7,8,9];
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 // short on-node action label per agent
-const ACT={Discover:'mapped',Signal:'+identity',Score:'hot lead',Write:'drafting',Send:'outreach',Rank:'published',Book:'booked',Track:'logged',Optimize:'tuned',Spy:'competitor move'};
+const ACT={Discover:'mapped the market',Signal:'resolved a buyer',Score:'flagged a hot lead',Write:'drafted content',Send:'sent outreach',Rank:'published a page',Book:'booked a meeting',Track:'logged a rank move',Optimize:'tuned targeting',Spy:'caught a competitor move'};
 const feedEl=$('feed');let shown=[];
 function feed(agent,msg,target){
   const t=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit'});
