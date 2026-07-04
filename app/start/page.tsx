@@ -67,7 +67,7 @@ export default function StartPage() {
                 See your plan →
               </Link>
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
-                15-minute walkthrough · no commitment
+                15-minute walkthrough · built from your audit
               </p>
             </div>
             <p className="mt-6 font-mono text-xs leading-6 text-white/45">

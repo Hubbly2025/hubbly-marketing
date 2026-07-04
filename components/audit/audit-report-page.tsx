@@ -13,16 +13,19 @@ import {
   SnapshotRow,
 } from "./report-parts"
 import { SeoSection } from "./seo-section"
+import { CalEmbed } from "@/app/demo/cal-embed"
 import type { SeoReport } from "@/lib/seo-report/types"
 
 // v3 close: the report sells the whole machine and closes to a strategy
-// call. /demo is the live cal.com booking route — the call is framed as
-// activation, not negotiation, and pricing stays fully public on this page
-// (that's the wedge). /start stays live as the self-serve secondary path.
+// call. No prices anywhere — the removed tier block is now the "Your Hubbly
+// plan" CTA, which smooth-scrolls to the cal.com embed mounted directly below
+// it on this same page. The call is framed as activation, not negotiation.
+// /start stays live as the self-serve secondary path.
 // TODO(stripe): when checkout + onboarding are automated, self-serve can
 // take primary again via Stripe Checkout.
 const CTA_LABEL = "Book my strategy call"
 const CTA_HREF = "/demo"
+const REPORT_EMBED_ID = "hubbly-plan-embed"
 
 // Provenance chip used on every rendered number and mechanism block so the
 // report reads as measured/estimated/modeled/recommendation, never
@@ -474,17 +477,36 @@ function OfferClose({ companyName }: { companyName: string }) {
           Your Hubbly plan
         </p>
         <p className="max-w-xl text-pretty font-[var(--font-bebas)] text-3xl leading-[1.05] tracking-tight text-white md:text-4xl">
-          Built from everything this audit found — your keywords, your competitors, your revenue at risk.
+          This is your market. Here&apos;s how you take it back.
+        </p>
+        <p className="max-w-xl text-pretty font-mono text-sm leading-7 text-white/70">
+          Everything above — your competitors, your battleground keywords, your revenue at risk — becomes your plan on a 15-minute call. We&apos;ll show you exactly what Hubbly runs first.
         </p>
         <a
-          href={CTA_HREF}
+          href={`#${REPORT_EMBED_ID}`}
+          onClick={(e) => {
+            e.preventDefault()
+            const el = document.getElementById(REPORT_EMBED_ID)
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "start" })
+              el.focus({ preventScroll: true })
+            }
+          }}
           className="mt-2 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
         >
           See your plan →
         </a>
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
-          15-minute walkthrough · no commitment
+          15 minutes · walk through your audit · no commitment
         </p>
+      </div>
+
+      <div
+        id={REPORT_EMBED_ID}
+        tabIndex={-1}
+        className="mt-6 min-h-[700px] scroll-mt-8 border border-white/10 bg-[#0A0A0A]/60 p-3 outline-none md:p-4"
+      >
+        <CalEmbed />
       </div>
     </section>
   )

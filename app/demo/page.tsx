@@ -85,17 +85,17 @@ export default function DemoPage() {
                 Your Hubbly plan
               </p>
               <p className="text-pretty font-[var(--font-bebas)] text-2xl leading-[1.05] tracking-tight text-foreground md:text-3xl">
-                Built from everything this audit found — your keywords, your competitors, your revenue at risk.
+                See it run on your business.
+              </p>
+              <p className="text-pretty font-mono text-sm leading-7 text-muted-foreground">
+                Book 15 minutes. We&apos;ll walk your audit and show Hubbly working on your market — live.
               </p>
               <a
                 href="#book"
                 className="inline-flex min-h-12 items-center justify-center bg-accent px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
               >
-                See your plan →
+                Book your walkthrough →
               </a>
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                15-minute walkthrough · no commitment
-              </p>
             </div>
 
             <p className="mt-8 font-mono text-xs leading-6 text-muted-foreground">
