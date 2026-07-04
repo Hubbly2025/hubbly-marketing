@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import dynamic from "next/dynamic"
 import { HeroSection } from "@/components/hero-section"
+import { ProofDemoSection } from "@/components/proof-demo-section"
 import { ProofStripSection } from "@/components/proof-strip-section"
 import { SideNav } from "@/components/side-nav"
 import { TickerTape } from "@/components/ticker-tape"
@@ -39,6 +40,7 @@ export default function Page() {
         <div className="relative z-10">
           <TickerTape />
           <HeroSection />
+          <ProofDemoSection />
           <ProofStripSection />
           <HowItWorksSection />
           <RankSection />

@@ -106,6 +106,15 @@ export function RankSection() {
         ))}
       </div>
 
+      <div className="mt-8 max-w-5xl">
+        <a
+          href="#how-it-works"
+          className="font-mono text-[11px] md:text-xs uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors duration-200"
+        >
+          Watch Rank publish with the rails on →
+        </a>
+      </div>
+
       <div className="mt-10 border-l-2 border-accent pl-6 max-w-3xl">
         <p className="font-mono text-sm md:text-base text-accent leading-relaxed">
           Competitors sell sales-gated SEO dashboards. Rank ships verified content and proves the citation.

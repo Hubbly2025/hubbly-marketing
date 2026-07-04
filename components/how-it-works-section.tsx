@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, memo, useMemo } from "react"
 import { cn } from "@/lib/utils"
+import LazyDemo from "@/components/lazy-demo"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
@@ -272,6 +273,16 @@ export function HowItWorksSection() {
             </p>
           </article>
         ))}
+      </div>
+
+      {/* Demo: see each part run */}
+      <div className="mt-12 md:mt-16">
+        <h3 className="font-[var(--font-bebas)] text-2xl md:text-3xl tracking-tight mb-6 md:mb-8 text-accent">
+          See each part run
+        </h3>
+        <div className="mx-auto max-w-6xl">
+          <LazyDemo src="/demos/hubbly-agent-demos.html" title="Hubbly system demos" aspect="16 / 10" />
+        </div>
       </div>
 
       {/* Closing statement */}
