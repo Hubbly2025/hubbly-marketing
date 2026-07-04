@@ -16,8 +16,13 @@ export function ProofDemoSection() {
         </p>
       </div>
 
-      <div className="mx-auto max-w-6xl">
-        <LazyDemo src="/demos/hubbly-autopilot-demo.html" title="Hubbly autopilot demo" />
+      <div className="mx-auto max-w-[1400px] px-2 md:px-4">
+        <LazyDemo
+          src="/demos/hubbly-autopilot-demo.html"
+          title="Hubbly autopilot demo"
+          aspect={null}
+          className="h-[min(80vh,860px)]"
+        />
       </div>
 
       <div className="mt-8 text-center">

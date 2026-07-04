@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 type Props = {
   src: string;
   title: string;
-  aspect?: string;      // CSS aspect-ratio, default "16 / 9"
+  aspect?: string | null;  // CSS aspect-ratio, default "16 / 9". Pass null to size via a height class instead.
   className?: string;
 };
 
@@ -33,7 +33,7 @@ export default function LazyDemo({ src, title, aspect = "16 / 9", className = ""
     <div
       ref={wrapRef}
       className={`relative w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] ${className}`}
-      style={{ aspectRatio: aspect }}
+      style={aspect ? { aspectRatio: aspect } : undefined}
     >
       {load ? (
         <iframe
@@ -51,7 +51,7 @@ export default function LazyDemo({ src, title, aspect = "16 / 9", className = ""
           </span>
         </div>
       )}
-      <span className="pointer-events-none absolute right-3 top-3 rounded-md border border-white/15 bg-black/50 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-neutral-400">
+      <span className="pointer-events-none absolute left-3 top-3 rounded-md border border-white/15 bg-black/50 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-neutral-400">
         Demo · illustrative data
       </span>
     </div>

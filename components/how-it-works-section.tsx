@@ -280,8 +280,13 @@ export function HowItWorksSection() {
         <h3 className="font-[var(--font-bebas)] text-2xl md:text-3xl tracking-tight mb-6 md:mb-8 text-accent">
           See each part run
         </h3>
-        <div className="mx-auto max-w-6xl">
-          <LazyDemo src="/demos/hubbly-agent-demos.html" title="Hubbly system demos" aspect="16 / 10" />
+        <div className="mx-auto max-w-[1400px] px-2 md:px-4">
+          <LazyDemo
+            src="/demos/hubbly-agent-demos.html"
+            title="Hubbly system demos"
+            aspect={null}
+            className="h-[min(80vh,860px)]"
+          />
         </div>
       </div>
 
