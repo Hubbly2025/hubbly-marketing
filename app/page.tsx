@@ -22,7 +22,7 @@ const FinalCloseSection = dynamic(() => import("@/components/final-close-section
 const FooterSection = dynamic(() => import("@/components/footer-section").then((m) => m.FooterSection))
 
 export const metadata: Metadata = {
-  title: "Hubbly — Autonomous Growth Engine",
+  title: "Hubbly — The Autonomous Revenue Operating System",
   description:
     "Drop your website in. Hubbly does your marketing and sales — one autonomous system that learns your market, ranks your content, finds in-market buyers, runs outreach and calls, and books the meetings.",
   alternates: { canonical: "https://hubbly.io/" },

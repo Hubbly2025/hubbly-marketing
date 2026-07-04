@@ -1,14 +1,11 @@
 "use client"
 
 const tickerItems = [
-  { text: "ICP MAPPED 2,340 BUYERS IN TEXAS", delay: 0.7 },
-  { text: "GTM STRATEGY APPROVED — TEXAS LIFE INSURANCE", delay: 2.1 },
-  { text: "CREATIVE GENERATED 3 ADS · 5 EMAILS · 1 VIDEO", delay: 2.8 },
-  { text: "DISCOVER FOUND 847 BUYERS IN FLORIDA", delay: 3.5 },
-  { text: "WRITE DRAFTED 3 SEQUENCES FOR TEXAS MORTGAGE", delay: 4.2 },
-  { text: "CALL CONNECTED — 4-MIN BANT 0.82", delay: 4.9 },
-  { text: "LISTEN CLASSIFIED 89 REPLIES AS INTERESTED", delay: 5.6 },
-  { text: "BOOK CONFIRMED 14 MEETINGS TODAY", delay: 6.3 },
+  { text: "RECON SITE ANALYSIS — 87 SECONDS", delay: 0.7 },
+  { text: "WEBSITE → CAMPAIGN DRAFT — UNDER 15 MIN", delay: 2.1 },
+  { text: "498M+ LICENSED IDENTITY RECORDS", delay: 2.8 },
+  { text: "20B+ INTENT SIGNALS · 40K+ LIVE TOPICS", delay: 3.5 },
+  { text: "FULL AUTOPILOT · RAILS ALWAYS ON", delay: 4.2 },
 ]
 
 export function TickerTape() {

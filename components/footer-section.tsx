@@ -84,10 +84,6 @@ export function FooterSection() {
       <div className="flex flex-wrap items-center gap-6 mb-8 pb-8 border-b border-border/20">
         <div className="flex items-center gap-2">
           <span className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center text-accent text-[10px]">✓</span>
-          <span className="font-mono text-xs text-muted-foreground">GDPR Ready</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center text-accent text-[10px]">✓</span>
           <span className="font-mono text-xs text-muted-foreground">AWS Infrastructure</span>
         </div>
       </div>
