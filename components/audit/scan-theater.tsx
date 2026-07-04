@@ -57,6 +57,7 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
   const statusRef = useRef<HTMLDivElement>(null);
   const riskRef = useRef<HTMLDivElement>(null);
   const riskLabelRef = useRef<HTMLSpanElement>(null);
+  const signalRef = useRef<HTMLDivElement>(null);
 
   // Rotating quips — a pure overlay; independent of the scan/data logic.
   const quipsRef = useRef<string[]>([]);
@@ -97,6 +98,12 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
     let progress = 0, progressTarget = 0.08;
     const tilt = -0.3;
 
+    // Drama layers: expanding "ping" rings on each discovery, a running signal
+    // tally, and a completion bloom timestamp. Pure visual — no data impact.
+    const rings: Array<{ p: { x: number; y: number; z: number }; t: number; cat: string }> = [];
+    let signalCount = 0;
+    let doneAt = 0;
+
     const nodes: Node[] = [{ label: domain, cat: "domain", size: 1.7, p: { x: 0, y: 0.1, z: 1 }, a: 0 }];
     const edges: Array<{ a: number; b: number; w: number; al: number }> = [];
     let placed = 1;
@@ -123,6 +130,10 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
       // Each discovery expands the sphere a little more (capped below full
       // until the scan actually completes).
       progressTarget = Math.min(0.9, progressTarget + 0.05);
+      // Drama: ping-ring at the new node + tick the signal tally.
+      rings.push({ p: nodes[idx].p, t: 0, cat });
+      signalCount++;
+      if (signalRef.current) signalRef.current.textContent = String(signalCount);
     }
 
     function resize() {
@@ -158,6 +169,16 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
       const reveal = (offset: number) =>
         Math.max(0, Math.min(1, (progress - offset * 0.5) * 2.5));
       ctx.clearRect(0, 0, W, H);
+
+      // Warm energy field that powers up as the globe fills, and flares on
+      // completion — sells the "engine spinning up" feeling.
+      const bloom = doneAt ? Math.max(0, 1 - (performance.now() - doneAt) / 1200) : 0;
+      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.9);
+      glow.addColorStop(0, hx(ORANGE, 0.05 + 0.1 * progress + 0.18 * bloom));
+      glow.addColorStop(1, hx(ORANGE, 0));
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+
       ctx.lineWidth = 1;
       for (let L = 0; L < 12; L++) {
         const rv = reveal(L / 12);
@@ -206,6 +227,19 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
         ctx.strokeStyle = domainEdge ? `rgba(255,138,92,${al * 1.4})` : `rgba(255,255,255,${al})`;
         ctx.lineWidth = (0.6 + e.w * 0.5) * (0.6 + 0.4 * d);
         ctx.stroke();
+
+        // Data pulse streaming from the discovery (B) into the hub side (A),
+        // once the edge has faded in — makes the pipeline feel alive.
+        if (e.al > 0.15) {
+          const u = ((performance.now() * 0.00035) + (e.a * 0.13 + e.b * 0.07)) % 1;
+          const px = B.sx + (A.sx - B.sx) * u;
+          const py = B.sy + (A.sy - B.sy) * u;
+          const fade = Math.sin(u * Math.PI); // dim at both ends
+          const pc = CATCOLOR[B.n.cat] || EMBER;
+          ctx.beginPath(); ctx.arc(px, py, (1.5 + 1.3 * d), 0, 7);
+          ctx.fillStyle = hx(pc, Math.min(0.85, e.al) * fade * (0.5 + 0.5 * d));
+          ctx.fill();
+        }
       });
 
       proj.sort((a, b) => a.d - b.d).forEach(({ n, sx, sy, d, sr }) => {
@@ -225,6 +259,32 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
           ctx.fillText(n.label, sx, sy - sr - 10);
         }
       });
+
+      // Discovery ping-rings: expand and fade outward from each new signal.
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const rg = rings[i];
+        rg.t += 0.022;
+        if (rg.t >= 1) { rings.splice(i, 1); continue; }
+        const q = rot(rg.p);
+        const rd = (q.z + 1) / 2;
+        const X = cx + q.x * R, Y = cy - q.y * R;
+        const rad = (6 + rg.t * 44) * (0.6 + 0.4 * rd);
+        ctx.beginPath(); ctx.arc(X, Y, rad, 0, 7);
+        ctx.lineWidth = 2 * (1 - rg.t);
+        ctx.strokeStyle = hx(CATCOLOR[rg.cat] || EMBER, 0.5 * (1 - rg.t) * (0.4 + 0.6 * rd));
+        ctx.stroke();
+      }
+
+      // Completion bloom: a single bright shockwave when the scan finishes.
+      if (doneAt) {
+        const bt = Math.min(1, (performance.now() - doneAt) / 1200);
+        if (bt < 1) {
+          ctx.beginPath(); ctx.arc(cx, cy, R * (1 + bt * 1.15), 0, 7);
+          ctx.lineWidth = 3 * (1 - bt);
+          ctx.strokeStyle = hx(ORANGE, 0.55 * (1 - bt));
+          ctx.stroke();
+        }
+      }
 
       if (!reduce) angle += 0.0016;
       raf = requestAnimationFrame(draw);
@@ -258,6 +318,7 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
         case "done":
           if (statusRef.current) statusRef.current.textContent = "Scan complete · building your report";
           progressTarget = 1; // fill the globe out to full on completion
+          doneAt = performance.now(); // fire the completion bloom
           setScanDone(true);
           onDone?.();
           break;
@@ -299,6 +360,12 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
           $0/mo
         </div>
         <span ref={riskLabelRef} className="mt-1 inline-block rounded-md border border-white/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-neutral-500" />
+      </div>
+      <div className="absolute bottom-6 right-6 rounded-2xl border border-white/10 bg-white/[.045] px-5 py-4 text-right backdrop-blur-xl">
+        <div className="font-mono text-[10px] uppercase tracking-[.15em] text-neutral-500">Signals detected</div>
+        <div ref={signalRef} className="mt-1.5 text-3xl font-semibold tabular-nums tracking-tight text-neutral-100">
+          0
+        </div>
       </div>
     </div>
   );
