@@ -1,6 +1,34 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+/* ---------- rotating loading quips (overlay layer only) ---------- */
+const QUIPS = [
+  "McKinsey and Tesla had a one-night stand. Nine months later, Hubbly was born.",
+  "Your competitors are asleep. Hubbly doesn't sleep.",
+  "Teaching robots to do your marketing so you can do literally anything else.",
+  "Somewhere, an agency just felt a cold chill and doesn't know why.",
+  "Reading your website faster than your last intern read the brief.",
+  "Counting the money your competitors are taking from you. Sit down.",
+  "We fired the sales team and kept the results.",
+  "Doing in 90 seconds what a $12k/mo retainer does in 90 days.",
+  "Finding buyers who are already on your site and too shy to say hi.",
+  "Your funnel called. It wants to actually work now.",
+  "Politely informing Google who's in charge here.",
+  "This used to take five tools, three logins, and a good cry.",
+  "Every rival on page one is about to have a very bad quarter.",
+  "Warning: may cause your pipeline to become suspiciously full.",
+];
+
+// McKinsey line always first; the rest are shuffled once per mount.
+function buildQuipOrder(): string[] {
+  const [first, ...rest] = QUIPS;
+  for (let i = rest.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rest[i], rest[j]] = [rest[j], rest[i]];
+  }
+  return [first, ...rest];
+}
 
 /* ---------- data contract: push events as the scan produces them ---------- */
 export type ScanEvent =
@@ -29,6 +57,29 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
   const statusRef = useRef<HTMLDivElement>(null);
   const riskRef = useRef<HTMLDivElement>(null);
   const riskLabelRef = useRef<HTMLSpanElement>(null);
+
+  // Rotating quips — a pure overlay; independent of the scan/data logic.
+  const quipsRef = useRef<string[]>([]);
+  if (quipsRef.current.length === 0) quipsRef.current = buildQuipOrder();
+  const [quipIndex, setQuipIndex] = useState(0);
+  const [quipVisible, setQuipVisible] = useState(true);
+  const [scanDone, setScanDone] = useState(false);
+
+  useEffect(() => {
+    if (scanDone) return;
+    let swap = 0;
+    const cycle = window.setInterval(() => {
+      setQuipVisible(false); // fade out
+      swap = window.setTimeout(() => {
+        setQuipIndex((i) => (i + 1) % quipsRef.current.length);
+        setQuipVisible(true); // fade in next
+      }, 450);
+    }, 3000);
+    return () => {
+      window.clearInterval(cycle);
+      window.clearTimeout(swap);
+    };
+  }, [scanDone]);
 
   useEffect(() => {
     const cvs = canvasRef.current!;
@@ -185,6 +236,7 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
         }
         case "done":
           if (statusRef.current) statusRef.current.textContent = "Scan complete · building your report";
+          setScanDone(true);
           onDone?.();
           break;
       }
@@ -196,6 +248,23 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
   return (
     <div className={`relative h-[560px] w-full overflow-hidden rounded-2xl bg-[#0a0a0a] ${className}`}>
       <canvas ref={canvasRef} className="absolute inset-0" />
+      {!scanDone && (
+        <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center px-8">
+          <p
+            aria-hidden="true"
+            className="max-w-xl text-balance text-center transition-opacity duration-500 ease-out"
+            style={{
+              fontWeight: 600,
+              fontSize: "20px",
+              lineHeight: 1.4,
+              color: "#f5f5f5",
+              opacity: quipVisible ? 1 : 0,
+            }}
+          >
+            {quipsRef.current[quipIndex]}
+          </p>
+        </div>
+      )}
       <div className="absolute left-1/2 top-6 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/10 bg-white/[.045] px-5 py-2.5 backdrop-blur-xl">
         <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-[#FF6B35] shadow-[0_0_12px_#FF6B35]" />
         <div ref={statusRef} className="font-mono text-[13px] text-neutral-100">
