@@ -3,16 +3,16 @@ import Link from "next/link"
 import { StartForm } from "./start-form"
 
 export const metadata: Metadata = {
-  title: "Start your 14-day Autopilot trial",
+  title: "Start your 14-day trial",
   description:
-    "Self-serve signup for Hubbly Autopilot. No contract — the trial starts from your inbox.",
+    "Self-serve signup for Hubbly. No contract — the trial starts from your inbox.",
   alternates: { canonical: "https://hubbly.io/start" },
 }
 
 const riskReversalLines = [
   "Signup takes 30 seconds.",
   "Cancel anytime. No 6-month contract.",
-  "You keep every page Autopilot publishes — they live on your domain.",
+  "You keep every page Hubbly publishes — they live on your domain.",
 ]
 
 export default function StartPage() {
@@ -43,7 +43,7 @@ export default function StartPage() {
               Self-serve
             </p>
             <h1 className="mt-5 font-[var(--font-bebas)] text-5xl leading-none tracking-tight md:text-7xl">
-              Start your 14-day Autopilot trial
+              Start your 14-day trial
             </h1>
             <div className="mt-8 space-y-3">
               {riskReversalLines.map((line) => (
@@ -58,7 +58,7 @@ export default function StartPage() {
               <Link href="/demo" className="text-[#FF6B35] hover:text-[#FF6B35]/80">
                 Book a strategy call
               </Link>{" "}
-              — 20 minutes, and the price stays the same either way. Or email{" "}
+              — 20 minutes, self-serve either way. Or email{" "}
               <a href="mailto:vince@hubbly.io" className="text-[#FF6B35] hover:text-[#FF6B35]/80">
                 vince@hubbly.io
               </a>
