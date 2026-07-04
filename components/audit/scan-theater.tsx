@@ -91,6 +91,10 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let W = 0, H = 0, cx = 0, cy = 0, R = 0, angle = 0, raf = 0, alive = true;
+    // Scan build-up: `progress` (0..1) eases toward `progressTarget`, which
+    // climbs as nodes arrive and snaps to 1 on done. Drives how much of the
+    // globe wireframe is revealed, so the sphere fills in gradually.
+    let progress = 0, progressTarget = 0.08;
     const tilt = -0.3;
 
     const nodes: Node[] = [{ label: domain, cat: "domain", size: 1.7, p: { x: 0, y: 0.1, z: 1 }, a: 0 }];
@@ -116,6 +120,9 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
         else edges.push({ a: 0, b: idx, w: 1, al: 0 });
       }
       requestAnimationFrame(() => { nodes[idx].a = 0.001; });
+      // Each discovery expands the sphere a little more (capped below full
+      // until the scan actually completes).
+      progressTarget = Math.min(0.9, progressTarget + 0.05);
     }
 
     function resize() {
@@ -144,9 +151,17 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
 
     function draw() {
       if (!alive) return;
+      // Ease overall build-up toward its current target.
+      progress += (progressTarget - progress) * 0.018;
+      // Staggered per-line reveal: lines near the "front" show first, the rest
+      // fill in as progress grows. At progress=1 every line is fully drawn.
+      const reveal = (offset: number) =>
+        Math.max(0, Math.min(1, (progress - offset * 0.5) * 2.5));
       ctx.clearRect(0, 0, W, H);
       ctx.lineWidth = 1;
       for (let L = 0; L < 12; L++) {
+        const rv = reveal(L / 12);
+        if (rv <= 0) continue;
         const th = (L / 12) * Math.PI * 2;
         ctx.beginPath();
         for (let s = 0; s <= 36; s++) {
@@ -155,9 +170,11 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
           const X = cx + q.x * R, Y = cy - q.y * R;
           s ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
         }
-        ctx.strokeStyle = "rgba(255,255,255,.055)"; ctx.stroke();
+        ctx.strokeStyle = `rgba(255,255,255,${0.06 * rv})`; ctx.stroke();
       }
       for (let La = 1; La < 6; La++) {
+        const rv = reveal(La / 6);
+        if (rv <= 0) continue;
         const ph = -Math.PI / 2 + (La / 6) * Math.PI;
         ctx.beginPath();
         for (let s = 0; s <= 48; s++) {
@@ -166,11 +183,11 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
           const X = cx + q.x * R, Y = cy - q.y * R;
           s ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
         }
-        ctx.strokeStyle = "rgba(255,255,255,.055)"; ctx.stroke();
+        ctx.strokeStyle = `rgba(255,255,255,${0.06 * rv})`; ctx.stroke();
       }
 
       const proj = nodes.map((n) => {
-        if (n.a > 0 && n.a < 1) n.a = Math.min(1, n.a + 0.03);
+        if (n.a > 0 && n.a < 1) n.a = Math.min(1, n.a + 0.012);
         const q = rot(n.p);
         const d = (q.z + 1) / 2;
         return { n, sx: cx + q.x * R, sy: cy - q.y * R, d, sr: (4 + n.size * 7) * (0.55 + 0.45 * d) };
@@ -181,7 +198,7 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
         if (!A || !B) return;
         const vis = Math.min(A.n.a, B.n.a);
         if (vis <= 0) return;
-        if (e.al < vis) e.al = Math.min(vis, e.al + 0.02);
+        if (e.al < vis) e.al = Math.min(vis, e.al + 0.008);
         const d = (A.d + B.d) / 2;
         const domainEdge = e.a === 0 || e.b === 0;
         const al = (0.05 + 0.15 * d) * e.al;
@@ -240,6 +257,7 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
         }
         case "done":
           if (statusRef.current) statusRef.current.textContent = "Scan complete · building your report";
+          progressTarget = 1; // fill the globe out to full on completion
           setScanDone(true);
           onDone?.();
           break;
