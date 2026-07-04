@@ -26,7 +26,7 @@ const sessionItems = [
   },
   {
     title: "Activation, not negotiation",
-    description: "The price is already public — Autopilot $498/mo, Workforce $995/mo. The call is for getting you live, not for haggling.",
+    description: "No sales gate — Hubbly is self-serve when you're ready. The call is for getting you live, not for haggling.",
   },
 ]
 
@@ -61,7 +61,7 @@ export default function DemoPage() {
               20 minutes. Your numbers. The plan.
             </h1>
             <p className="mt-5 max-w-xl font-mono text-sm leading-7 text-muted-foreground">
-              We walk through your report, map the Recover → Target → Capture → Convert machine onto your business, and you leave with the rollout plan — whether you buy or not. The price is already on the page; the call is for activation, not negotiation.
+              We walk through your report, map the Recover → Target → Capture → Convert machine onto your business, and you leave with the rollout plan — whether you buy or not. It&apos;s self-serve when you&apos;re ready; the call is for activation, not negotiation.
             </p>
 
             <div className="mt-8 grid gap-4">
@@ -80,6 +80,24 @@ export default function DemoPage() {
               ))}
             </div>
 
+            <div className="mt-8 flex flex-col items-start gap-4 border border-accent/40 bg-card/30 p-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
+                Your Hubbly plan
+              </p>
+              <p className="text-pretty font-[var(--font-bebas)] text-2xl leading-[1.05] tracking-tight text-foreground md:text-3xl">
+                See it run on your business.
+              </p>
+              <p className="text-pretty font-mono text-sm leading-7 text-muted-foreground">
+                Book 15 minutes. We&apos;ll walk your audit and show Hubbly working on your market — live.
+              </p>
+              <a
+                href="#book"
+                className="inline-flex min-h-12 items-center justify-center bg-accent px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
+              >
+                Book your walkthrough →
+              </a>
+            </div>
+
             <p className="mt-8 font-mono text-xs leading-6 text-muted-foreground">
               Questions before booking? Email{" "}
               <a href="mailto:vince@hubbly.io" className="text-accent hover:text-accent/80">
@@ -89,7 +107,7 @@ export default function DemoPage() {
             </p>
           </div>
 
-          <div className="min-h-[700px] border border-border/50 bg-card/30 p-3 md:p-4">
+          <div id="book" className="min-h-[700px] scroll-mt-8 border border-border/50 bg-card/30 p-3 md:p-4">
             <CalEmbed />
             <div className="border-t border-border/40 px-2 py-4 text-center">
               <a

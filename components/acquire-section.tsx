@@ -73,7 +73,7 @@ export function AcquireSection() {
           Paid acquisition, governed by the same system.
         </h2>
         <p className="mt-6 font-mono text-sm md:text-base text-muted-foreground max-w-3xl leading-relaxed">
-          At Workforce tier, Hubbly extends the same system into paid acquisition. Campaign creation, audience targeting, creative, compliance, tracking, and lead ingestion stay connected to the same buyer context as outbound.
+          As you scale, Hubbly extends the same system into paid acquisition. Campaign creation, audience targeting, creative, compliance, tracking, and lead ingestion stay connected to the same buyer context as outbound.
         </p>
       </div>
 

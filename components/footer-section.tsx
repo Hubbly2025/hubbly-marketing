@@ -42,7 +42,6 @@ export function FooterSection() {
             <li><a href="#how-it-works" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">How Hubbly works</a></li>
             <li><a href="/platform" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Platform</a></li>
             <li><a href="#faq" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">FAQ</a></li>
-            <li><a href="/pricing" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Pricing</a></li>
           </ul>
         </div>
         <div>
@@ -82,10 +81,6 @@ export function FooterSection() {
 
       {/* Compliance badges */}
       <div className="flex flex-wrap items-center gap-6 mb-8 pb-8 border-b border-border/20">
-        <div className="flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center text-accent text-[10px]">✓</span>
-          <span className="font-mono text-xs text-muted-foreground">GDPR Ready</span>
-        </div>
         <div className="flex items-center gap-2">
           <span className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center text-accent text-[10px]">✓</span>
           <span className="font-mono text-xs text-muted-foreground">AWS Infrastructure</span>

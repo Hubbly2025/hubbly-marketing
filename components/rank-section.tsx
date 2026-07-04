@@ -26,8 +26,8 @@ const cards = [
       "Snapshot before every change, verify after every publish, auto-rollback on regression. Rails are always on.",
   },
   {
-    title: "Transparent pricing",
-    description: "$498/mo, self-serve, in the Autopilot tier. No sales call required.",
+    title: "No sales gate",
+    description: "Self-serve from your first audit. No demos, no negotiation, no sales call to get started.",
   },
 ]
 
@@ -104,6 +104,15 @@ export function RankSection() {
             <p className="font-mono text-xs md:text-sm text-muted-foreground leading-relaxed">{card.description}</p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-8 max-w-5xl">
+        <a
+          href="#how-it-works"
+          className="font-mono text-[11px] md:text-xs uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors duration-200"
+        >
+          Watch Rank publish with the rails on →
+        </a>
       </div>
 
       <div className="mt-10 border-l-2 border-accent pl-6 max-w-3xl">

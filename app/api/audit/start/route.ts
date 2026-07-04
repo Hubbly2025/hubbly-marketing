@@ -1,11 +1,22 @@
 import { after, NextRequest, NextResponse } from "next/server"
 import { processAudit } from "@/lib/audit/process-audit"
+import { rateLimit } from "@/lib/seo-report/redis"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
+
+function getClientIp(request: NextRequest): string {
+  const forwarded = request.headers.get("x-forwarded-for")
+  if (forwarded) return forwarded.split(",")[0]!.trim()
+  return request.headers.get("x-real-ip")?.trim() || "unknown"
+}
 
 function normalizeAuditUrl(value: unknown) {
   if (typeof value !== "string" || !value.trim()) {
     throw new Error("Enter a website URL.")
+  }
+
+  if (value.length > 2048) {
+    throw new Error("Enter a valid website URL.")
   }
 
   const trimmed = value.trim()
@@ -33,6 +44,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Enter a valid website URL." },
       { status: 400 },
+    )
+  }
+
+  const limit = await rateLimit(`audit:${getClientIp(request)}`)
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again in a moment." },
+      { status: 429 },
     )
   }
 

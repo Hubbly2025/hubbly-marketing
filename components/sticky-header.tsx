@@ -3,11 +3,38 @@
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
+// Product nav links in tour order. `demoKey` maps to the `data.active` value
+// broadcast by a playing demo via window "message" events (type "hubbly-demo").
+// Demos without a nav link (discover/score/write) are intentionally absent.
+const NAV_PRODUCTS = [
+  { label: "Signal", href: "/signal", color: "text-signal", demoKey: "signal" },
+  { label: "Send", href: "/send", color: "text-send", demoKey: "send" },
+  { label: "Voice", href: "/voice", color: "text-voice", demoKey: "voice" },
+  { label: "Spy", href: "/spy", color: "text-accent", demoKey: "listen" },
+  { label: "Rank", href: "/autopilot", color: "text-rank", demoKey: "rank" },
+] as const
+
+const DEMO_KEYS = new Set(NAV_PRODUCTS.map((p) => p.demoKey))
+
 export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activeDemo, setActiveDemo] = useState<string | null>(null)
+
+  // React to the currently playing demo: a demo posts { type: "hubbly-demo",
+  // active: "<demoKey>|null }". Highlight the matching nav link; clear when the
+  // active demo is null or has no nav link (discover/score/write).
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      const data = e.data
+      if (!data || data.type !== "hubbly-demo") return
+      setActiveDemo(typeof data.active === "string" && DEMO_KEYS.has(data.active) ? data.active : null)
+    }
+    window.addEventListener("message", onMessage)
+    return () => window.removeEventListener("message", onMessage)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,42 +104,28 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-5 lg:gap-7">
-            <a
-              href="/autopilot"
-              className="font-mono text-sm font-semibold uppercase tracking-wider text-rank hover:opacity-80 transition-opacity"
-            >
-              Rank
-            </a>
-            <a
-              href="/signal"
-              className="font-mono text-sm font-semibold uppercase tracking-wider text-signal hover:opacity-80 transition-opacity"
-            >
-              Signal
-            </a>
-            <a
-              href="/send"
-              className="font-mono text-sm font-semibold uppercase tracking-wider text-send hover:opacity-80 transition-opacity"
-            >
-              Send
-            </a>
-            <a
-              href="/voice"
-              className="font-mono text-sm font-semibold uppercase tracking-wider text-voice hover:opacity-80 transition-opacity"
-            >
-              Voice
-            </a>
+            {NAV_PRODUCTS.map((p) => {
+              const active = activeDemo === p.demoKey
+              return (
+                <a
+                  key={p.label}
+                  href={p.href}
+                  style={active ? { transform: "scale(1.15)" } : undefined}
+                  className={cn(
+                    "inline-block origin-center font-mono text-sm font-semibold uppercase tracking-wider transition-transform duration-300 hover:opacity-80",
+                    active ? "text-accent" : p.color,
+                  )}
+                >
+                  {p.label}
+                </a>
+              )
+            })}
             <button
               onClick={() => scrollToSection("how-it-works")}
               className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
             >
               How it works
             </button>
-            <a
-              href="/pricing"
-              className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Pricing
-            </a>
             <button
               onClick={() => scrollToSection("audit")}
               className="font-mono text-sm uppercase tracking-wider bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
@@ -170,25 +183,25 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
       >
         <div className="flex flex-col px-4 py-4">
           {[
-            { label: "Rank", href: "/autopilot", className: "text-rank" },
-            { label: "Signal", href: "/signal", className: "text-signal" },
-            { label: "Send", href: "/send", className: "text-send" },
-            { label: "Voice", href: "/voice", className: "text-voice" },
-            { label: "How it works", href: "/#how-it-works", className: "text-muted-foreground" },
-            { label: "Pricing", href: "/pricing", className: "text-muted-foreground" },
-          ].map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className={cn(
-                "border-b border-border/20 py-4 font-mono text-sm uppercase tracking-widest transition-opacity hover:opacity-80",
-                item.className,
-              )}
-            >
-              {item.label}
-            </a>
-          ))}
+            ...NAV_PRODUCTS.map((p) => ({ label: p.label, href: p.href, className: p.color, demoKey: p.demoKey as string })),
+            { label: "How it works", href: "/#how-it-works", className: "text-muted-foreground", demoKey: "" },
+          ].map((item) => {
+            const active = item.demoKey !== "" && activeDemo === item.demoKey
+            return (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                style={active ? { transform: "scale(1.15)" } : undefined}
+                className={cn(
+                  "inline-block origin-left border-b border-border/20 py-4 font-mono text-sm uppercase tracking-widest transition-transform duration-300 hover:opacity-80",
+                  active ? "text-accent" : item.className,
+                )}
+              >
+                {item.label}
+              </a>
+            )
+          })}
         </div>
       </div>
     </header>

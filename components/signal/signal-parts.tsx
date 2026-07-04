@@ -11,7 +11,7 @@ export type Metrics = {
   back: boolean
 }
 
-export const TOTAL_SECTIONS = 6
+export const TOTAL_SECTIONS = 5
 
 export function formatElapsed(ms: number) {
   const s = Math.floor(ms / 1000)

@@ -66,7 +66,7 @@ export function ProductSchema() {
     ],
     offers: {
       "@type": "Offer",
-      url: `${siteUrl}/pricing`,
+      url: `${siteUrl}/#audit`,
       category: "SaaS subscription",
     },
   }

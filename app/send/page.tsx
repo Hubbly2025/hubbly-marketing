@@ -4,6 +4,7 @@ import { SideNav } from "@/components/side-nav"
 import { FloatingCTA } from "@/components/floating-cta"
 import { FooterSection } from "@/components/footer-section"
 import { Reveal } from "@/components/autopilot/reveal"
+import LazyDemo from "@/components/lazy-demo"
 
 export const metadata: Metadata = {
   title: "Hubbly Send — Cold email, built in",
@@ -78,6 +79,18 @@ export default function SendPage() {
       <StickyHeader />
       <SideNav />
       <FloatingCTA />
+
+      {/* DEMO HERO */}
+      <section className="px-4 pt-24 pb-4 md:px-8 md:pt-28">
+        <div className="mx-auto w-full max-w-[1400px]">
+          <LazyDemo
+            src="/demos/hubbly-agent-demos.html?demo=send"
+            title="Hubbly Send demo"
+            aspect={null}
+            className="h-[min(80vh,860px)]"
+          />
+        </div>
+      </section>
 
       {/* Hero */}
       <header className="relative border-b border-border">

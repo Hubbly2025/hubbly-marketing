@@ -1,3 +1,5 @@
+import { assertPublicHttpUrl } from "./url-guard";
+
 export type ScrapedPage = {
   url: string;
   status: number;
@@ -287,6 +289,18 @@ export async function scrapeSite(baseUrl: string): Promise<ScrapedPage[]> {
   const startedAt = Date.now();
   const domain = extractDomain(baseUrl);
   let tierOnePage: ScrapedPage | null = null;
+
+  // SSRF guard: never fetch a URL that resolves to an internal/loopback/
+  // link-local/metadata address. Throwing here degrades the scrape to empty
+  // pages (see pipeline), so no internal request is ever made.
+  try {
+    await assertPublicHttpUrl(baseUrl);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : "blocked_url";
+    logFailure(domain, reason);
+    logSummary(baseUrl, "blocked_url", Date.now() - startedAt);
+    return [];
+  }
 
   try {
     const { response, html } = await fetchHtml(baseUrl);

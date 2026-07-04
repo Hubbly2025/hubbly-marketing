@@ -5,11 +5,12 @@ import { FloatingCTA } from "@/components/floating-cta"
 import { FooterSection } from "@/components/footer-section"
 import { AutopilotEngine } from "@/components/autopilot/autopilot-engine"
 import { Reveal } from "@/components/autopilot/reveal"
+import LazyDemo from "@/components/lazy-demo"
 
 export const metadata: Metadata = {
   title: "Hubbly Rank — SEO + AEO on autopilot",
   description:
-    "Hubbly Rank publishes verified content for Google and AI engines — ChatGPT, Perplexity, Bing — with snapshot, verify, and rollback rails always on. $498/mo in the Autopilot tier.",
+    "Hubbly Rank publishes verified content for Google and AI engines — ChatGPT, Perplexity, Bing — with snapshot, verify, and rollback rails always on.",
   alternates: { canonical: "https://hubbly.io/autopilot" },
 }
 
@@ -88,8 +89,20 @@ export default function AutopilotPage() {
         <div className="grid-bg fixed inset-0 opacity-30" aria-hidden="true" />
 
         <div className="relative z-10">
+          {/* DEMO HERO */}
+          <section className="px-4 pt-24 pb-4 md:pl-28 md:pr-12 md:pt-28">
+            <div className="mx-auto w-full max-w-[1400px]">
+              <LazyDemo
+                src="/demos/hubbly-agent-demos.html?demo=rank"
+                title="Hubbly Rank demo"
+                aspect={null}
+                className="h-[min(80vh,860px)]"
+              />
+            </div>
+          </section>
+
           {/* HERO */}
-          <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-28 pb-16 md:pl-28 md:pr-12">
+          <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-16 pb-16 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-rank">
                 Hubbly Rank · SEO + AEO on autopilot
