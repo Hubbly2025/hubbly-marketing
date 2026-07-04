@@ -220,6 +220,16 @@
   .wcomp small{font-family:"JetBrains Mono",monospace;font-size:9.5px;color:var(--muted);letter-spacing:.05em}
   .wcomp.hit{border-color:rgba(255,107,53,.55);box-shadow:0 0 22px -8px rgba(255,107,53,.5)}
 
+  /* active-agent rail: shows during play; the live agent's name enlarges */
+  .rail{position:fixed;top:66px;left:50%;transform:translateX(-50%);z-index:18;
+    display:flex;gap:20px;padding:11px 22px;border-radius:999px;
+    opacity:0;pointer-events:none;transition:opacity .4s}
+  .rail.show{opacity:1}
+  .rail span{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);transition:transform .4s cubic-bezier(.2,.8,.2,1),color .4s;transform-origin:center;white-space:nowrap}
+  .rail span.on{color:var(--accent);transform:scale(1.4);font-weight:600;text-shadow:0 0 18px rgba(255,107,53,.5)}
+  @media(max-width:980px){.rail{display:none}}
+
   @media(max-width:900px){
     .demo{grid-template-columns:1fr;height:auto}
     .steps{flex-direction:row;flex-wrap:wrap;gap:10px}
@@ -240,6 +250,7 @@
 </div>
 
 <div class="caption" id="caption"></div>
+<div class="glass rail" id="rail"></div>
 
 <div class="foot">
   <button class="btn" id="bHome">⌂ All agents</button>
@@ -256,11 +267,11 @@
       <div class="glass acard" data-go="discover"><div class="n">01 · agent</div><h3>Disco<span>ver</span></h3><p>Reads the site, maps the keywords that pay, and finds who's taking them.</p></div>
       <div class="glass acard" data-go="signal"><div class="n">02 · identity + intent layer</div><h3>Hubbly Sig<span>nal</span></h3><p>Turns anonymous visitors into named people and companies with intent.</p></div>
       <div class="glass acard" data-go="score"><div class="n">03 · agent</div><h3>Sco<span>re</span></h3><p>Ranks every lead by fit, intent, and engagement. Surfaces the hot ones.</p></div>
-      <div class="glass acard" data-go="write"><div class="n">04 · agent</div><h3>Wri<span>te</span></h3><p>Drafts content in your brand voice, built to win the keyword.</p></div>
-      <div class="glass acard" data-go="rank"><div class="n">05 · product line</div><h3>Hubbly Ra<span>nk</span></h3><p>Publishes with safety rails — snapshot, verify, rollback — and moves rankings.</p></div>
-      <div class="glass acard" data-go="send"><div class="n">06 · agent</div><h3>Se<span>nd</span></h3><p>Recovers lost traffic: visitors who left become email campaigns that come back.</p></div>
-      <div class="glass acard" data-go="voice"><div class="n">07 · product line · beta</div><h3>Hubbly Voi<span>ce</span></h3><p>Places the call, knows who it's calling, and books the meeting live.</p></div>
-      <div class="glass acard" data-go="listen"><div class="n">08 · product line</div><h3>Hubbly S<span>py</span></h3><p>Watches the competition around the clock. Every move becomes a counter-move.</p></div>
+      <div class="glass acard" data-go="send"><div class="n">04 · agent</div><h3>Se<span>nd</span></h3><p>Recovers lost traffic: visitors who left become email campaigns that come back.</p></div>
+      <div class="glass acard" data-go="voice"><div class="n">05 · product line · beta</div><h3>Hubbly Voi<span>ce</span></h3><p>Places the call, knows who it's calling, and books the meeting live.</p></div>
+      <div class="glass acard" data-go="listen"><div class="n">06 · product line</div><h3>Hubbly S<span>py</span></h3><p>Watches the competition around the clock. Every move becomes a counter-move.</p></div>
+      <div class="glass acard" data-go="write"><div class="n">07 · agent</div><h3>Wri<span>te</span></h3><p>Drafts content in your brand voice, built to win the keyword.</p></div>
+      <div class="glass acard" data-go="rank"><div class="n">08 · product line</div><h3>Hubbly Ra<span>nk</span></h3><p>Publishes with safety rails — snapshot, verify, rollback — and moves rankings.</p></div>
     </div>
     <button class="btn primary" id="bTour" style="padding:13px 26px;font-size:13px">▶ Play full tour</button>
   </div>
@@ -518,6 +529,16 @@ function show(id){
   $('crumb').innerHTML = id==='menu' ? 'Hubbly demos · <b>casper.com</b>' : nice[id]+' · <b>casper.com</b>';
   $('bNext').style.display='none';
   caption.classList.remove('show');
+  setRail(id==='menu'?null:id);
+  try{parent.postMessage({type:'hubbly-demo',active:id==='menu'?null:id,label:id==='menu'?null:nice[id]},'*');}catch(e){}
+}
+/* rail: agent names in tour order; the one on stage enlarges */
+const railEl=$('rail');
+railEl.innerHTML=order.map(id=>`<span data-id="${id}">${nice[id]}</span>`).join('');
+function setRail(id){
+  if(!id){railEl.classList.remove('show');return;}
+  railEl.classList.add('show');
+  railEl.querySelectorAll('span').forEach(s=>s.classList.toggle('on',s.dataset.id===id));
 }
 function doneControls(id){
   const i=order.indexOf(id);
@@ -1004,6 +1025,16 @@ async function play(id){
   }
 }
 document.querySelectorAll('.acard').forEach(c=>c.addEventListener('click',()=>{tourMode=false;play(c.dataset.go);}));
+/* Deep link: /demos/hubbly-agent-demos.html?demo=signal opens that demo directly.
+   Valid: discover|signal|score|send|voice|listen|write|rank (listen = Hubbly Spy internal id)
+   Alias: spy -> listen. ?demo=tour plays the full tour. No/invalid param = card menu. */
+(function(){
+  const q=(new URLSearchParams(location.search).get('demo')||'').toLowerCase();
+  if(!q)return;
+  const id = q==='spy' ? 'listen' : q;
+  if(id==='tour'){tourMode=true;play('discover');return;}
+  if(demos[id]){tourMode=false;play(id);}
+})();
 $('bTour').addEventListener('click',()=>{tourMode=true;play('discover');});
 $('bHome').addEventListener('click',()=>{runToken++;tourMode=false;current='menu';show('menu');});
 $('bRestart').addEventListener('click',()=>{
