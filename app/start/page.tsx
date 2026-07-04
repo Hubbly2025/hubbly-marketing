@@ -33,7 +33,7 @@ export default function StartPage() {
           </Link>
 
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#FF6B35]">
-            Autopilot · $498/mo
+            Self-serve · no sales call
           </p>
         </header>
 

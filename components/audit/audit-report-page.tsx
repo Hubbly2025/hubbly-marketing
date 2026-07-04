@@ -393,9 +393,8 @@ function MachineSection({
   )
 }
 
-// v3 offer — the stack mirrors the four pillars, then transparent two-tier
-// pricing. The wedge: price is public on this page, the call is activation,
-// not negotiation. Anchor is round category ranges only — no fake precision.
+// v3 offer — the stack mirrors the four pillars, then two capability scopes.
+// The wedge: no sales gate, the call is activation, not negotiation.
 const OFFER_STACK: Array<{
   pillar: string
   name: string
@@ -473,39 +472,37 @@ function OfferClose({ companyName }: { companyName: string }) {
 
       <div className="mt-8 border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
         <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
-          Market-price comparison
+          What this replaces
         </p>
         <p className="mt-3 text-sm leading-7 text-white/78">
-          Buying this as pieces: an SEO agency at{" "}
-          <span className="text-white">$3,000–5,000/mo</span>, plus a visitor-identification
-          tool, an intent-data vendor, and an outreach platform —{" "}
-          <span className="text-white">$5,000–8,000/mo</span> across four contracts that don't
-          share data.
+          Buying this as pieces means a separate SEO agency, a visitor-identification
+          tool, an intent-data vendor, and an outreach platform — four contracts that
+          don&apos;t share data. Hubbly runs all of it as one connected system.
         </p>
       </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div className="border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
           <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
-            Autopilot · $498/mo
+            Recover + Target + Capture
           </p>
           <p className="mt-3 font-mono text-xs leading-6 text-white/65">
-            Recover + Target + Capture
+            The system finds demand, builds the list, and captures it — publishing on your site with the honesty gate on.
           </p>
         </div>
         <div className="border border-[#FF6B35]/50 bg-[#0A0A0A]/60 p-5 md:p-6">
           <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
-            Workforce · $995/mo
+            + Convert outreach agents
           </p>
           <p className="mt-3 font-mono text-xs leading-6 text-white/65">
-            Everything in Autopilot + the Convert outreach agents
+            Everything above, plus the Send · Voice · Book agents that contact buyers while intent is live.
           </p>
         </div>
       </div>
 
       <div className="mt-6 text-center">
         <p className="font-mono text-sm text-white">
-          The price is on this page. The call is for activation, not negotiation.
+          No sales gate. The call is for activation, not negotiation.
         </p>
         <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.22em] text-white/50">
           14-day trial · cancel anytime · no 6-month contract · you keep every page and every name.
@@ -535,10 +532,9 @@ function OfferClose({ companyName }: { companyName: string }) {
 }
 
 // Sticky close bar — appears only AFTER the reader has scrolled past the
-// offer once (never spoils the price before the anchor comparison lands),
-// hides while the offer itself is on screen, and stays dismissed for the tab
-// session (sessionStorage, deliberately not localStorage). No countdowns, no
-// fake scarcity — just the measured number and the price.
+// offer once, hides while the offer itself is on screen, and stays dismissed
+// for the tab session (sessionStorage, deliberately not localStorage). No
+// countdowns, no fake scarcity — just the measured number and the CTA.
 function StickyOfferBar({ gapVolumeMonthly }: { gapVolumeMonthly: number }) {
   const [seenOffer, setSeenOffer] = useState(false)
   const [offerInView, setOfferInView] = useState(false)
@@ -568,8 +564,8 @@ function StickyOfferBar({ gapVolumeMonthly }: { gapVolumeMonthly: number }) {
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-5 py-3 md:flex-row md:justify-between md:px-10">
         <p className="font-mono text-xs text-white/80">
           {gapVolumeMonthly > 0
-            ? `~${gapVolumeMonthly.toLocaleString()}/mo searches are going to competitors · Autopilot $498/mo`
-            : "Autopilot $498/mo · Workforce $995/mo · 14-day trial · cancel anytime"}
+            ? `~${gapVolumeMonthly.toLocaleString()}/mo searches are going to competitors · start recovering them`
+            : "The whole machine, running for your business · 14-day trial · cancel anytime"}
         </p>
         <div className="flex items-center gap-4">
           <a

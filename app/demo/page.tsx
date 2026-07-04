@@ -26,7 +26,7 @@ const sessionItems = [
   },
   {
     title: "Activation, not negotiation",
-    description: "The price is already public — Autopilot $498/mo, Workforce $995/mo. The call is for getting you live, not for haggling.",
+    description: "No sales gate — Hubbly is self-serve when you're ready. The call is for getting you live, not for haggling.",
   },
 ]
 
@@ -61,7 +61,7 @@ export default function DemoPage() {
               20 minutes. Your numbers. The plan.
             </h1>
             <p className="mt-5 max-w-xl font-mono text-sm leading-7 text-muted-foreground">
-              We walk through your report, map the Recover → Target → Capture → Convert machine onto your business, and you leave with the rollout plan — whether you buy or not. The price is already on the page; the call is for activation, not negotiation.
+              We walk through your report, map the Recover → Target → Capture → Convert machine onto your business, and you leave with the rollout plan — whether you buy or not. It&apos;s self-serve when you&apos;re ready; the call is for activation, not negotiation.
             </p>
 
             <div className="mt-8 grid gap-4">
