@@ -283,11 +283,11 @@ edgeDefs.forEach(e=>e.a=0);
 
 function resize(){
   const DPR=Math.min(2,devicePixelRatio||1);
-  W=********
+  W=innerWidth;H=innerHeight;
   cvs.width=W*DPR;cvs.height=H*DPR;cvs.style.width=W+'px';cvs.style.height=H+'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
   cx=W/2;cy=H*0.5;
-  R=********
+  R=Math.min(W,H)*0.42;R=Math.max(160,R);
 }
 addEventListener('resize',resize);resize();
 
