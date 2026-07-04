@@ -42,7 +42,6 @@ export function FooterSection() {
             <li><a href="#how-it-works" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">How Hubbly works</a></li>
             <li><a href="/platform" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Platform</a></li>
             <li><a href="#faq" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">FAQ</a></li>
-            <li><a href="/pricing" className="inline-block py-1 font-mono text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">Pricing</a></li>
           </ul>
         </div>
         <div>

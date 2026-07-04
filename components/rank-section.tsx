@@ -26,8 +26,8 @@ const cards = [
       "Snapshot before every change, verify after every publish, auto-rollback on regression. Rails are always on.",
   },
   {
-    title: "Transparent pricing",
-    description: "$498/mo, self-serve, in the Autopilot tier. No sales call required.",
+    title: "No sales gate",
+    description: "Self-serve from your first audit. No demos, no negotiation, no sales call to get started.",
   },
 ]
 

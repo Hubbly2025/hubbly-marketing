@@ -16,9 +16,6 @@ const RankSection = dynamic(() => import("@/components/rank-section").then((m) =
 const StackReplacementSection = dynamic(() =>
   import("@/components/stack-replacement-section").then((m) => m.StackReplacementSection),
 )
-const PricingTeaserSection = dynamic(() =>
-  import("@/components/pricing-teaser-section").then((m) => m.PricingTeaserSection),
-)
 const FinalCloseSection = dynamic(() => import("@/components/final-close-section").then((m) => m.FinalCloseSection))
 const FooterSection = dynamic(() => import("@/components/footer-section").then((m) => m.FooterSection))
 
@@ -45,7 +42,6 @@ export default function Page() {
           <HowItWorksSection />
           <RankSection />
           <StackReplacementSection />
-          <PricingTeaserSection />
           <FinalCloseSection />
           <FooterSection />
         </div>

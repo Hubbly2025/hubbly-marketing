@@ -10,7 +10,7 @@ import LazyDemo from "@/components/lazy-demo"
 export const metadata: Metadata = {
   title: "Hubbly Rank — SEO + AEO on autopilot",
   description:
-    "Hubbly Rank publishes verified content for Google and AI engines — ChatGPT, Perplexity, Bing — with snapshot, verify, and rollback rails always on. $498/mo in the Autopilot tier.",
+    "Hubbly Rank publishes verified content for Google and AI engines — ChatGPT, Perplexity, Bing — with snapshot, verify, and rollback rails always on.",
   alternates: { canonical: "https://hubbly.io/autopilot" },
 }
 

@@ -107,12 +107,6 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
             >
               How it works
             </button>
-            <a
-              href="/pricing"
-              className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Pricing
-            </a>
             <button
               onClick={() => scrollToSection("audit")}
               className="font-mono text-sm uppercase tracking-wider bg-accent text-background px-4 py-2 hover:bg-accent/90 transition-colors"
@@ -175,7 +169,6 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
             { label: "Send", href: "/send", className: "text-send" },
             { label: "Voice", href: "/voice", className: "text-voice" },
             { label: "How it works", href: "/#how-it-works", className: "text-muted-foreground" },
-            { label: "Pricing", href: "/pricing", className: "text-muted-foreground" },
           ].map((item) => (
             <a
               key={item.label}

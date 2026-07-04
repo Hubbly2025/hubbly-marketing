@@ -140,12 +140,6 @@ export function HeroSection() {
           <span className="font-mono text-[11px] md:text-xs text-muted-foreground">
             Free · takes 2 minutes · no credit card
           </span>
-          <a
-            href="/pricing"
-            className="font-mono text-[11px] md:text-xs uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors duration-200"
-          >
-            See pricing →
-          </a>
         </div>
       </div>
 
