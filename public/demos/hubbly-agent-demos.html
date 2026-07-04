@@ -1,22 +1,1020 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hubbly system demos</title>
-    <style>
-      html,body{margin:0;height:100%;background:#0a0a0a;color:#a3a3a3;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-      .wrap{height:100%;display:grid;place-items:center;text-align:center;padding:24px}
-      .k{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#FF6B35}
-      .t{margin-top:14px;font-size:14px;letter-spacing:.05em;max-width:36ch;line-height:1.6}
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <div>
-        <div class="k">System demos</div>
-        <p class="t">Placeholder — replace this file with hubbly-agent-demos.html.</p>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hubbly · Agent demos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a;--accent:#FF6B35;--accent-hi:#FF8A5C;--accent-deep:#C2410C;--ember:#FFB088;
+    --ink:#F5F5F4;--muted:#8a8580;--glass:rgba(255,255,255,.045);--glass-border:rgba(255,255,255,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;overflow:hidden}
+  .mono{font-family:"JetBrains Mono",monospace}
+
+  .ambient{position:fixed;inset:0;z-index:0;overflow:hidden}
+  .orb{position:absolute;border-radius:50%;filter:blur(120px);mix-blend-mode:screen}
+  .orb.a{width:720px;height:720px;background:var(--accent);opacity:.3;top:-240px;left:-180px;animation:da 34s ease-in-out infinite}
+  .orb.b{width:540px;height:540px;background:var(--accent-deep);opacity:.28;bottom:-220px;right:-120px;animation:db 40s ease-in-out infinite}
+  @keyframes da{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,50px)}}
+  @keyframes db{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-40px)}}
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  .glass{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);
+    border:1px solid var(--glass-border);border-radius:20px;
+    box-shadow:0 24px 56px -20px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(0,0,0,.3)}
+
+  /* ---------- chrome ---------- */
+  .chrome{position:fixed;top:20px;left:20px;right:20px;z-index:20;display:flex;align-items:center;gap:14px;pointer-events:none}
+  .chrome>*{pointer-events:auto}
+  .brand{font-weight:700;font-size:18px}.brand span{color:var(--accent)}
+  .crumb{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+  .crumb b{color:var(--ink);font-weight:500}
+  .demo-badge{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(255,255,255,.14);padding:6px 11px;border-radius:8px;background:rgba(10,10,10,.5)}
+  .btn{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink);
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);padding:9px 15px;border-radius:10px;cursor:pointer;transition:.2s;
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+  .btn:hover{border-color:rgba(255,107,53,.55);color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#0a0a0a;font-weight:600}
+  .btn.primary:hover{background:var(--accent-hi);color:#0a0a0a}
+
+  .caption{position:fixed;z-index:19;left:50%;bottom:88px;transform:translateX(-50%);
+    font-size:clamp(14px,1.5vw,18px);font-weight:500;color:var(--ink);
+    background:rgba(10,10,10,.62);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    border:1px solid var(--glass-border);border-radius:999px;padding:11px 24px;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;transition:opacity .45s;text-align:center}
+  .caption.show{opacity:1}
+  .caption b{color:var(--accent)}
+
+  .foot{position:fixed;z-index:20;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:12px;align-items:center}
+
+  /* ---------- stages ---------- */
+  .stage{position:fixed;inset:0;z-index:5;padding:86px 26px 120px;display:none;align-items:center;justify-content:center}
+  .stage.on{display:flex}
+  .fadein{opacity:0;transform:translateY(12px);transition:opacity .5s,transform .5s}
+  .fadein.show{opacity:1;transform:none}
+
+  /* ---------- menu ---------- */
+  #menu .wrap{display:flex;flex-direction:column;align-items:center;gap:30px;max-width:1080px;width:100%}
+  #menu h1{font-size:clamp(26px,3.4vw,44px);font-weight:600;letter-spacing:-.03em;text-align:center;line-height:1.12}
+  #menu .sub{color:var(--muted);font-size:15px;text-align:center;max-width:560px;line-height:1.5}
+  #menu .sub b{color:var(--ink);font-weight:500}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%}
+  .acard{padding:20px 18px;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;text-align:left}
+  .acard:hover{transform:translateY(-4px);border-color:rgba(255,107,53,.5);box-shadow:0 28px 60px -18px rgba(0,0,0,.8),0 0 30px -10px rgba(255,107,53,.35),inset 0 1px 0 rgba(255,255,255,.24)}
+  .acard .n{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted);letter-spacing:.1em}
+  .acard h3{margin-top:8px;font-size:19px;font-weight:600}
+  .acard h3 span{color:var(--accent)}
+  .acard p{margin-top:8px;font-size:12.5px;color:var(--muted);line-height:1.45}
+  @media(max-width:980px){.cards{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---------- shared demo layout ---------- */
+  .demo{display:grid;grid-template-columns:250px 1fr;gap:22px;width:min(1120px,100%);height:min(640px,100%)}
+  .steps{padding:20px;display:flex;flex-direction:column;gap:4px}
+  .steps .agent{font-size:20px;font-weight:600;margin-bottom:4px}
+  .steps .agent span{color:var(--accent)}
+  .steps .role{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+  .step{display:flex;gap:11px;padding:9px 4px;font-size:13.5px;color:var(--muted);align-items:flex-start;transition:color .3s}
+  .step .ic{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);flex:none;display:grid;place-items:center;font-size:10px;transition:.3s;margin-top:1px}
+  .step.active{color:var(--ink)}
+  .step.active .ic{border-color:var(--accent);box-shadow:0 0 12px rgba(255,107,53,.5)}
+  .step.active .ic::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  .step.done{color:var(--ink)}
+  .step.done .ic{border-color:var(--accent);background:var(--accent)}
+  .step.done .ic::after{content:"✓";color:#0a0a0a;font-weight:700}
+  .canvas{padding:24px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+  .lbl{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+  .rowflex{display:flex;align-items:center;gap:10px}
+
+  /* discover */
+  .urlline{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
+  .urlline .f{font-family:"JetBrains Mono",monospace;font-size:15px}
+  .caret{display:inline-block;width:2px;height:1.1em;background:var(--accent);vertical-align:text-bottom;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  table.kw{width:100%;border-collapse:collapse;margin-top:6px}
+  table.kw th{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+  table.kw td{padding:10px;font-size:13.5px;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums}
+  table.kw td.m{font-family:"JetBrains Mono",monospace;font-size:12.5px}
+  table.kw tr.krow{opacity:0;transform:translateX(-8px);transition:opacity .4s,transform .4s}
+  table.kw tr.krow.show{opacity:1;transform:none}
+  .rk{font-family:"JetBrains Mono",monospace;font-size:11px;padding:3px 8px;border-radius:6px}
+  .rk.you{background:rgba(255,107,53,.15);color:var(--accent);border:1px solid rgba(255,107,53,.3)}
+  .rk.them{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}
+  .comps{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .comp{padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);font-size:13px;
+    opacity:0;transform:scale(.92);transition:.4s}
+  .comp.show{opacity:1;transform:none}
+  .comp small{display:block;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted);margin-top:3px}
+  .risk{margin-top:auto;display:flex;align-items:baseline;gap:14px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
+  .risk .v{font-size:34px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;transition:text-shadow .3s}
+  .risk .v.flash{color:var(--accent-hi);text-shadow:0 0 22px rgba(255,138,92,.5)}
+  .risk .v small{font-size:15px;color:var(--muted);font-weight:400}
+  .risk .est{font-family:"JetBrains Mono",monospace;font-size:9.5px;color:var(--muted);border:1px solid rgba(255,255,255,.14);padding:3px 8px;border-radius:6px;letter-spacing:.08em}
+
+  /* signal */
+  .sigwrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;flex:1;min-height:0}
+  .anonpool{position:relative;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);overflow:hidden}
+  .anonpool .pl{position:absolute;top:12px;left:14px}
+  .vdot{position:absolute;width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.28);transition:all .8s cubic-bezier(.4,0,.2,1)}
+  .vdot.res{background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .idlist{display:flex;flex-direction:column;gap:9px;overflow:hidden}
+  .idcard{padding:12px 14px;border-radius:13px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);
+    opacity:0;transform:translateX(14px);transition:.45s}
+  .idcard.show{opacity:1;transform:none}
+  .idcard .nm{font-size:14px;font-weight:600}
+  .idcard .co{font-size:12px;color:var(--muted);margin-top:2px}
+  .idcard .it{margin-top:7px;display:flex;gap:6px;flex-wrap:wrap}
+  .pill{font-family:"JetBrains Mono",monospace;font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(255,107,53,.13);color:var(--ember);border:1px solid rgba(255,107,53,.25)}
+  .sigstat{display:flex;gap:24px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)}
+  .sigstat div b{display:block;font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+  .sigstat div span{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+
+  /* score */
+  .leads{display:flex;flex-direction:column;gap:10px;flex:1}
+  .lead{padding:13px 16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+    display:grid;grid-template-columns:1fr 210px 70px;gap:16px;align-items:center;transition:border-color .4s,box-shadow .4s,transform .4s}
+  .lead .who .nm{font-size:14px;font-weight:600}
+  .lead .who .co{font-size:11.5px;color:var(--muted)}
+  .dims{display:flex;flex-direction:column;gap:5px}
+  .dim{display:flex;align-items:center;gap:8px}
+  .dim span{font-family:"JetBrains Mono",monospace;font-size:9px;color:var(--muted);width:52px;letter-spacing:.05em;text-transform:uppercase}
+  .bar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent-deep),var(--accent));border-radius:2px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .sc{font-size:24px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+  .lead .tag{grid-column:1/4;display:none;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--accent)}
+  .lead.hot{border-color:rgba(255,107,53,.55);box-shadow:0 0 28px -8px rgba(255,107,53,.45);transform:scale(1.015)}
+  .lead.hot .tag{display:block}
+  .lead.hot .sc{color:var(--accent)}
+
+  /* write */
+  .writegrid{display:grid;grid-template-columns:1fr 235px;gap:18px;flex:1;min-height:0}
+  .doc{border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:22px 26px;overflow:hidden}
+  .doc h2{font-size:21px;font-weight:600;letter-spacing:-.02em;min-height:28px}
+  .doc .meta{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted);margin:8px 0 14px}
+  .doc p{font-size:13.5px;line-height:1.65;color:rgba(245,245,244,.86);margin-bottom:12px}
+  .checks{display:flex;flex-direction:column;gap:10px}
+  .chk{display:flex;gap:10px;align-items:center;font-size:12.5px;color:var(--muted);transition:color .3s}
+  .chk .bx{width:16px;height:16px;border-radius:5px;border:1.5px solid rgba(255,255,255,.2);flex:none;display:grid;place-items:center;font-size:9px;transition:.3s}
+  .chk.done{color:var(--ink)}
+  .chk.done .bx{background:var(--accent);border-color:var(--accent);color:#0a0a0a;font-weight:700}
+  .chk.done .bx::after{content:"✓"}
+  .voice{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
+  .voice .bar{height:6px;margin-top:8px}
+  .voice b{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500;color:var(--accent)}
+
+  /* rank */
+  .rankgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;flex:1;min-height:0}
+  .pipeline{display:flex;flex-direction:column;gap:11px}
+  .pstep{padding:12px 15px;border-radius:13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+    display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--muted);transition:.35s}
+  .pstep .ic{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);flex:none;display:grid;place-items:center;transition:.3s}
+  .pstep.active{color:var(--ink);border-color:rgba(255,107,53,.45)}
+  .pstep.active .ic{border-color:var(--accent)}
+  .pstep.active .ic::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .pstep.done{color:var(--ink)}
+  .pstep.done .ic{background:var(--accent);border-color:var(--accent)}
+  .pstep.done .ic::after{content:"✓";color:#0a0a0a;font-size:11px;font-weight:700}
+  .pstep small{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted)}
+  .safety{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .safety .pill{background:rgba(255,255,255,.05);color:var(--muted);border-color:rgba(255,255,255,.12)}
+  .safety .pill.on{background:rgba(255,107,53,.13);color:var(--ember);border-color:rgba(255,107,53,.25)}
+  .chartbox{border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);padding:18px;display:flex;flex-direction:column}
+  .chartbox svg{flex:1;width:100%}
+  .aeoline{display:flex;align-items:baseline;gap:10px;margin-top:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+  .aeoline b{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+  .aeoline span{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted)}
+
+  /* send */
+  .sendgrid{display:grid;grid-template-columns:1fr 1.25fr;gap:18px;flex:1;min-height:0}
+  .mail{border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:16px 20px;display:flex;flex-direction:column}
+  .mrow{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);padding:3px 0}
+  .mrow b{color:var(--ink);font-weight:500}
+  .mbody{margin-top:10px;font-size:13px;line-height:1.6;color:rgba(245,245,244,.85);min-height:96px}
+  .seq{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .pill.dim{background:rgba(255,255,255,.05);color:var(--muted);border-color:rgba(255,255,255,.12)}
+
+  /* voice */
+  .voicegrid{display:grid;grid-template-columns:290px 1fr;gap:18px;flex:1;min-height:0}
+  .callcard{border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:18px;display:flex;flex-direction:column;gap:12px}
+  .wave{display:flex;align-items:center;gap:3px;height:34px}
+  .wave i{width:4px;border-radius:2px;background:var(--accent);height:15%;transition:height .14s}
+  .transcript{border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);padding:18px 20px;overflow:hidden;display:flex;flex-direction:column;gap:11px}
+  .tline{font-size:13px;line-height:1.55;display:flex;gap:10px}
+  .tline .who{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;flex:none;width:54px;padding-top:2px}
+  .tline.ai .who{color:var(--accent)}
+  .tline.hu .who{color:var(--muted)}
+
+  /* listen */
+  .watchgrid{display:grid;grid-template-columns:250px 1fr;gap:18px;flex:1;min-height:0}
+  .wcomp{padding:11px 14px;border-radius:13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+    display:flex;justify-content:space-between;align-items:center;font-size:13.5px;transition:border-color .35s,box-shadow .35s}
+  .wcomp small{font-family:"JetBrains Mono",monospace;font-size:9.5px;color:var(--muted);letter-spacing:.05em}
+  .wcomp.hit{border-color:rgba(255,107,53,.55);box-shadow:0 0 22px -8px rgba(255,107,53,.5)}
+
+  @media(max-width:900px){
+    .demo{grid-template-columns:1fr;height:auto}
+    .steps{flex-direction:row;flex-wrap:wrap;gap:10px}
+    .steps .agent,.steps .role{width:100%}
+    .sigwrap,.writegrid,.rankgrid,.sendgrid,.voicegrid,.watchgrid{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){.orb,.caret,.pstep.active .ic::after{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="ambient"><div class="orb a"></div><div class="orb b"></div></div>
+<div class="grain"></div>
+
+<div class="chrome">
+  <div class="brand">Hubb<span>ly</span></div>
+  <div class="crumb" id="crumb">Hubbly demos · <b>casper.com</b></div>
+  <div class="demo-badge">Demo · illustrative data</div>
+</div>
+
+<div class="caption" id="caption"></div>
+
+<div class="foot">
+  <button class="btn" id="bHome">⌂ All agents</button>
+  <button class="btn" id="bRestart">↺ Start over</button>
+  <button class="btn primary" id="bNext" style="display:none">Next agent →</button>
+</div>
+
+<!-- ================= MENU ================= -->
+<div class="stage on" id="menu">
+  <div class="wrap">
+    <h1>One system.<br>Watch it work.</h1>
+    <div class="sub">Running on <b>casper.com</b> against the mattress field — Purple, Saatva, Nectar, Helix, Tempur-Pedic. Each demo plays itself. Pick a demo, or take the full tour.</div>
+    <div class="cards">
+      <div class="glass acard" data-go="discover"><div class="n">01 · agent</div><h3>Disco<span>ver</span></h3><p>Reads the site, maps the keywords that pay, and finds who's taking them.</p></div>
+      <div class="glass acard" data-go="signal"><div class="n">02 · identity + intent layer</div><h3>Hubbly Sig<span>nal</span></h3><p>Turns anonymous visitors into named people and companies with intent.</p></div>
+      <div class="glass acard" data-go="score"><div class="n">03 · agent</div><h3>Sco<span>re</span></h3><p>Ranks every lead by fit, intent, and engagement. Surfaces the hot ones.</p></div>
+      <div class="glass acard" data-go="write"><div class="n">04 · agent</div><h3>Wri<span>te</span></h3><p>Drafts content in your brand voice, built to win the keyword.</p></div>
+      <div class="glass acard" data-go="rank"><div class="n">05 · product line</div><h3>Hubbly Ra<span>nk</span></h3><p>Publishes with safety rails — snapshot, verify, rollback — and moves rankings.</p></div>
+      <div class="glass acard" data-go="send"><div class="n">06 · agent</div><h3>Se<span>nd</span></h3><p>Recovers lost traffic: visitors who left become email campaigns that come back.</p></div>
+      <div class="glass acard" data-go="voice"><div class="n">07 · product line · beta</div><h3>Hubbly Voi<span>ce</span></h3><p>Places the call, knows who it's calling, and books the meeting live.</p></div>
+      <div class="glass acard" data-go="listen"><div class="n">08 · product line</div><h3>Hubbly S<span>py</span></h3><p>Watches the competition around the clock. Every move becomes a counter-move.</p></div>
+    </div>
+    <button class="btn primary" id="bTour" style="padding:13px 26px;font-size:13px">▶ Play full tour</button>
+  </div>
+</div>
+
+<!-- ================= DISCOVER ================= -->
+<div class="stage" id="discover">
+  <div class="demo">
+    <div class="glass steps" id="dSteps">
+      <div class="agent">Disco<span>ver</span></div><div class="role">Market scan</div>
+      <div class="step"><span class="ic"></span>Read the site</div>
+      <div class="step"><span class="ic"></span>Find paying keywords</div>
+      <div class="step"><span class="ic"></span>Identify competitors</div>
+      <div class="step"><span class="ic"></span>Price the gap</div>
+    </div>
+    <div class="glass canvas">
+      <div class="urlline fadein" id="dUrl">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9s1.3-6.4 3.8-9z"/></svg>
+        <div class="f"><span id="dTyped"></span><span class="caret"></span></div>
+      </div>
+      <table class="kw">
+        <thead><tr><th>Keyword</th><th>Searches/mo</th><th>CPC</th><th>You</th><th>Leader</th></tr></thead>
+        <tbody id="dRows"></tbody>
+      </table>
+      <div class="comps" id="dComps"></div>
+      <div class="risk fadein" id="dRisk">
+        <div class="lbl">Revenue at risk</div>
+        <div class="v" id="dRiskV">$0<small>/mo</small></div>
+        <div class="est">estimated · category benchmarks</div>
       </div>
     </div>
-  </body>
+  </div>
+</div>
+
+<!-- ================= SIGNAL ================= -->
+<div class="stage" id="signal">
+  <div class="demo">
+    <div class="glass steps" id="sSteps">
+      <div class="agent">Hubbly Sig<span>nal</span></div><div class="role">Identity + intent layer</div>
+      <div class="step"><span class="ic"></span>Watch live traffic</div>
+      <div class="step"><span class="ic"></span>Resolve identities</div>
+      <div class="step"><span class="ic"></span>Attach intent</div>
+      <div class="step"><span class="ic"></span>Feed the pipeline</div>
+    </div>
+    <div class="glass canvas">
+      <div class="sigwrap">
+        <div class="anonpool" id="sPool"><div class="lbl pl">Anonymous visitors · casper.com/mattresses</div></div>
+        <div class="idlist" id="sList"></div>
+      </div>
+      <div class="sigstat">
+        <div><b id="sV">0</b><span>visitors seen</span></div>
+        <div><b id="sR">0</b><span>identities resolved</span></div>
+        <div><b id="sP">0%</b><span>match rate</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SCORE ================= -->
+<div class="stage" id="score">
+  <div class="demo">
+    <div class="glass steps" id="scSteps">
+      <div class="agent">Sco<span>re</span></div><div class="role">Lead qualification</div>
+      <div class="step"><span class="ic"></span>Ingest resolved leads</div>
+      <div class="step"><span class="ic"></span>Score fit · intent · engagement</div>
+      <div class="step"><span class="ic"></span>Flag the hot ones</div>
+      <div class="step"><span class="ic"></span>Hand off to Send</div>
+    </div>
+    <div class="glass canvas"><div class="leads" id="scLeads"></div></div>
+  </div>
+</div>
+
+<!-- ================= WRITE ================= -->
+<div class="stage" id="write">
+  <div class="demo">
+    <div class="glass steps" id="wSteps">
+      <div class="agent">Wri<span>te</span></div><div class="role">Content engine</div>
+      <div class="step"><span class="ic"></span>Take the brief from Discover</div>
+      <div class="step"><span class="ic"></span>Match brand voice</div>
+      <div class="step"><span class="ic"></span>Draft the piece</div>
+      <div class="step"><span class="ic"></span>Pass SEO checks</div>
+    </div>
+    <div class="glass canvas">
+      <div class="writegrid">
+        <div class="doc">
+          <h2 id="wTitle"></h2>
+          <div class="meta" id="wMeta">target: “cooling mattress” · 33,100 searches/mo · brief from Discover</div>
+          <div id="wBody"></div>
+        </div>
+        <div>
+          <div class="lbl" style="margin-bottom:12px">Quality gates</div>
+          <div class="checks" id="wChecks">
+            <div class="chk"><span class="bx"></span>Keyword in title + H1</div>
+            <div class="chk"><span class="bx"></span>Search intent matched</div>
+            <div class="chk"><span class="bx"></span>Answer-ready for AI engines</div>
+            <div class="chk"><span class="bx"></span>Internal links mapped</div>
+            <div class="chk"><span class="bx"></span>No claims without source</div>
+          </div>
+          <div class="voice">
+            <div class="lbl">Brand voice match</div>
+            <div class="bar"><i id="wVoice"></i></div>
+            <b id="wVoiceV">0%</b>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= RANK ================= -->
+<div class="stage" id="rank">
+  <div class="demo">
+    <div class="glass steps" id="rSteps">
+      <div class="agent">Hubbly Ra<span>nk</span></div><div class="role">Publish · SEO · AEO</div>
+      <div class="step"><span class="ic"></span>Snapshot before change</div>
+      <div class="step"><span class="ic"></span>Publish on autopilot</div>
+      <div class="step"><span class="ic"></span>Verify post-publish</div>
+      <div class="step"><span class="ic"></span>Track rank + AI citations</div>
+    </div>
+    <div class="glass canvas">
+      <div class="rankgrid">
+        <div class="pipeline">
+          <div class="pstep" id="r1"><span class="ic"></span>Snapshot saved<small>rollback armed</small></div>
+          <div class="pstep" id="r2"><span class="ic"></span>Publishing /cooling-mattress-guide<small>wp plugin</small></div>
+          <div class="pstep" id="r3"><span class="ic"></span>Post-publish verify<small>4 checks</small></div>
+          <div class="pstep" id="r4"><span class="ic"></span>AEO probe · AI answer engines<small>weekly</small></div>
+          <div class="safety">
+            <span class="pill on">snapshot-before-change</span>
+            <span class="pill on">post-publish verify</span>
+            <span class="pill on">auto-rollback</span>
+            <span class="pill">approval gates · opt-in toggle</span>
+          </div>
+        </div>
+        <div class="chartbox">
+          <div class="lbl">“cooling mattress” · position</div>
+          <svg viewBox="0 0 300 150" id="rChart" preserveAspectRatio="none"></svg>
+          <div class="aeoline"><b id="rAeo">—</b><span id="rAeoS">AI citation share · measuring…</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SEND · RECOVER LOST TRAFFIC ================= -->
+<div class="stage" id="send">
+  <div class="demo">
+    <div class="glass steps" id="seSteps">
+      <div class="agent">Se<span>nd</span></div><div class="role">Outreach · recover lost traffic</div>
+      <div class="step"><span class="ic"></span>Pull visitors who left</div>
+      <div class="step"><span class="ic"></span>Segment by intent</div>
+      <div class="step"><span class="ic"></span>Launch the sequence</div>
+      <div class="step"><span class="ic"></span>Route replies to Book</div>
+    </div>
+    <div class="glass canvas">
+      <div class="sendgrid">
+        <div>
+          <div class="lbl" style="margin-bottom:10px">Left without converting · resolved by Hubbly Signal</div>
+          <div class="idlist" id="seList"></div>
+        </div>
+        <div class="mail">
+          <div class="mrow">to: <b id="seTo">—</b></div>
+          <div class="mrow">subject: <b id="seSub"></b></div>
+          <div class="mbody" id="seBody"></div>
+          <div class="seq" id="seSeq">
+            <span class="pill dim">Day 0 · email</span>
+            <span class="pill dim">Day 2 · follow-up</span>
+            <span class="pill dim">Day 5 · value drop</span>
+          </div>
+          <div class="idcard" id="seReply" style="margin-top:12px"><div class="nm">Reply · Rachel Kim</div><div class="co">“Yes — send the hotel-volume pricing. Looping in our GM.”</div></div>
+        </div>
+      </div>
+      <div class="risk" style="margin-top:14px">
+        <div class="lbl">Recovered pipeline</div>
+        <div class="v" id="seV">$0<small>/mo</small></div>
+        <div class="est">estimated · category benchmarks</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= HUBBLY VOICE ================= -->
+<div class="stage" id="voice">
+  <div class="demo">
+    <div class="glass steps" id="vSteps">
+      <div class="agent">Hubbly Voi<span>ce</span></div><div class="role">Product line · Call agent · beta</div>
+      <div class="step"><span class="ic"></span>Place the call</div>
+      <div class="step"><span class="ic"></span>Know who it's calling</div>
+      <div class="step"><span class="ic"></span>Answer from shared memory</div>
+      <div class="step"><span class="ic"></span>Book the meeting</div>
+    </div>
+    <div class="glass canvas">
+      <div class="voicegrid">
+        <div class="callcard">
+          <div class="lbl">Outbound call</div>
+          <div style="font-size:16px;font-weight:600;line-height:1.35" id="vCaller">Queued from Score…</div>
+          <div class="wave" id="vWave"></div>
+          <div class="lbl" id="vStatus">dialing</div>
+          <button class="btn" id="vSound" style="align-self:flex-start;padding:7px 12px">🔊 sound on</button>
+          <div class="lbl" id="vAudioSrc" style="letter-spacing:.08em"></div>
+          <div class="idcard" id="vBooked"><div class="nm">Meeting booked</div><div class="co">Thu 2:00p · volume pricing walkthrough · invite sent</div></div>
+        </div>
+        <div class="transcript" id="vTrans"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LISTEN · COMPETITOR WATCH ================= -->
+<div class="stage" id="listen">
+  <div class="demo">
+    <div class="glass steps" id="lSteps">
+      <div class="agent">Hubbly S<span>py</span></div><div class="role">Product line · Competitor watch · 24/7</div>
+      <div class="step"><span class="ic"></span>Watch the page-one field</div>
+      <div class="step"><span class="ic"></span>Catch every move</div>
+      <div class="step"><span class="ic"></span>Explain what it means</div>
+      <div class="step"><span class="ic"></span>Route the counter-move</div>
+    </div>
+    <div class="glass canvas">
+      <div class="watchgrid">
+        <div>
+          <div class="lbl" style="margin-bottom:10px">Watchlist</div>
+          <div style="display:flex;flex-direction:column;gap:9px" id="lWatch"></div>
+        </div>
+        <div>
+          <div class="lbl" style="margin-bottom:10px">Moves caught · live</div>
+          <div class="idlist" id="lFeed"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=id=>document.getElementById(id);
+const wait=ms=>new Promise(r=>setTimeout(r,reduce?ms*.6:ms));
+let runToken=0, tourMode=false;
+const order=['discover','signal','score','send','voice','listen','write','rank'];
+const nice={discover:'Discover',signal:'Hubbly Signal',score:'Score',send:'Send',voice:'Hubbly Voice',listen:'Hubbly Spy',write:'Write',rank:'Hubbly Rank'};
+
+const caption=$('caption');
+async function say(tok,html,hold=2600){
+  if(tok!==runToken)return;
+  caption.classList.remove('show');await wait(220);
+  if(tok!==runToken)return;
+  caption.innerHTML=html;caption.classList.add('show');await wait(hold);
+}
+function setSteps(box,i){
+  const steps=box.querySelectorAll('.step');
+  steps.forEach((s,k)=>{s.classList.toggle('done',k<i);s.classList.toggle('active',k===i);});
+}
+function show(id){
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('on'));
+  $(id).classList.add('on');
+  $('crumb').innerHTML = id==='menu' ? 'Hubbly demos · <b>casper.com</b>' : nice[id]+' · <b>casper.com</b>';
+  $('bNext').style.display='none';
+  caption.classList.remove('show');
+}
+function doneControls(id){
+  const i=order.indexOf(id);
+  if(i>-1&&i<order.length-1){$('bNext').style.display='';$('bNext').textContent='Next: '+nice[order[i+1]]+' →';}
+  else if(i===order.length-1){$('bNext').style.display='';$('bNext').textContent='↺ Back to all agents';}
+}
+
+/* ============ DISCOVER ============ */
+const KW=[
+ ['best mattress','201,000','$11.20','#7','Saatva #1'],
+ ['memory foam mattress','90,500','$9.40','#5','Nectar #1'],
+ ['cooling mattress','33,100','$10.80','#8','Purple #1'],
+ ['mattress in a box','27,100','$8.10','#4','Nectar #2'],
+ ['best hybrid mattress','22,200','$9.90','#6','Helix #1'],
+];
+const COMPS=[['Purple','p1 on 2 terms'],['Saatva','p1 on 1 term'],['Nectar','p1 on 2 terms'],['Helix','p1 on 1 term'],['Tempur-Pedic','rising']];
+async function demoDiscover(tok){
+  const st=$('dSteps');setSteps(st,-1);
+  $('dTyped').textContent='';$('dRows').innerHTML='';$('dComps').innerHTML='';
+  $('dUrl').classList.remove('show');$('dRisk').classList.remove('show');
+  const rv=$('dRiskV');rv._v=0;rv.innerHTML='$0<small>/mo</small>';
+  await wait(500);if(tok!==runToken)return;
+  $('dUrl').classList.add('show');
+  setSteps(st,0);
+  say(tok,'You give Hubbly one thing: <b>a URL</b>',2200);
+  for(const ch of 'casper.com'){if(tok!==runToken)return;$('dTyped').textContent+=ch;await wait(70);}
+  await wait(900);if(tok!==runToken)return;
+
+  setSteps(st,1);
+  await say(tok,'Discover finds the searches that actually drive mattress revenue',2400);
+  for(const [k,v,c,y,l] of KW){
+    if(tok!==runToken)return;
+    const tr=document.createElement('tr');tr.className='krow';
+    tr.innerHTML=`<td>${k}</td><td class="m">${v}</td><td class="m">${c}</td><td><span class="rk you">${y}</span></td><td><span class="rk them">${l}</span></td>`;
+    $('dRows').appendChild(tr);requestAnimationFrame(()=>tr.classList.add('show'));
+    await wait(420);
+  }
+  await wait(600);if(tok!==runToken)return;
+
+  setSteps(st,2);
+  await say(tok,'Then it names who is taking them — the whole page-one field',2400);
+  for(const [n,d] of COMPS){
+    if(tok!==runToken)return;
+    const el=document.createElement('div');el.className='comp';el.innerHTML=`${n}<small>${d}</small>`;
+    $('dComps').appendChild(el);requestAnimationFrame(()=>el.classList.add('show'));
+    await wait(300);
+  }
+  await wait(500);if(tok!==runToken)return;
+
+  setSteps(st,3);
+  $('dRisk').classList.add('show');
+  const t0=performance.now(),to=187420;
+  await say(tok,'And prices the gap: what those lost positions cost <b>every month</b>',1200);
+  (function step(now){const k=Math.min(1,(now-t0)/1800),e=1-Math.pow(1-k,3);
+    rv.innerHTML='$'+Math.round(to*e).toLocaleString()+'<small>/mo</small>';
+    if(k<1&&tok===runToken)requestAnimationFrame(step);else rv.classList.add('flash');})(t0);
+  await wait(2200);if(tok!==runToken)return;
+  setSteps(st,4);
+  await say(tok,'That number is the brief. Every other agent works from this map',3000);
+  doneControls('discover');
+}
+
+/* ============ SIGNAL ============ */
+const IDS=[
+ ['Rachel Kim','Facilities Dir · Marriott Select Brands',['cooling mattress','bulk purchasing']],
+ ['David Osei','Owner · Lakeview Bed & Breakfast',['best hybrid mattress','hospitality']],
+ ['Priya Natarajan','Procurement · StudentStay Housing',['mattress in a box','volume pricing']],
+ ['Mark Delgado','—  · returning visitor, 4th session',['memory foam mattress','comparison shopping']],
+];
+async function demoSignal(tok){
+  const st=$('sSteps');setSteps(st,-1);
+  $('sPool').querySelectorAll('.vdot').forEach(d=>d.remove());
+  $('sList').innerHTML='';
+  const sV=$('sV'),sR=$('sR'),sP=$('sP');sV.textContent='0';sR.textContent='0';sP.textContent='0%';
+  await wait(400);if(tok!==runToken)return;
+
+  setSteps(st,0);
+  say(tok,'People are on the site right now. To normal analytics they\'re just <b>anonymous dots</b>',2800);
+  const dots=[];let seen=0;
+  for(let i=0;i<14;i++){
+    if(tok!==runToken)return;
+    const d=document.createElement('div');d.className='vdot';
+    d.style.left=(8+Math.random()*84)+'%';d.style.top=(16+Math.random()*74)+'%';
+    $('sPool').appendChild(d);dots.push(d);
+    seen++;sV.textContent=seen;
+    await wait(240);
+  }
+  await wait(800);if(tok!==runToken)return;
+
+  setSteps(st,1);
+  await say(tok,'<b>Hubbly Signal</b> resolves them into named people and companies — no form fill',2600);
+  let res=0;
+  for(let i=0;i<IDS.length;i++){
+    if(tok!==runToken)return;
+    const d=dots[i*3];d.classList.add('res');
+    await wait(500);if(tok!==runToken)return;
+    const [nm,co,its]=IDS[i];
+    const card=document.createElement('div');card.className='idcard';
+    card.innerHTML=`<div class="nm">${nm}</div><div class="co">${co}</div><div class="it">${its.map(t=>`<span class="pill">${t}</span>`).join('')}</div>`;
+    $('sList').appendChild(card);requestAnimationFrame(()=>card.classList.add('show'));
+    res++;sR.textContent=res;sP.textContent=Math.round(res/seen*100)+'%';
+    if(i===1){setSteps(st,2);say(tok,'Each identity carries <b>intent</b> — what they\'re actually in-market for',2600);}
+    await wait(1100);
+  }
+  await wait(600);if(tok!==runToken)return;
+  setSteps(st,3);
+  await say(tok,'Deterministic identity, not probabilistic guessing — four real buyers from traffic you already had, flowing straight to <b>Score</b>',3400);
+  setSteps(st,4);
+  doneControls('signal');
+}
+
+/* ============ SCORE ============ */
+const LEADS=[
+ ['Rachel Kim','Marriott Select Brands',[92,88,71],94,'HOT · 200-room refresh signal · routed to Send'],
+ ['Priya Natarajan','StudentStay Housing',[84,79,66],86,'HOT · volume-pricing pages · routed to Send'],
+ ['David Osei','Lakeview B&B',[61,74,58],67,''],
+ ['Mark Delgado','Individual buyer',[38,81,64],55,''],
+];
+async function demoScore(tok){
+  const st=$('scSteps');setSteps(st,-1);
+  const wrap=$('scLeads');wrap.innerHTML='';
+  await wait(400);if(tok!==runToken)return;
+
+  setSteps(st,0);
+  say(tok,'Score picks up every resolved lead from <b>Signal</b>',2200);
+  const els=[];
+  for(const [nm,co] of LEADS){
+    if(tok!==runToken)return;
+    const el=document.createElement('div');el.className='lead';
+    el.innerHTML=`<div class="who"><div class="nm">${nm}</div><div class="co">${co}</div></div>
+      <div class="dims">
+        <div class="dim"><span>fit</span><div class="bar"><i></i></div></div>
+        <div class="dim"><span>intent</span><div class="bar"><i></i></div></div>
+        <div class="dim"><span>engage</span><div class="bar"><i></i></div></div>
+      </div><div class="sc">—</div><div class="tag"></div>`;
+    wrap.appendChild(el);els.push(el);
+    await wait(300);
+  }
+  await wait(500);if(tok!==runToken)return;
+
+  setSteps(st,1);
+  await say(tok,'Three dimensions, scored live: <b>fit</b>, <b>intent</b>, <b>engagement</b>',2200);
+  els.forEach((el,i)=>{
+    const bars=el.querySelectorAll('.bar i');
+    LEADS[i][2].forEach((v,k)=>bars[k].style.width=v+'%');
+  });
+  await wait(1400);if(tok!==runToken)return;
+  els.forEach((el,i)=>{
+    const sc=el.querySelector('.sc'),to=LEADS[i][3],t0=performance.now();
+    (function step(now){const k=Math.min(1,(now-t0)/1000);sc.textContent=Math.round(to*k);
+      if(k<1&&tok===runToken)requestAnimationFrame(step);})(t0);
+  });
+  await wait(1600);if(tok!==runToken)return;
+
+  setSteps(st,2);
+  await say(tok,'Above threshold, a lead goes <b>hot</b> — with the reason attached, not just a number',2200);
+  [0,1].forEach(i=>{els[i].classList.add('hot');els[i].querySelector('.tag').textContent='⬤ '+LEADS[i][4];});
+  await wait(2400);if(tok!==runToken)return;
+
+  setSteps(st,3);
+  await say(tok,'Hot leads route to <b>Send</b> automatically — that\'s the next demo. Your team only ever sees the ones worth their time',3200);
+  setSteps(st,4);
+  doneControls('score');
+}
+
+/* ============ WRITE ============ */
+const TITLE='Do Cooling Mattresses Actually Work? What the Materials Tell You';
+const PARAS=[
+ 'If you sleep hot, the marketing around “cooling” mattresses can feel like noise. The honest answer: some designs move heat away from your body measurably better than others — and the difference comes down to materials, not slogans.',
+ 'Traditional memory foam holds heat because it compresses into a dense layer around you. Open-cell foams, gel infusions, and coil hybrids each attack that problem differently, with hybrids generally allowing the most airflow through the core.',
+ 'Below, we break down each cooling approach, what it costs, and which sleepers it actually helps — so you can match the design to the way you sleep instead of paying for a label.',
+];
+async function demoWrite(tok){
+  const st=$('wSteps');setSteps(st,-1);
+  $('wTitle').textContent='';$('wBody').innerHTML='';
+  $('wChecks').querySelectorAll('.chk').forEach(c=>c.classList.remove('done'));
+  $('wVoice').style.width='0';$('wVoiceV').textContent='0%';
+  await wait(400);if(tok!==runToken)return;
+
+  setSteps(st,0);
+  await say(tok,'Write picks up the brief <b>Hubbly Spy</b> just fired: counter Purple on <b>“cooling mattress”</b> — 33,100 searches, they hold #1',3200);
+
+  setSteps(st,1);
+  say(tok,'First it learns how <b>this brand</b> sounds — from the site\'s own pages',2400);
+  const vb=$('wVoice'),vv=$('wVoiceV'),t0=performance.now();
+  (function step(now){const k=Math.min(1,(now-t0)/1800);vb.style.width=(k*96)+'%';vv.textContent=Math.round(k*96)+'%';
+    if(k<1&&tok===runToken)requestAnimationFrame(step);})(t0);
+  await wait(2200);if(tok!==runToken)return;
+
+  setSteps(st,2);
+  say(tok,'Then it drafts — <b>honest, useful, built to win the query</b>',2600);
+  for(const ch of TITLE){if(tok!==runToken)return;$('wTitle').textContent+=ch;await wait(24);}
+  await wait(300);
+  for(const para of PARAS){
+    if(tok!==runToken)return;
+    const p=document.createElement('p');$('wBody').appendChild(p);
+    for(const ch of para){if(tok!==runToken)return;p.textContent+=ch;await wait(7);}
+    await wait(200);
+  }
+  await wait(400);if(tok!==runToken)return;
+
+  setSteps(st,3);
+  await say(tok,'Every draft passes quality gates before it can ship — including <b>no claims without source</b>',1200);
+  const chks=$('wChecks').querySelectorAll('.chk');
+  for(const c of chks){if(tok!==runToken)return;c.classList.add('done');await wait(420);}
+  await wait(800);if(tok!==runToken)return;
+  setSteps(st,4);
+  await say(tok,'Draft approved by the gates → handed to <b>Rank</b> to publish. That\'s the next demo',3200);
+  doneControls('write');
+}
+
+/* ============ RANK ============ */
+async function demoRank(tok){
+  const st=$('rSteps');setSteps(st,-1);
+  ['r1','r2','r3','r4'].forEach(id=>{$(id).classList.remove('active','done')});
+  $('rAeo').textContent='—';$('rAeoS').textContent='AI citation share · measuring…';
+  const svg=$('rChart');svg.innerHTML='';
+  await wait(400);if(tok!==runToken)return;
+
+  setSteps(st,0);$('r1').classList.add('active');
+  await say(tok,'Before Rank touches anything, it takes a <b>snapshot</b> — rollback is armed from second one',2800);
+  $('r1').classList.remove('active');$('r1').classList.add('done');
+
+  setSteps(st,1);$('r2').classList.add('active');
+  await say(tok,'Full autopilot by default — it publishes through the WordPress plugin. Approval gates stay available as an opt-in toggle',3000);
+  $('r2').classList.remove('active');$('r2').classList.add('done');
+
+  setSteps(st,2);$('r3').classList.add('active');
+  await say(tok,'Post-publish, it verifies the live page: rendering, links, structured data, no regressions',2600);
+  $('r3').classList.remove('active');$('r3').classList.add('done');
+
+  setSteps(st,3);$('r4').classList.add('active');
+  say(tok,'Then it tracks two scoreboards: <b>Google position</b> and <b>AI answer citations</b>',2600);
+
+  // draw rank chart: position 8 -> 4 over weeks (y inverted: lower pos = higher)
+  const pts=[[0,8],[50,8],[100,7],[150,6],[200,6],[250,5],[300,4]];
+  const X=x=>x, Y=p=>18+ (p-1)*(114/9);
+  let path='';
+  pts.forEach(([x,p],i)=>{path+=(i?'L':'M')+X(x)+' '+Y(p)+' ';});
+  const grid=document.createElementNS('http://www.w3.org/2000/svg','g');
+  [1,3,5,7,9].forEach(p=>{
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',0);l.setAttribute('x2',300);l.setAttribute('y1',Y(p));l.setAttribute('y2',Y(p));
+    l.setAttribute('stroke','rgba(255,255,255,.07)');grid.appendChild(l);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',2);t.setAttribute('y',Y(p)-3);t.setAttribute('fill','rgba(138,133,128,.8)');
+    t.setAttribute('font-size','8');t.setAttribute('font-family','JetBrains Mono');t.textContent='#'+p;grid.appendChild(t);
+  });
+  svg.appendChild(grid);
+  const line=document.createElementNS('http://www.w3.org/2000/svg','path');
+  line.setAttribute('d',path);line.setAttribute('fill','none');line.setAttribute('stroke','#FF6B35');line.setAttribute('stroke-width','2.5');
+  line.setAttribute('stroke-linecap','round');
+  const len=400;line.style.strokeDasharray=len;line.style.strokeDashoffset=len;line.style.transition='stroke-dashoffset 2.6s ease';
+  svg.appendChild(line);
+  requestAnimationFrame(()=>line.style.strokeDashoffset=0);
+  await wait(3000);if(tok!==runToken)return;
+
+  $('rAeo').textContent='3 of 9';
+  $('rAeoS').textContent='AI answers now cite casper.com · measured weekly';
+  await say(tok,'<b>#8 → #4</b> on the target keyword, and AI engines now cite the page in 3 of 9 answers',3000);
+  $('r4').classList.remove('active');$('r4').classList.add('done');
+  setSteps(st,4);
+  await say(tok,'If verify ever fails, <b>auto-rollback restores the snapshot</b>. Autopilot with a seatbelt — that\'s Rank',3400);
+  doneControls('rank');
+}
+
+/* ============ SEND · RECOVER LOST TRAFFIC ============ */
+const LOST=[
+ ['Rachel Kim','Marriott Select Brands · viewed /hotel-program twice, left',['cooling mattress','bulk purchasing']],
+ ['Priya Natarajan','StudentStay Housing · abandoned volume-pricing page',['mattress in a box','volume pricing']],
+ ['Mark Delgado','Returning visitor · 4 sessions, no form fill',['memory foam mattress','comparison shopping']],
+];
+const MAILBODY='Hi Rachel — saw your team evaluating cooling options for a property refresh. For 200+ rooms, our hybrid line ships compressed with freight included, and hospitality accounts get dedicated volume pricing. Worth a 15-minute walkthrough?';
+async function demoSend(tok){
+  const st=$('seSteps');setSteps(st,-1);
+  $('seList').innerHTML='';$('seTo').textContent='—';$('seSub').textContent='';$('seBody').textContent='';
+  $('seSeq').querySelectorAll('.pill').forEach(p=>p.classList.add('dim'));
+  $('seReply').classList.remove('show');
+  const sv=$('seV');sv.innerHTML='$0<small>/mo</small>';sv.classList.remove('flash');
+  await wait(400);if(tok!==runToken)return;
+
+  setSteps(st,0);
+  say(tok,'Most visitors leave without converting. <b>Hubbly Signal</b> already named them — Send goes and gets them back',3000);
+  for(const [nm,co,its] of LOST){
+    if(tok!==runToken)return;
+    const card=document.createElement('div');card.className='idcard';
+    card.innerHTML=`<div class="nm">${nm}</div><div class="co">${co}</div><div class="it">${its.map(t=>`<span class="pill">${t}</span>`).join('')}</div>`;
+    $('seList').appendChild(card);requestAnimationFrame(()=>card.classList.add('show'));
+    await wait(650);
+  }
+  await wait(600);if(tok!==runToken)return;
+
+  setSteps(st,1);
+  await say(tok,'Each one is segmented by <b>what they were actually shopping for</b> — not blasted with one generic email',2800);
+
+  setSteps(st,2);
+  say(tok,'The campaign writes itself around their intent, and ships on Hubbly\'s <b>proprietary sequencing and deliverability infrastructure</b>',3200);
+  $('seTo').textContent='rachel.kim@ · Marriott Select Brands';
+  const sub='Cooling options for your 200-room refresh — hotel volume pricing';
+  for(const ch of sub){if(tok!==runToken)return;$('seSub').textContent+=ch;await wait(18);}
+  await wait(250);
+  for(const ch of MAILBODY){if(tok!==runToken)return;$('seBody').textContent+=ch;await wait(8);}
+  const pills=$('seSeq').querySelectorAll('.pill');
+  await wait(500);if(tok!==runToken)return;
+  pills[0].classList.remove('dim');
+  await say(tok,'Day 0 sent. No reply? <b>It follows up on its own</b> — Day 2, Day 5, tuned per contact',2600);
+  pills[1].classList.remove('dim');
+  await wait(1100);if(tok!==runToken)return;
+
+  setSteps(st,3);
+  $('seReply').classList.add('show');
+  const t0=performance.now(),to=38500;
+  (function step(now){const k=Math.min(1,(now-t0)/1400),e=1-Math.pow(1-k,3);
+    sv.innerHTML='$'+Math.round(to*e).toLocaleString()+'<small>/mo</small>';
+    if(k<1&&tok===runToken)requestAnimationFrame(step);else sv.classList.add('flash');})(t0);
+  await say(tok,'A reply lands and routes straight to <b>Book</b>. Traffic you already paid for, turned back into pipeline',3400);
+  setSteps(st,4);
+  doneControls('send');
+}
+
+/* ============ VOICE AUDIO ENGINE ============ */
+/* Drop real recordings at these paths (record via the actual Hubbly Voice stack,
+   one clip per transcript line, order matches CALL[]). If a clip is missing the
+   demo silently falls back to text-only — never robotic TTS. */
+const VOICE_CLIPS=[
+ '/demos/audio/voice-line-1.mp3', // ai
+ '/demos/audio/voice-line-2.mp3', // caller
+ '/demos/audio/voice-line-3.mp3', // ai
+ '/demos/audio/voice-line-4.mp3', // caller
+ '/demos/audio/voice-line-5.mp3', // ai
+];
+/* Set to the honest provenance of the recordings before shipping: */
+const VOICE_AUDIO_LABEL='recorded from a live Hubbly Voice call';
+let soundOn=true, clipCache=null;
+async function loadClips(){
+  if(clipCache)return clipCache;
+  clipCache=await Promise.all(VOICE_CLIPS.map(src=>new Promise(res=>{
+    const a=new Audio();a.preload='auto';
+    a.oncanplaythrough=()=>res(a);
+    a.onerror=()=>res(null);
+    a.src=src;
+    setTimeout(()=>res(a.readyState>=3?a:null),4000); // don't hang the demo on slow loads
+  })));
+  return clipCache;
+}
+const vSoundBtn=document.getElementById('vSound');
+vSoundBtn.addEventListener('click',()=>{
+  soundOn=!soundOn;
+  vSoundBtn.textContent=soundOn?'🔊 sound on':'🔇 sound off';
+  if(!soundOn&&clipCache)clipCache.forEach(a=>{if(a){a.pause();a.currentTime=0;}});
+});
+function playClip(a,tok){
+  return new Promise(res=>{
+    if(!a||!soundOn){res(false);return;}
+    a.currentTime=0;
+    a.onended=()=>res(true);
+    const guard=setInterval(()=>{if(tok!==runToken){clearInterval(guard);a.pause();res(true);}},200);
+    a.play().then(()=>{}).catch(()=>res(false)); // autoplay blocked → silent fallback
+    a.onended=()=>{clearInterval(guard);res(true);};
+  });
+}
+
+/* ============ HUBBLY VOICE · OUTBOUND ============ */
+const CALL=[
+ ['ai','Hi Priya — this is Casper\'s scheduling assistant. You were looking at volume pricing for about 300 beds. Is now a quick moment?'],
+ ['hu','Oh — yes, actually. We need them installed by August.'],
+ ['ai','That works. For 300 beds the hybrid line ships compressed with freight included, and a specialist can lock exact pricing in one call. Does Thursday afternoon work?'],
+ ['hu','Thursday at 2 works.'],
+ ['ai','Booked — Thursday, 2:00 PM. The calendar invite is on its way. Talk then.'],
+];
+async function demoVoice(tok){
+  const st=$('vSteps');setSteps(st,-1);
+  $('vTrans').innerHTML='';$('vCaller').textContent='Queued from Score…';$('vStatus').textContent='dialing';
+  $('vBooked').classList.remove('show');
+  const wv=$('vWave');wv.innerHTML='';
+  for(let i=0;i<16;i++){const b=document.createElement('i');wv.appendChild(b);}
+  const bars=[...wv.children];
+  let talking=false;
+  const wiggle=setInterval(()=>{bars.forEach(b=>b.style.height=(talking?15+Math.random()*85:12)+'%');},reduce?400:140);
+  await wait(500);if(tok!==runToken)return;
+
+  setSteps(st,0);
+  await say(tok,'<b>Score</b> flagged a hot lead. <b>Hubbly Voice</b> places the call — the agent on the line is <b>Call</b>',2800);
+
+  setSteps(st,1);
+  $('vCaller').textContent='Priya Natarajan · StudentStay Housing · (512) ••• 4417';
+  say(tok,'It knows exactly who it\'s calling: <b>Signal</b> resolved her, Score attached the reason to call',2800);
+  await wait(1600);if(tok!==runToken){clearInterval(wiggle);return;}
+  talking=true;$('vStatus').textContent='connected · 00:00';
+  let sec=0;const tmr=setInterval(()=>{if(tok!==runToken){clearInterval(tmr);return;}sec++;$('vStatus').textContent='connected · 00:'+String(sec).padStart(2,'0');},1000);
+
+  setSteps(st,2);
+  const clips=await loadClips();
+  const anyAudio=clips.some(Boolean);
+  $('vAudioSrc').textContent = anyAudio && soundOn ? VOICE_AUDIO_LABEL : '';
+  for(let li=0;li<CALL.length;li++){
+    if(tok!==runToken){clearInterval(tmr);clearInterval(wiggle);return;}
+    const [who,txt]=CALL[li];
+    const line=document.createElement('div');line.className='tline '+who;
+    line.innerHTML=`<span class="who">${who==='ai'?'Voice':'Priya'}</span><span class="tx"></span>`;
+    $('vTrans').appendChild(line);
+    const tx=line.querySelector('.tx');
+    const clip=clips[li];
+    if(clip&&soundOn){
+      // type in sync with the recording's real duration
+      const dur=(clip.duration&&isFinite(clip.duration))?clip.duration*1000:txt.length*16;
+      const per=Math.max(8,Math.floor(dur/txt.length));
+      const done=playClip(clip,tok);
+      for(const ch of txt){if(tok!==runToken){clearInterval(tmr);clearInterval(wiggle);clip.pause();return;}tx.textContent+=ch;await wait(per);}
+      await done;
+    }else{
+      for(const ch of txt){if(tok!==runToken){clearInterval(tmr);clearInterval(wiggle);return;}tx.textContent+=ch;await wait(16);}
+    }
+    await wait(450);
+  }
+  await say(tok,'Every answer comes from the <b>same shared memory</b> as the rest of Hubbly — pricing, inventory, her history on the site',2800);
+
+  setSteps(st,3);
+  talking=false;clearInterval(tmr);clearInterval(wiggle);
+  $('vStatus').textContent='call complete · logged';
+  $('vBooked').classList.add('show');
+  await say(tok,'Dialed, qualified, booked, logged — <b>no rep ever picked up a phone</b>',3200);
+  setSteps(st,4);
+  doneControls('voice');
+}
+
+/* ============ LISTEN · COMPETITOR WATCH ============ */
+const WATCH=[['Purple','p1 · cooling'],['Saatva','p1 · best mattress'],['Nectar','p1 · 2 terms'],['Helix','p1 · hybrid']];
+const MOVES=[
+ ['Purple','shipped a new landing page targeting <em>“cooling mattress”</em>','counter → brief sent to Write',true],
+ ['Nectar','raised prices ~$50 across the memory-foam line','opening → Send angle updated: price-hold messaging',false],
+ ['Saatva','launched a hybrid promo · page-one ad slot taken','watch → Track logging spend pattern',false],
+ ['Helix','slipped <em>#1 → #2</em> on “best hybrid mattress”','opportunity → Discover re-priced the gap',false],
+];
+async function demoListen(tok){
+  const st=$('lSteps');setSteps(st,-1);
+  $('lWatch').innerHTML='';$('lFeed').innerHTML='';
+  await wait(400);if(tok!==runToken)return;
+
+  setSteps(st,0);
+  say(tok,'<b>Hubbly Spy</b> watches the whole page-one field, around the clock — pages, prices, rankings, promos',2800);
+  const wEls={};
+  for(const [n,d] of WATCH){
+    if(tok!==runToken)return;
+    const el=document.createElement('div');el.className='wcomp';
+    el.innerHTML=`<span>${n}</span><small>${d}</small>`;
+    $('lWatch').appendChild(el);wEls[n]=el;
+    await wait(320);
+  }
+  await wait(900);if(tok!==runToken)return;
+
+  setSteps(st,1);
+  for(let i=0;i<MOVES.length;i++){
+    if(tok!==runToken)return;
+    const [who,what,route,isBrief]=MOVES[i];
+    wEls[who].classList.add('hit');setTimeout(()=>wEls[who].classList.remove('hit'),2200);
+    const card=document.createElement('div');card.className='idcard';
+    card.innerHTML=`<div class="nm">${who}</div><div class="co">${what}</div><div class="it"><span class="pill">${route}</span></div>`;
+    $('lFeed').appendChild(card);requestAnimationFrame(()=>card.classList.add('show'));
+    if(i===1){setSteps(st,2);say(tok,'It doesn\'t just log the move — it says <b>what it means for you</b>: threat, opening, or opportunity',3000);}
+    await wait(1900);
+  }
+  await wait(400);if(tok!==runToken)return;
+
+  setSteps(st,3);
+  await say(tok,'Every move routes to a counter-move. Purple\'s cooling page just became a brief for <b>Write</b> — that\'s the next demo',3400);
+  setSteps(st,4);
+  doneControls('listen');
+}
+
+/* ============ ROUTER ============ */
+const demos={discover:demoDiscover,signal:demoSignal,score:demoScore,send:demoSend,voice:demoVoice,listen:demoListen,write:demoWrite,rank:demoRank};
+let current='menu';
+async function play(id){
+  current=id;runToken++;const tok=runToken;
+  show(id);
+  await demos[id](tok);
+  if(tok!==runToken)return;
+  if(tourMode){
+    const i=order.indexOf(id);
+    await wait(2200);if(tok!==runToken)return;
+    if(i<order.length-1)play(order[i+1]);
+    else{tourMode=false;show('menu');current='menu';}
+  }
+}
+document.querySelectorAll('.acard').forEach(c=>c.addEventListener('click',()=>{tourMode=false;play(c.dataset.go);}));
+$('bTour').addEventListener('click',()=>{tourMode=true;play('discover');});
+$('bHome').addEventListener('click',()=>{runToken++;tourMode=false;current='menu';show('menu');});
+$('bRestart').addEventListener('click',()=>{
+  if(current==='menu')return;
+  const wasTour=tourMode;tourMode=wasTour;play(current);
+});
+$('bNext').addEventListener('click',()=>{
+  const i=order.indexOf(current);
+  if(i===order.length-1){tourMode=false;current='menu';runToken++;show('menu');}
+  else play(order[i+1]);
+});
+</script>
+</body>
 </html>
