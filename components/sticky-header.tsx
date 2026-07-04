@@ -90,6 +90,12 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
               Signal
             </a>
             <a
+              href="/spy"
+              className="font-mono text-sm font-semibold uppercase tracking-wider text-accent hover:opacity-80 transition-opacity"
+            >
+              Spy
+            </a>
+            <a
               href="/send"
               className="font-mono text-sm font-semibold uppercase tracking-wider text-send hover:opacity-80 transition-opacity"
             >
@@ -166,6 +172,7 @@ export function StickyHeader({ withTicker = false }: { withTicker?: boolean }) {
           {[
             { label: "Rank", href: "/autopilot", className: "text-rank" },
             { label: "Signal", href: "/signal", className: "text-signal" },
+            { label: "Spy", href: "/spy", className: "text-accent" },
             { label: "Send", href: "/send", className: "text-send" },
             { label: "Voice", href: "/voice", className: "text-voice" },
             { label: "How it works", href: "/#how-it-works", className: "text-muted-foreground" },

@@ -89,8 +89,20 @@ export default function AutopilotPage() {
         <div className="grid-bg fixed inset-0 opacity-30" aria-hidden="true" />
 
         <div className="relative z-10">
+          {/* DEMO HERO */}
+          <section className="px-4 pt-24 pb-4 md:pl-28 md:pr-12 md:pt-28">
+            <div className="mx-auto w-full max-w-[1400px]">
+              <LazyDemo
+                src="/demos/hubbly-agent-demos.html?demo=rank"
+                title="Hubbly Rank demo"
+                aspect={null}
+                className="h-[min(80vh,860px)]"
+              />
+            </div>
+          </section>
+
           {/* HERO */}
-          <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-28 pb-16 md:pl-28 md:pr-12">
+          <header id="hero" className="flex min-h-[90vh] items-center px-4 pt-16 pb-16 md:pl-28 md:pr-12">
             <div className="mx-auto w-full max-w-[1060px]">
               <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-rank">
                 Hubbly Rank · SEO + AEO on autopilot
@@ -148,25 +160,6 @@ BUILT FOR RANKINGS AND ANSWERS
               </div>
             </div>
           </div>
-
-          {/* WATCH IT RUN */}
-          <section className="px-4 py-24 md:py-32 md:pl-28 md:pr-12">
-            <div className="mx-auto w-full max-w-[1060px]">
-              <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-                See it in motion
-              </Reveal>
-              <Reveal delay={120}>
-                <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
-                  Watch Rank publish.
-                </h2>
-              </Reveal>
-              <Reveal delay={240}>
-                <div className="mt-12">
-                  <LazyDemo src="/demos/hubbly-agent-demos.html" title="Hubbly Rank demo" aspect="16 / 10" />
-                </div>
-              </Reveal>
-            </div>
-          </section>
 
           {/* DUAL READER */}
           <section className="px-4 py-24 md:py-32 md:pl-28 md:pr-12">

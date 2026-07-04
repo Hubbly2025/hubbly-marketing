@@ -12,22 +12,19 @@ export const metadata: Metadata = {
 export default function SignalPage() {
   return (
     <>
-      <SignalExperience />
-      <section className="px-4 py-24 md:py-32">
+      {/* DEMO HERO */}
+      <section className="px-4 pt-24 pb-4 md:px-8 md:pt-28">
         <div className="mx-auto w-full max-w-[1400px]">
-          <h2 className="mb-6 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight text-accent md:mb-8 md:text-6xl">
-            See each part run
-          </h2>
-          <div className="px-2 md:px-4">
-            <LazyDemo
-              src="/demos/hubbly-agent-demos.html"
-              title="Hubbly system demos"
-              aspect={null}
-              className="h-[min(80vh,860px)]"
-            />
-          </div>
+          <LazyDemo
+            src="/demos/hubbly-agent-demos.html?demo=signal"
+            title="Hubbly Signal demo"
+            aspect={null}
+            className="h-[min(80vh,860px)]"
+          />
         </div>
       </section>
+
+      <SignalExperience />
     </>
   )
 }
