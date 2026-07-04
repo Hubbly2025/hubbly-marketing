@@ -122,7 +122,7 @@ export function StartForm() {
       )}
 
       <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
-        14-day trial · Cancel anytime · The price is the price
+        14-day trial · Cancel anytime · No commitment
       </p>
     </form>
   )

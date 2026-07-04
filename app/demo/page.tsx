@@ -80,6 +80,24 @@ export default function DemoPage() {
               ))}
             </div>
 
+            <div className="mt-8 flex flex-col items-start gap-4 border border-accent/40 bg-card/30 p-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
+                Your Hubbly plan
+              </p>
+              <p className="text-pretty font-[var(--font-bebas)] text-2xl leading-[1.05] tracking-tight text-foreground md:text-3xl">
+                Built from everything this audit found — your keywords, your competitors, your revenue at risk.
+              </p>
+              <a
+                href="#book"
+                className="inline-flex min-h-12 items-center justify-center bg-accent px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
+              >
+                See your plan →
+              </a>
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                15-minute walkthrough · no commitment
+              </p>
+            </div>
+
             <p className="mt-8 font-mono text-xs leading-6 text-muted-foreground">
               Questions before booking? Email{" "}
               <a href="mailto:vince@hubbly.io" className="text-accent hover:text-accent/80">
@@ -89,7 +107,7 @@ export default function DemoPage() {
             </p>
           </div>
 
-          <div className="min-h-[700px] border border-border/50 bg-card/30 p-3 md:p-4">
+          <div id="book" className="min-h-[700px] scroll-mt-8 border border-border/50 bg-card/30 p-3 md:p-4">
             <CalEmbed />
             <div className="border-t border-border/40 px-2 py-4 text-center">
               <a

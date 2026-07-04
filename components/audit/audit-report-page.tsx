@@ -23,7 +23,6 @@ import type { SeoReport } from "@/lib/seo-report/types"
 // take primary again via Stripe Checkout.
 const CTA_LABEL = "Book my strategy call"
 const CTA_HREF = "/demo"
-const SELF_SERVE_HREF = "/start"
 
 // Provenance chip used on every rendered number and mechanism block so the
 // report reads as measured/estimated/modeled/recommendation, never
@@ -470,62 +469,22 @@ function OfferClose({ companyName }: { companyName: string }) {
         ))}
       </div>
 
-      <div className="mt-8 border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
-          What this replaces
+      <div className="mt-8 flex flex-col items-center gap-4 border border-[#FF6B35]/40 bg-[#0A0A0A]/60 p-8 text-center md:p-10">
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#FF6B35]">
+          Your Hubbly plan
         </p>
-        <p className="mt-3 text-sm leading-7 text-white/78">
-          Buying this as pieces means a separate SEO agency, a visitor-identification
-          tool, an intent-data vendor, and an outreach platform — four contracts that
-          don&apos;t share data. Hubbly runs all of it as one connected system.
+        <p className="max-w-xl text-pretty font-[var(--font-bebas)] text-3xl leading-[1.05] tracking-tight text-white md:text-4xl">
+          Built from everything this audit found — your keywords, your competitors, your revenue at risk.
         </p>
-      </div>
-
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <div className="border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
-          <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
-            Recover + Target + Capture
-          </p>
-          <p className="mt-3 font-mono text-xs leading-6 text-white/65">
-            The system finds demand, builds the list, and captures it — publishing on your site with the honesty gate on.
-          </p>
-        </div>
-        <div className="border border-[#FF6B35]/50 bg-[#0A0A0A]/60 p-5 md:p-6">
-          <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
-            + Convert outreach agents
-          </p>
-          <p className="mt-3 font-mono text-xs leading-6 text-white/65">
-            Everything above, plus the Send · Voice · Book agents that contact buyers while intent is live.
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 text-center">
-        <p className="font-mono text-sm text-white">
-          No sales gate. The call is for activation, not negotiation.
-        </p>
-        <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.22em] text-white/50">
-          14-day trial · cancel anytime · no 6-month contract · you keep every page and every name.
-        </p>
-      </div>
-
-      <div className="mt-8 flex flex-col items-center gap-3 text-center">
         <a
           href={CTA_HREF}
-          className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
+          className="mt-2 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
         >
-          {CTA_LABEL} →
+          See your plan →
         </a>
-        <p className="max-w-xl font-mono text-xs leading-6 text-white/60">
-          20 minutes. We walk through <span className="text-white">this report</span>, map the
-          machine onto {companyName}, and you leave with the plan whether you buy or not.
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
+          15-minute walkthrough · no commitment
         </p>
-        <a
-          href={SELF_SERVE_HREF}
-          className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-white/50 underline-offset-4 transition-colors hover:text-white/80 hover:underline"
-        >
-          Already sold? Skip the call — start self-serve →
-        </a>
       </div>
     </section>
   )

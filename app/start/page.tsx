@@ -53,12 +53,25 @@ export default function StartPage() {
                 </p>
               ))}
             </div>
-            <p className="mt-8 font-mono text-xs leading-6 text-white/45">
-              Want the machine mapped onto your business first?{" "}
-              <Link href="/demo" className="text-[#FF6B35] hover:text-[#FF6B35]/80">
-                Book a strategy call
-              </Link>{" "}
-              — 20 minutes, self-serve either way. Or email{" "}
+            <div className="mt-8 flex flex-col items-start gap-4 border border-[#FF6B35]/40 bg-white/[0.02] p-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#FF6B35]">
+                Your Hubbly plan
+              </p>
+              <p className="text-pretty font-[var(--font-bebas)] text-2xl leading-[1.05] tracking-tight text-white md:text-3xl">
+                Built from everything this audit found — your keywords, your competitors, your revenue at risk.
+              </p>
+              <Link
+                href="/demo"
+                className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
+              >
+                See your plan →
+              </Link>
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
+                15-minute walkthrough · no commitment
+              </p>
+            </div>
+            <p className="mt-6 font-mono text-xs leading-6 text-white/45">
+              Questions first? Email{" "}
               <a href="mailto:vince@hubbly.io" className="text-[#FF6B35] hover:text-[#FF6B35]/80">
                 vince@hubbly.io
               </a>
