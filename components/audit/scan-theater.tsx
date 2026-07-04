@@ -68,13 +68,17 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
   useEffect(() => {
     if (scanDone) return;
     let swap = 0;
+    // Rhythm: hold ~5s fully visible, then a 700ms fade that matches the CSS
+    // transition so the text is invisible before it swaps (no flashing).
+    const HOLD = 5200;
+    const FADE = 700;
     const cycle = window.setInterval(() => {
       setQuipVisible(false); // fade out
       swap = window.setTimeout(() => {
         setQuipIndex((i) => (i + 1) % quipsRef.current.length);
-        setQuipVisible(true); // fade in next
-      }, 450);
-    }, 3000);
+        setQuipVisible(true); // fade in next once fully hidden
+      }, FADE);
+    }, HOLD + FADE);
     return () => {
       window.clearInterval(cycle);
       window.clearTimeout(swap);
@@ -249,10 +253,10 @@ export default function ScanTheater({ domain, subscribe, onDone, className = "" 
     <div className={`relative h-[560px] w-full overflow-hidden rounded-2xl bg-[#0a0a0a] ${className}`}>
       <canvas ref={canvasRef} className="absolute inset-0" />
       {!scanDone && (
-        <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center px-8">
+        <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center px-8">
           <p
             aria-hidden="true"
-            className="max-w-xl text-balance text-center transition-opacity duration-500 ease-out"
+            className="max-w-xl text-balance text-center transition-opacity duration-700 ease-in-out"
             style={{
               fontWeight: 600,
               fontSize: "20px",
