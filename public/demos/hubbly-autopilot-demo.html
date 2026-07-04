@@ -227,6 +227,7 @@
     <div class="glass chip" data-a="Score"><span class="st"></span>Score<small>qualify</small></div>
     <div class="glass chip" data-a="Write"><span class="st"></span>Write<small>content</small></div>
     <div class="glass chip" data-a="Send"><span class="st"></span>Send<small>outreach</small></div>
+    <div class="glass chip" data-a="Spy"><span class="st"></span>Spy<small>watch</small></div>
     <div class="glass chip" data-a="Book"><span class="st"></span>Book<small>meetings</small></div>
     <div class="glass chip" data-a="Track"><span class="st"></span>Track<small>report</small></div>
   </div>
@@ -298,6 +299,7 @@ function rot(p){
   return{x,y:y*ct-z*st,z:y*st+z*ct};
 }
 const hx=(h,a)=>{const n=parseInt(h.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;};
+function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 
 function draw(){
   ctx.clearRect(0,0,W,H);
@@ -333,15 +335,38 @@ function draw(){
     ctx.lineWidth=(0.6+e[2]*0.5)*(0.6+0.4*d);ctx.stroke();
   });
 
-  pulses=pulses.filter(p=>p.t<1);
+  pulses=pulses.filter(p=>p.t<1.6);
   pulses.forEach(p=>{
-    const e=edgeDefs[p.edge],A=defs[e[0]],B=defs[e[1]];
-    if(Math.min(A.a,B.a)<0.5){p.t=1;return;}
-    const x=A.sx+(B.sx-A.sx)*p.t,y=A.sy+(B.sy-A.sy)*p.t;
-    const g=ctx.createRadialGradient(x,y,0,x,y,11);
-    g.addColorStop(0,'rgba(255,107,53,.95)');g.addColorStop(1,'rgba(255,107,53,0)');
-    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,11,0,7);ctx.fill();
-    p.t+=0.015;
+    const A=defs[0], B=defs[p.target]!==undefined?defs[p.target]:defs[1];
+    if(B.a<0.5){p.t=1.6;return;}
+    if(p.t<=1){
+      // travelling dot from your domain (hub) to the target node
+      const x=A.sx+(B.sx-A.sx)*p.t, y=A.sy+(B.sy-A.sy)*p.t;
+      const g=ctx.createRadialGradient(x,y,0,x,y,12);
+      g.addColorStop(0,'rgba(255,107,53,.95)');g.addColorStop(1,'rgba(255,107,53,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,12,0,7);ctx.fill();
+      // brighten the travelled edge
+      ctx.beginPath();ctx.moveTo(A.sx,A.sy);ctx.lineTo(x,y);
+      ctx.strokeStyle='rgba(255,138,92,'+(0.5*(1-p.t))+')';ctx.lineWidth=1.5;ctx.stroke();
+    } else {
+      // arrival ring + floating action label on the target node
+      const k=(p.t-1)/0.6;                     // 0..1 fade
+      const rr=B.sr + k*22;
+      ctx.beginPath();ctx.arc(B.sx,B.sy,rr,0,7);
+      ctx.strokeStyle='rgba(255,138,92,'+(0.6*(1-k))+')';ctx.lineWidth=2;ctx.stroke();
+      if(p.act){
+        ctx.font='600 12px "Space Grotesk"';
+        const tw=ctx.measureText(p.act).width;
+        const bx=Math.min(Math.max(B.sx-tw/2-8,6),W-tw-14), by=B.sy-B.sr-30;
+        ctx.fillStyle='rgba(10,10,10,'+(0.85*(1-k))+')';
+        roundRect(ctx,bx,by,tw+16,22,6);ctx.fill();
+        ctx.strokeStyle='rgba(255,107,53,'+(0.5*(1-k))+')';ctx.lineWidth=1;
+        roundRect(ctx,bx,by,tw+16,22,6);ctx.stroke();
+        ctx.fillStyle='rgba(255,138,92,'+(1-k)+')';ctx.textAlign='left';
+        ctx.fillText(p.act,bx+8,by+15);
+      }
+    }
+    p.t+=0.02;
   });
 
   defs.map((n,i)=>({n,i})).sort((a,b)=>a.n.d-b.n.d).forEach(({n})=>{
@@ -373,14 +398,22 @@ async function say(html,hold=2600){
 }
 function clearSay(){caption.classList.remove('show');}
 
+// node indices: 1-5 keywords, 6-9 competitors, 10-12 intent
+const KWNODES=[1,2,3,4,5], COMPNODES=[6,7,8,9];
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+// short on-node action label per agent
+const ACT={Discover:'mapped',Signal:'+identity',Score:'hot lead',Write:'drafting',Send:'outreach',Rank:'published',Book:'booked',Track:'logged',Optimize:'tuned',Spy:'competitor move'};
 const feedEl=$('feed');let shown=[];
-function feed(agent,msg){
+function feed(agent,msg,target){
   const t=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit'});
   const li=document.createElement('li');
   li.innerHTML=`<span class="t">${t}</span><span><b>${agent}</b> ${msg}</span>`;
   feedEl.prepend(li);shown.push(li);
   if(shown.length>6)shown.shift().remove();
-  pulses.push({edge:Math.floor(Math.random()*5),t:0});
+  // competitor-facing agents (Rank/Track) pulse a competitor node; the rest pulse a keyword
+  const tgt = target!==undefined ? target
+            : (agent==='Rank'||agent==='Track'||agent==='Spy') ? rnd(COMPNODES) : rnd(KWNODES);
+  pulses.push({target:tgt, act:ACT[agent]||'', t:0});
   const chip=document.querySelector(`.chip[data-a="${agent}"]`);
   if(chip){chip.classList.add('working');setTimeout(()=>chip.classList.remove('working'),1800);}
 }
@@ -440,7 +473,7 @@ async function run(){
   await say('First finding: <b>$486,200/mo</b> in revenue at risk on keywords you\'re losing',3000);
 
   $('pAeo').classList.add('show');
-  const nAeo=$('nAeo');nAeo.innerHTML='14.4<small>%</small>';flash(nAeo);
+  const nAeo=$('nAeo');nAeo.innerHTML='22.2<small>%</small>';flash(nAeo);
   $('dAeo').textContent='cited in 2 of 9 AI answers';
   await say('And your <b>AEO share</b> — how often AI assistants cite you when buyers ask',2800);
 
@@ -452,7 +485,7 @@ async function run(){
   await wait(400);
 
   // the autopilot montage — scripted, causal chain
-  let pipe=0,ids=0,aeo=14.4;
+  let pipe=0,ids=0,aeo=22.2;
   const nPipe=$('nPipe'),nId=$('nId');
 
   feed('Discover','market map locked · <em>5 keywords</em> · 4 rivals tracked');
@@ -460,7 +493,7 @@ async function run(){
   feed('Write','drafted <em>“What to do after a truck accident”</em> · brand voice matched');
   await wait(1200);
   feed('Rank','published → snapshot saved · post-publish verify <em>passed</em>');
-  aeo=15.2;nAeo.innerHTML=aeo.toFixed(1)+'<small>%</small>';flash(nAeo);
+  aeo=22.2;nAeo.innerHTML=aeo.toFixed(1)+'<small>%</small>';flash(nAeo);
   await wait(1400);
 
   await say('<b>Hubbly Signal</b> identifies the buyers already on the site — no form fill needed',2600);
@@ -482,7 +515,7 @@ async function run(){
   ids+=14;countTo(nId,ids,800,v=>v.toLocaleString());
   await wait(1200);
   feed('Rank','AEO probe · now cited in <em>3 of 9</em> answers');
-  aeo=16.8;nAeo.innerHTML=aeo.toFixed(1)+'<small>%</small>';flash(nAeo);$('dAeo').textContent='cited in 3 of 9 AI answers';
+  aeo=33.3;nAeo.innerHTML=aeo.toFixed(1)+'<small>%</small>';flash(nAeo);$('dAeo').textContent='cited in 3 of 9 AI answers';
   await wait(1300);
   feed('Send','reply received · <em>“can you take my case?”</em>');
   await wait(1200);
@@ -490,13 +523,15 @@ async function run(){
   pipe+=24700;countTo(nPipe,pipe,1200,v=>'$'+v.toLocaleString());
   $('dPipe').textContent='2 meetings · autopilot';
   await wait(1400);
+  feed('Spy','competitor move caught → FindLaw published on <em>"car accident lawyer"</em>');
+  await wait(1300);
   feed('Track','week one report queued · every number labeled by source');
 
   // ticker on, closing line
   const tapeData=[
    '<b>car accident lawyer</b> · you #6 · FindLaw #1 · <span class="a">Rank</span> closing the gap',
    '<b>personal injury lawyer</b> · you <span class="u">#3 ▲1</span> this week',
-   '<span class="a">AEO</span> · cited in 16.8% of AI answers · target 30%',
+   '<span class="a">AEO</span> · cited in 33.3% of AI answers · target 50%',
    '<b>motorcycle accident lawyer</b> · content shipped · verify passed',
    '<span class="a">Signal</span> · 52 identities resolved · 6 hot',
    '<b>pipeline</b> · <span class="u">$43,200</span> generated on autopilot',
@@ -511,9 +546,11 @@ async function run(){
   // ambient loop: keep it alive indefinitely
   const loopFeed=[
    ['Signal','resolved <em>9 identities</em> from live traffic'],
+   ['Spy','FindLaw moved <em>#2 → #1</em> on "car accident lawyer"'],
    ['Rank','meta rewritten on <em>/car-accident-lawyer</em> · verify passed'],
    ['Score','<em>2 hot leads</em> flagged · injury-claim intent'],
    ['Send','sequence step 2 delivered to <em>12 contacts</em>'],
+   ['Spy','Cellino Law entered page one on <em>motorcycle accident lawyer</em>'],
    ['Track','rank movement logged · <em>slip and fall lawyer ▲2</em>'],
    ['Book','meeting booked → <em>Fri 11:15a</em>'],
   ];
@@ -522,7 +559,7 @@ async function run(){
     const [a,m]=loopFeed[li++%loopFeed.length];feed(a,m);
     if(Math.random()<.5){ids+=Math.floor(2+Math.random()*7);countTo(nId,ids,800,v=>v.toLocaleString());}
     if(Math.random()<.3){pipe+=Math.floor(800+Math.random()*4200);countTo(nPipe,pipe,1000,v=>'$'+v.toLocaleString());}
-    if(Math.random()<.15){aeo=Math.min(30,aeo+0.1);nAeo.innerHTML=aeo.toFixed(1)+'<small>%</small>';flash(nAeo);}
+    if(Math.random()<.15){aeo=Math.min(44,aeo+0.1);nAeo.innerHTML=aeo.toFixed(1)+'<small>%</small>';flash(nAeo);}
   },reduce?11000:6500);
 }
 run();
