@@ -5,6 +5,7 @@ import { FloatingCTA } from "@/components/floating-cta"
 import { FooterSection } from "@/components/footer-section"
 import { VoiceCall } from "@/components/voice/voice-call"
 import { Reveal } from "@/components/autopilot/reveal"
+import LazyDemo from "@/components/lazy-demo"
 
 export const metadata: Metadata = {
   title: "Hubbly Voice — Your calling team, running itself",
@@ -178,6 +179,25 @@ export default function VoicePage() {
               </Reveal>
             </div>
           </header>
+
+          {/* WATCH IT RUN */}
+          <section className="px-4 py-24 md:py-32 md:pl-28 md:pr-12">
+            <div className="mx-auto w-full max-w-[1060px]">
+              <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
+                See it in motion
+              </Reveal>
+              <Reveal delay={120}>
+                <h2 className="mt-4 font-[var(--font-bebas)] text-4xl leading-[1.05] tracking-tight md:text-6xl">
+                  Hear a Hubbly Voice call.
+                </h2>
+              </Reveal>
+              <Reveal delay={240}>
+                <div className="mt-12">
+                  <LazyDemo src="/demos/hubbly-agent-demos.html" title="Hubbly Voice demo" aspect="16 / 10" />
+                </div>
+              </Reveal>
+            </div>
+          </section>
 
           {/* CADENCE */}
           <section className="px-4 py-24 md:py-32 md:pl-28 md:pr-12">

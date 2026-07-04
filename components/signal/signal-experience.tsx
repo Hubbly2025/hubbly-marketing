@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Reveal } from "@/components/autopilot/reveal"
+import LazyDemo from "@/components/lazy-demo"
 import {
   TerminalBoot,
   HudRow,
@@ -460,6 +461,25 @@ export function SignalExperience() {
               </svg>
               Approval-gated by default. You review. Hubbly ships. Reversible in one click.
             </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* SCENE 5.5 · WATCH IT RUN */}
+      <section className="px-6 py-32 md:px-8 md:py-44">
+        <div className="mx-auto w-full max-w-[1060px]">
+          <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
+            See it in motion
+          </Reveal>
+          <Reveal delay={120}>
+            <h2 className="mt-7 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.02] tracking-tight text-foreground/90">
+              Watch Signal resolve real traffic.
+            </h2>
+          </Reveal>
+          <Reveal delay={240}>
+            <div className="mt-12">
+              <LazyDemo src="/demos/hubbly-agent-demos.html" title="Hubbly Signal demo" aspect="16 / 10" />
+            </div>
           </Reveal>
         </div>
       </section>
