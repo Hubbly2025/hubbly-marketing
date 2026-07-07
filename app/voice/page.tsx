@@ -6,13 +6,21 @@ import { FooterSection } from "@/components/footer-section"
 import { VoiceCall } from "@/components/voice/voice-call"
 import { Reveal } from "@/components/autopilot/reveal"
 import LazyDemo from "@/components/lazy-demo"
+import { pageMetadata, productJsonLd } from "@/lib/seo"
 
-export const metadata: Metadata = {
+const appJsonLd = productJsonLd({
+  name: "Hubbly Voice",
+  description:
+    "Hubbly Voice is the conversation layer of Hubbly — it reaches buyers, handles the conversation, logs the outcome, and sets the next step in motion. One of five Hubbly product lines — Signal, Rank, Send, Voice, and Spy — running from one shared buyer context, on autopilot by default with opt-in approval gates.",
+  path: "/voice",
+})
+
+export const metadata: Metadata = pageMetadata({
   title: "Hubbly Voice — Your calling team, running itself",
   description:
     "Voice is the conversation layer of Hubbly — it reaches buyers, handles the conversation, logs the outcome, and sets the next approved step in motion, from the same shared context as the rest of the system.",
-  alternates: { canonical: "https://hubbly.io/voice" },
-}
+  path: "/voice",
+})
 
 const cadence = [
   { n: "STEP 01", title: "First reach", copy: "Call quickly while intent is fresh.", wait: "DAY 0" },
@@ -147,6 +155,7 @@ export default function VoicePage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(appJsonLd) }} />
 
       <main className="relative min-h-screen">
         <StickyHeader />

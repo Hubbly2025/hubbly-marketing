@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import { LandingPageTemplate } from "@/components/landing-page-template"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "AI Outbound for Marketing & Sales Agencies",
-  description: "Run client outbound at agency scale. Hubbly delivers white-label autonomous outbound with reporting per client.",
-  alternates: { canonical: "https://hubbly.io/industries/agencies" },
-}
+  description:
+    "Run client outbound at agency scale. Hubbly delivers white-label autonomous outbound with reporting per client.",
+  path: "/industries/agencies",
+})
 
 export default function AgenciesIndustryPage() {
   return (

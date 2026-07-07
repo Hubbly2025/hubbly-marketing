@@ -50,14 +50,6 @@ export const metadata: Metadata = {
   description:
     "Drop your website in. Hubbly does your marketing and sales — one autonomous system that learns your market, ranks your content, finds in-market buyers, runs outreach and calls, and books the meetings.",
   applicationName: "Hubbly",
-  keywords: [
-    "AI sales automation",
-    "autonomous outbound",
-    "AI SDR platform",
-    "ICP enrichment",
-    "AI voice outreach",
-    "lead generation automation",
-  ],
   authors: [{ name: "Hubbly" }],
   creator: "Hubbly",
   publisher: "Hubbly",

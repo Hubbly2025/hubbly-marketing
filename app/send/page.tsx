@@ -5,13 +5,21 @@ import { FloatingCTA } from "@/components/floating-cta"
 import { FooterSection } from "@/components/footer-section"
 import { Reveal } from "@/components/autopilot/reveal"
 import LazyDemo from "@/components/lazy-demo"
+import { pageMetadata, productJsonLd } from "@/lib/seo"
 
-export const metadata: Metadata = {
+const appJsonLd = productJsonLd({
+  name: "Hubbly Send",
+  description:
+    "Hubbly Send is the outbound email agent inside Hubbly — sequencing, deliverability, and replies, with leads and copy arriving already attached from the pipeline. One of five Hubbly product lines — Signal, Rank, Send, Voice, and Spy — running from one shared buyer context, on autopilot by default with opt-in approval gates.",
+  path: "/send",
+})
+
+export const metadata: Metadata = pageMetadata({
   title: "Hubbly Send — Cold email, built in",
   description:
     "Send is the outbound email agent inside the growth engine. Leads, copy, and deliverability arrive already attached from the pipeline — no list uploads, no separate tool.",
-  alternates: { canonical: "https://hubbly.io/send" },
-}
+  path: "/send",
+})
 
 const pipeline = [
   { n: "01", name: "Discover", desc: "finds the leads", live: true },
@@ -75,6 +83,7 @@ const comparison = [
 export default function SendPage() {
   return (
     <main className="relative min-h-screen bg-background grid-bg">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(appJsonLd) }} />
       <div className="noise-overlay" aria-hidden="true" />
       <StickyHeader />
       <SideNav />

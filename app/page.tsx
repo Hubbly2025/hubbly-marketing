@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import dynamic from "next/dynamic"
+import { pageMetadata } from "@/lib/seo"
 import { HeroSection } from "@/components/hero-section"
 import { ProofDemoSection } from "@/components/proof-demo-section"
 import { ProofStripSection } from "@/components/proof-strip-section"
@@ -16,15 +17,17 @@ const RankSection = dynamic(() => import("@/components/rank-section").then((m) =
 const StackReplacementSection = dynamic(() =>
   import("@/components/stack-replacement-section").then((m) => m.StackReplacementSection),
 )
+const FAQSection = dynamic(() => import("@/components/faq-section").then((m) => m.FAQSection))
 const FinalCloseSection = dynamic(() => import("@/components/final-close-section").then((m) => m.FinalCloseSection))
 const FooterSection = dynamic(() => import("@/components/footer-section").then((m) => m.FooterSection))
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Hubbly — The Autonomous Revenue Operating System",
   description:
     "Drop your website in. Hubbly does your marketing and sales — one autonomous system that learns your market, ranks your content, finds in-market buyers, runs outreach and calls, and books the meetings.",
-  alternates: { canonical: "https://hubbly.io/" },
-}
+  path: "/",
+  absoluteTitle: true,
+})
 
 export default function Page() {
   return (
@@ -42,6 +45,7 @@ export default function Page() {
           <HowItWorksSection />
           <RankSection />
           <StackReplacementSection />
+          <FAQSection />
           <FinalCloseSection />
           <FooterSection />
         </div>

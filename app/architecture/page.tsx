@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Hubbly Architecture — The Autonomous Growth Engine",
-  description: "See how Hubbly's multi-agent revenue system uses shared memory, approval gates, and coordinated execution to turn a website into pipeline.",
-  alternates: { canonical: "https://hubbly.io/architecture" },
-}
+  description:
+    "See how Hubbly's multi-agent revenue system uses shared memory, approval gates, and coordinated execution to turn a website into pipeline.",
+  path: "/architecture",
+})
 
 const intelligenceAgents = [
   { name: "Recon", description: "Analyzes your business, offer, positioning, and website to understand what you sell and how you should be framed in-market." },
@@ -89,13 +91,6 @@ const productJsonLd = {
     "@type": "Brand",
     name: "Hubbly",
   },
-  offers: {
-    "@type": "AggregateOffer",
-    priceCurrency: "USD",
-    lowPrice: "0",
-    highPrice: "1498",
-    offerCount: 5,
-  },
 }
 
 export default function ArchitecturePage() {
@@ -158,7 +153,7 @@ export default function ArchitecturePage() {
                 Intelligence Layer
               </h3>
               <p className="font-mono text-sm text-muted-foreground mb-6 leading-relaxed">
-                These agents build the strategic foundation before execution begins. Your team reviews the outputs at approval gates, so the system moves fast without running wild.
+                These agents build the strategic foundation before execution begins. When you opt in to approval gates, your team reviews the outputs — so the system moves fast without running wild.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {intelligenceAgents.map((agent) => (
@@ -257,10 +252,10 @@ export default function ArchitecturePage() {
               Human-in-the-Loop Oversight
             </h2>
             <p className="font-mono text-sm text-muted-foreground mb-8 leading-relaxed max-w-3xl">
-              Hubbly is designed to automate execution while keeping humans in control where judgment matters most. &quot;You approve. Hubbly executes.&quot; — with five approval gates between intelligence and execution.
+              Hubbly is designed to automate execution while keeping humans in control where judgment matters most — autopilot by default, with five opt-in approval gates between intelligence and execution.
             </p>
             <p className="font-mono text-sm text-muted-foreground mb-8 leading-relaxed max-w-3xl">
-              That means the system does not independently invent the company profile, ICP, strategy, or creative and then start running in the background without oversight. Instead, it builds the work, presents it for approval, and only then activates the execution layer.
+              When gates are on, the system builds the company profile, ICP, strategy, and creative, presents each for approval, and only then activates the execution layer. On autopilot, safety rails stay on at all times — snapshot before every change, verify after every publish, auto-rollback on regression.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -304,7 +299,7 @@ export default function ArchitecturePage() {
               Execution &amp; Optimization Engine
             </h2>
             <p className="font-mono text-sm text-muted-foreground mb-8 leading-relaxed max-w-3xl">
-              Once approvals are complete, Hubbly turns strategy into action across the full revenue workflow. Analyze the business, build the ICP, launch execution, then book and learn.
+              Hubbly turns strategy into action across the full revenue workflow — on autopilot by default, with opt-in approvals when you want them. Analyze the business, build the ICP, launch execution, then book and learn.
             </p>
             <p className="font-mono text-sm text-muted-foreground mb-8 leading-relaxed max-w-3xl">
               That execution loop is what makes Hubbly feel like an operating system instead of a single-feature tool. It does not stop at copy generation or lead enrichment; it connects strategy, signals, outreach, voice, replies, meetings, and revenue outcomes inside one coordinated cycle.

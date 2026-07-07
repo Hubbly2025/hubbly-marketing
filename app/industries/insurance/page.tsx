@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import { LandingPageTemplate } from "@/components/landing-page-template"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "AI for Insurance Lead Generation & Outreach",
-  description: "Hubbly for insurance agencies and carriers: signal-based prospecting, enrichment, and AI voice + email that books policy reviews.",
-  alternates: { canonical: "https://hubbly.io/industries/insurance" },
-}
+  description:
+    "Hubbly for insurance agencies and carriers: signal-based prospecting, enrichment, and AI voice + email that books policy reviews.",
+  path: "/industries/insurance",
+})
 
 export default function InsuranceIndustryPage() {
   return (

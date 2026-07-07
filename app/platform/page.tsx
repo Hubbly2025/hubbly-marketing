@@ -4,12 +4,14 @@ import { WhyItWinsSection } from "@/components/why-it-wins-section"
 import { VerticalsSection } from "@/components/verticals-section"
 import { AcquireSection } from "@/components/acquire-section"
 import { FAQSection } from "@/components/faq-section"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "The Hubbly Platform — Agents, Shared Memory, One System",
-  description: "Inside Hubbly: specialized revenue agents organized across Understand, Execute, and Improve, sharing one operating memory with zero handoff loss.",
-  alternates: { canonical: "https://hubbly.io/platform" },
-}
+  description:
+    "Inside Hubbly: specialized revenue agents organized across Understand, Execute, and Improve, sharing one operating memory with zero handoff loss.",
+  path: "/platform",
+})
 
 const understandAgents = [
   { name: "Recon", description: "Analyzes the website, market, competitors, SEO, CRO, and AI visibility" },
@@ -128,7 +130,7 @@ export default function PlatformPage() {
             Human Oversight Gates
           </h2>
           <p className="font-mono text-sm text-muted-foreground leading-relaxed max-w-2xl mb-4">
-            Hubbly includes 5 approval gates where humans review and approve before the system proceeds:
+            Hubbly runs on autopilot by default. When you want review before the system proceeds, five opt-in approval gates are available:
           </p>
           <ul className="font-mono text-sm text-muted-foreground space-y-2">
             <li>1. Research and ICP approval</li>

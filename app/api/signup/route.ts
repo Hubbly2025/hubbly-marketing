@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
 
-type WaitlistPayload = {
+type SignupPayload = {
   email?: string
   company?: string
   role?: string
@@ -25,13 +25,13 @@ function getSupabaseConfig() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!serviceRoleKey) {
-    throw new Error("Waitlist service is not configured yet.")
+    throw new Error("Signup service is not configured yet.")
   }
 
   return { url, serviceRoleKey }
 }
 
-function calculatePriorityScore(data: Required<Pick<WaitlistPayload, "role" | "company_size" | "pain_points" | "expected_results">> & Pick<WaitlistPayload, "timeline">) {
+function calculatePriorityScore(data: Required<Pick<SignupPayload, "role" | "company_size" | "pain_points" | "expected_results">> & Pick<SignupPayload, "timeline">) {
   let score = 0
 
   if (data.role === "founder") score += 30
@@ -57,7 +57,7 @@ function calculatePriorityScore(data: Required<Pick<WaitlistPayload, "role" | "c
 async function sendEmail(params: { to: string; subject: string; html: string }) {
   const resendApiKey = process.env.RESEND_API_KEY || process.env.Resend
   if (!resendApiKey) {
-    console.log("Waitlist email not sent — RESEND_API_KEY not configured")
+    console.log("Signup email not sent — RESEND_API_KEY not configured")
     return
   }
 
@@ -72,7 +72,7 @@ async function sendEmail(params: { to: string; subject: string; html: string }) 
       ...params,
     }),
   }).catch((error) => {
-    console.log("Waitlist email failed", error)
+    console.log("Signup email failed", error)
   })
 }
 
@@ -81,12 +81,12 @@ function confirmationEmail(company: string) {
     <div style="background:#0A0A0A;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;padding:32px;">
       <div style="max-width:600px;margin:0 auto;border:1px solid rgba(255,107,53,.35);padding:28px;">
         <div style="font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#FF6B35;">Hubbly</div>
-        <h1 style="font-size:30px;line-height:1.15;margin:24px 0 12px;">You're on the waitlist.</h1>
-        <p style="color:#D7D7D7;line-height:1.6;">Thanks for requesting access for ${escapeHtml(company)}. We're reviewing your audit and will send next steps for early access.</p>
+        <h1 style="font-size:30px;line-height:1.15;margin:24px 0 12px;">You're in.</h1>
+        <p style="color:#D7D7D7;line-height:1.6;">Thanks for signing up for ${escapeHtml(company)}. We're reviewing your audit and will send next steps.</p>
         <div style="margin-top:24px;padding:18px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.25);color:#F5F5F5;line-height:1.7;">
           <div>1. Complete revenue audit delivered to your inbox.</div>
-          <div>2. Strategy session scheduled if there is a strong fit.</div>
-          <div>3. Early access as private beta slots open.</div>
+          <div>2. Next steps to get you live.</div>
+          <div>3. Prefer a walkthrough? Book a strategy call: https://hubbly.io/demo</div>
         </div>
       </div>
     </div>
@@ -96,7 +96,7 @@ function confirmationEmail(company: string) {
 function internalEmail(row: Record<string, unknown>) {
   return `
     <div style="font-family:Arial,Helvetica,sans-serif;line-height:1.6;">
-      <h2>New Hubbly waitlist signup</h2>
+      <h2>New Hubbly signup</h2>
       <pre style="white-space:pre-wrap;background:#f6f6f6;padding:16px;">${escapeHtml(JSON.stringify(row, null, 2))}</pre>
     </div>
   `
@@ -112,7 +112,7 @@ function escapeHtml(value: string) {
 }
 
 export async function POST(request: NextRequest) {
-  let payload: WaitlistPayload
+  let payload: SignupPayload
 
   try {
     payload = await request.json()
@@ -174,8 +174,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: isMissingTable
-            ? "Waitlist table is not installed yet. Apply migration 20260511093000_waitlist_signups.sql."
-            : "Failed to join waitlist",
+            ? "Signups table is not installed yet. Apply migration 20260511093000_waitlist_signups.sql."
+            : "Failed to sign up",
           detail,
         },
         { status: 500 },
@@ -187,20 +187,21 @@ export async function POST(request: NextRequest) {
 
     await sendEmail({
       to: email,
-      subject: "You're on the Hubbly waitlist",
+      subject: "You're in — welcome to Hubbly",
       html: confirmationEmail(company),
     })
 
     await sendEmail({
+      // Env var name predates the waitlist retirement — kept as a deploy contract.
       to: process.env.WAITLIST_NOTIFY_EMAIL || "hello@hubbly.io",
-      subject: `New Hubbly waitlist signup: ${company}`,
+      subject: `New Hubbly signup: ${company}`,
       html: internalEmail(saved),
     })
 
     return NextResponse.json({ success: true, signup_id: saved.id, priority_score: priorityScore })
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to join waitlist" },
+      { error: error instanceof Error ? error.message : "Failed to sign up" },
       { status: 500 },
     )
   }

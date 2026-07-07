@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import { LandingPageTemplate } from "@/components/landing-page-template"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "AI for Mortgage Lead Generation & Outreach",
-  description: "Hubbly for mortgage: detect intent signals, enrich borrowers, and run compliant AI email and voice outreach that books real calls.",
-  alternates: { canonical: "https://hubbly.io/industries/mortgage" },
-}
+  description:
+    "Hubbly for mortgage: detect intent signals, enrich borrowers, and run compliant AI email and voice outreach that books real calls.",
+  path: "/industries/mortgage",
+})
 
 export default function MortgageIndustryPage() {
   return (

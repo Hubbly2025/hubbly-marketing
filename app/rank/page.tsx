@@ -6,13 +6,21 @@ import { FooterSection } from "@/components/footer-section"
 import { AutopilotEngine } from "@/components/autopilot/autopilot-engine"
 import { Reveal } from "@/components/autopilot/reveal"
 import LazyDemo from "@/components/lazy-demo"
+import { pageMetadata, productJsonLd } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Hubbly Rank — SEO + AEO on autopilot",
   description:
     "Hubbly Rank publishes verified content for Google and AI engines — ChatGPT, Perplexity, Bing — with snapshot, verify, and rollback rails always on.",
-  alternates: { canonical: "https://hubbly.io/autopilot" },
-}
+  path: "/rank",
+})
+
+const appJsonLd = productJsonLd({
+  name: "Hubbly Rank",
+  description:
+    "Hubbly Rank runs SEO and AI-engine visibility on autopilot — content, technical fixes, and answer-engine placement, with snapshot, verify, and rollback rails always on. One of five Hubbly product lines — Signal, Rank, Send, Voice, and Spy — running from one shared buyer context, on autopilot by default with opt-in approval gates.",
+  path: "/rank",
+})
 
 const faqJsonLd = {
   "@context": "https://schema.org",
@@ -81,6 +89,7 @@ export default function AutopilotPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(appJsonLd) }} />
 
       <main className="relative min-h-screen">
         <StickyHeader />

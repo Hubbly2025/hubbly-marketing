@@ -2,51 +2,13 @@
 
 import { useRef, useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
+import { faqs } from "@/lib/faqs"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
 }
-
-const faqs = [
-  {
-    question: "What is Hubbly?",
-    answer: "Hubbly is an autonomous growth engine that turns a website, offer, and market position into coordinated execution across SEO, outbound, voice, booking, and optimization.",
-  },
-  {
-    question: "How does Hubbly work?",
-    answer: "Hubbly analyzes the business, maps the market, builds the strategy, launches specialized workflows, and improves over time from replies, meetings, and conversion signals.",
-  },
-  {
-    question: "Who is Hubbly for?",
-    answer: "Hubbly is for B2B and B2C companies that want one system to understand their market, find buyers, and coordinate growth across channels.",
-  },
-  {
-    question: "What does Hubbly replace?",
-    answer: "Hubbly replaces disconnected growth stacks that often include data vendors, enrichment tools, sequencing products, dialers, booking tools, AI copy tools, spreadsheet glue, and reporting dashboards.",
-  },
-  {
-    question: "Is Hubbly just an AI SDR platform?",
-    answer: "No. Hubbly includes AI SDR-style capabilities, but it is broader than outbound because it combines intelligence, execution, memory, and optimization in one system.",
-  },
-  {
-    question: "Does Hubbly support industry-specific workflows?",
-    answer: "Yes. The core engine stays the same. The language, workflows, and compliance logic adapt to your market.",
-  },
-  {
-    question: "Do I have to approve everything Hubbly does?",
-    answer: "No. Hubbly runs on full autopilot by default with safety rails always on — snapshot before every change, verify after every publish, auto-rollback on regression. If you prefer to review before anything goes live, approval gates are a single toggle.",
-  },
-  {
-    question: "Does Hubbly support international and multilingual workflows?",
-    answer: "Yes. Hubbly supports international teams and operates across 74 languages for outreach, voice, follow-up, and reporting.",
-  },
-  {
-    question: "Does Hubbly work with our existing CRM and tools?",
-    answer: "Yes. Hubbly is designed to integrate with existing systems or replace parts of the stack over time, depending on how your team wants to adopt it.",
-  },
-]
 
 export function FAQSection() {
   const sectionRef = useRef<HTMLElement>(null)

@@ -29,6 +29,23 @@ const nextConfig = {
         destination: "/#how-it-works",
         permanent: true,
       },
+      // Rank product page moved from /autopilot.
+      {
+        source: "/autopilot",
+        destination: "/rank",
+        permanent: true,
+      },
+      // Waitlist funnel retired — site is live and sales-led.
+      {
+        source: "/waitlist",
+        destination: "/demo",
+        permanent: true,
+      },
+      {
+        source: "/waitlist/confirmation",
+        destination: "/demo",
+        permanent: true,
+      },
     ]
   },
   async headers() {
