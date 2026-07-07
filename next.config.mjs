@@ -29,6 +29,12 @@ const nextConfig = {
         destination: "/#how-it-works",
         permanent: true,
       },
+      // Rank product page moved from /autopilot.
+      {
+        source: "/autopilot",
+        destination: "/rank",
+        permanent: true,
+      },
     ]
   },
   async headers() {

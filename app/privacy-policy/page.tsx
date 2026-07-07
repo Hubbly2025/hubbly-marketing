@@ -1,10 +1,13 @@
 import type { Metadata } from "next"
 import { PrivacyPolicyContent } from "./content"
+import { pageMetadata } from "@/lib/seo"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "Hubbly privacy policy.",
-  alternates: { canonical: "https://hubbly.io/privacy-policy" },
+  ...pageMetadata({
+    title: "Privacy Policy",
+    description: "Hubbly privacy policy.",
+    path: "/privacy-policy",
+  }),
   robots: { index: true, follow: true },
 }
 

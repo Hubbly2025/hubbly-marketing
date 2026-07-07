@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import { LandingPageTemplate } from "@/components/landing-page-template"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "AI Sales Automation — Replace Your Outbound Stack",
-  description: "Use Hubbly to automate the full sales motion: research, ICP, enrichment, email, voice, and booked meetings — from one URL.",
-  alternates: { canonical: "https://hubbly.io/use-cases/ai-sales-automation" },
-}
+  description:
+    "Use Hubbly to automate the full sales motion: research, ICP, enrichment, email, voice, and booked meetings — from one URL.",
+  path: "/use-cases/ai-sales-automation",
+})
 
 export default function AISalesAutomationPage() {
   return (
@@ -27,7 +29,7 @@ export default function AISalesAutomationPage() {
         heading: "How Hubbly automates sales end-to-end",
         points: [
           "Hubbly analyzes your business, maps your ideal buyer profile, and builds targeting logic automatically.",
-          "It enriches contacts from 498M+ intent-qualified records and scores them using 43K+ live buyer signals.",
+          "It enriches contacts from 498M+ identity records and scores them using 40K+ live intent topics.",
           "AI writes personalized outreach, sends email sequences, places voice calls, and handles replies.",
           "Meetings book directly to your calendar while conversion patterns feed back into the system to improve targeting.",
         ],
@@ -41,7 +43,7 @@ export default function AISalesAutomationPage() {
           },
           {
             title: "Human oversight built in",
-            description: "Five approval gates between intelligence and execution. You review the ICP, strategy, and creative before anything goes live.",
+            description: "Autopilot by default, with five opt-in approval gates between intelligence and execution — review the ICP, strategy, and creative before anything goes live.",
           },
           {
             title: "Voice AI included",

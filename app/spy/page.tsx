@@ -5,17 +5,26 @@ import { FloatingCTA } from "@/components/floating-cta"
 import { FooterSection } from "@/components/footer-section"
 import { Reveal } from "@/components/autopilot/reveal"
 import LazyDemo from "@/components/lazy-demo"
+import { pageMetadata, productJsonLd } from "@/lib/seo"
 
-export const metadata: Metadata = {
+const appJsonLd = productJsonLd({
+  name: "Hubbly Spy",
+  description:
+    "Hubbly Spy watches the page-one field around the searches that pay you and turns every competitor move into a counter-move. One of five Hubbly product lines — Signal, Rank, Send, Voice, and Spy — running from one shared buyer context, on autopilot by default with opt-in approval gates.",
+  path: "/spy",
+})
+
+export const metadata: Metadata = pageMetadata({
   title: "Hubbly Spy — Competitor intelligence",
   description:
     "Hubbly Spy watches the page-one field around the searches that pay you and turns every competitor move into a counter-move. Your free audit includes Spy's first pass at your market.",
-  alternates: { canonical: "https://hubbly.io/spy" },
-}
+  path: "/spy",
+})
 
 export default function SpyPage() {
   return (
     <main className="relative min-h-screen bg-background grid-bg">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(appJsonLd) }} />
       <div className="noise-overlay" aria-hidden="true" />
       <StickyHeader />
       <SideNav />

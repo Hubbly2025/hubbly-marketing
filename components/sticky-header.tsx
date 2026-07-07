@@ -11,7 +11,7 @@ const NAV_PRODUCTS = [
   { label: "Send", href: "/send", color: "text-send", demoKey: "send" },
   { label: "Voice", href: "/voice", color: "text-voice", demoKey: "voice" },
   { label: "Spy", href: "/spy", color: "text-accent", demoKey: "listen" },
-  { label: "Rank", href: "/autopilot", color: "text-rank", demoKey: "rank" },
+  { label: "Rank", href: "/rank", color: "text-rank", demoKey: "rank" },
 ] as const
 
 const DEMO_KEYS = new Set(NAV_PRODUCTS.map((p) => p.demoKey))

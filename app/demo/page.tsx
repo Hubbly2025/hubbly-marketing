@@ -1,15 +1,16 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { CalEmbed } from "./cal-embed"
+import { pageMetadata } from "@/lib/seo"
 
 const CALENDAR_URL = "https://cal.com/vince-rabiola-llvenn/hubbly.io-growth-demo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Book your strategy call",
   description:
     "A 20-minute strategy call with Hubbly. We walk through your report, map the machine onto your business, and you leave with the plan whether you buy or not.",
-  alternates: { canonical: "https://hubbly.io/demo" },
-}
+  path: "/demo",
+})
 
 const sessionItems = [
   {

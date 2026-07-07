@@ -18,6 +18,49 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    {
+      url: `${baseUrl}/architecture`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    // Product lines
+    {
+      url: `${baseUrl}/signal`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/rank`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/send`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/voice`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/spy`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/demo`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
     // Use Cases
     {
       url: `${baseUrl}/use-cases/ai-sales-automation`,

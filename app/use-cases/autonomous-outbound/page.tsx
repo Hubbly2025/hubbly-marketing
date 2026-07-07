@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import { LandingPageTemplate } from "@/components/landing-page-template"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Autonomous Outbound — From URL to Booked Meeting",
-  description: "Hubbly runs fully autonomous outbound: signal-based prospecting, multi-channel sequences, and AI voice follow-up that books meetings.",
-  alternates: { canonical: "https://hubbly.io/use-cases/autonomous-outbound" },
-}
+  description:
+    "Hubbly runs fully autonomous outbound: signal-based prospecting, multi-channel sequences, and AI voice follow-up that books meetings.",
+  path: "/use-cases/autonomous-outbound",
+})
 
 export default function AutonomousOutboundPage() {
   return (
@@ -27,7 +29,7 @@ export default function AutonomousOutboundPage() {
         heading: "How Hubbly runs autonomous outbound",
         points: [
           "Hubbly ingests your website, offer, and market positioning to understand what you sell and who should buy.",
-          "It maps your best-fit buyer profile and identifies accounts showing real purchase intent from 43K+ signal topics.",
+          "It maps your best-fit buyer profile and identifies accounts showing real purchase intent from 40K+ signal topics.",
           "AI writes personalized sequences, sends email, places voice calls, and adapts messaging based on replies.",
           "Meetings book automatically while the system learns from conversions to sharpen future targeting.",
         ],

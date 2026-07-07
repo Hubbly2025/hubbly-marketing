@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import { LandingPageTemplate } from "@/components/landing-page-template"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "AI Outbound for Financial Services",
-  description: "Hubbly for financial services: compliant AI-driven prospecting, enrichment, and voice outreach for advisors and fintechs.",
-  alternates: { canonical: "https://hubbly.io/industries/financial-services" },
-}
+  description:
+    "Hubbly for financial services: compliant AI-driven prospecting, enrichment, and voice outreach for advisors and fintechs.",
+  path: "/industries/financial-services",
+})
 
 export default function FinancialServicesIndustryPage() {
   return (
@@ -41,7 +43,7 @@ export default function FinancialServicesIndustryPage() {
           },
           {
             title: "Compliance guardrails",
-            description: "Human oversight at 5 approval gates ensures nothing goes live without proper review of messaging and targeting.",
+            description: "Five opt-in approval gates let you review messaging and targeting before anything goes live.",
           },
           {
             title: "High-intent targeting",

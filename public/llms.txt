@@ -1,18 +1,28 @@
 # Hubbly
 
-> Hubbly is an Autonomous Revenue OS. 12 AI agents — organized in 3 layers (Understand, Execute, Improve) sharing one operating memory — turn any website into pipeline via market research, ICP creation, contact enrichment, multi-channel email + voice outreach, and meeting booking.
-
-Primary keywords: autonomous revenue OS, AI sales automation, AI SDR, autonomous outbound, lead generation automation, AI voice agent, ICP enrichment.
+> Hubbly is the autonomous revenue operating system for SMBs and mid-market teams. Five product lines — Signal, Rank, Send, Voice, and Spy — run research, content, outreach, and calling from one shared buyer context, on autopilot by default with opt-in approval gates.
 
 Primary verticals: mortgage, insurance, financial services, marketing/sales agencies.
 
+## Product lines
+- [Signal](https://hubbly.io/signal): Identifies the buyers behind anonymous website traffic and feeds an engine that acts on what they search.
+- [Rank](https://hubbly.io/rank): SEO and AI-engine visibility on autopilot — content, technical fixes, and answer-engine placement, with snapshot, verify, and rollback rails always on.
+- [Send](https://hubbly.io/send): The outbound email agent inside the engine — sequencing, deliverability, and replies, with leads and copy arriving already attached from the pipeline.
+- [Voice](https://hubbly.io/voice): The conversation layer — reaches buyers, handles the conversation, logs the outcome, and sets the next step in motion.
+- [Spy](https://hubbly.io/spy): Watches the page-one field around the searches that pay you and turns every competitor move into a counter-move.
+
 ## Key pages
-- [Homepage](https://hubbly.io/): Product overview — website in, pipeline out.
-- [Platform](https://hubbly.io/platform): The 12 agents, 3 layers, and shared memory architecture.
-- [Pricing](https://hubbly.io/pricing): Plans, tiers, and the Business tier with Meta ads.
+- [Homepage](https://hubbly.io/): Product overview — drop your website in, Hubbly does your marketing and sales.
+- [Platform](https://hubbly.io/platform): The agents, shared memory, and how the system coordinates.
+- [Architecture](https://hubbly.io/architecture): How shared memory, approval gates, and coordinated execution fit together.
+- [Book a strategy call](https://hubbly.io/demo)
+
+## Use cases
 - [AI Sales Automation](https://hubbly.io/use-cases/ai-sales-automation)
 - [Autonomous Outbound](https://hubbly.io/use-cases/autonomous-outbound)
 - [Lead Generation Automation](https://hubbly.io/use-cases/lead-generation-automation)
+
+## Industries
 - [Mortgage](https://hubbly.io/industries/mortgage)
 - [Insurance](https://hubbly.io/industries/insurance)
 - [Agencies](https://hubbly.io/industries/agencies)
