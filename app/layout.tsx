@@ -44,14 +44,13 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Hubbly — Autonomous Growth Engine",
+    default: "Hubbly — The Autonomous Revenue Operating System",
     template: "%s | Hubbly",
   },
   description:
     "Drop your website in. Hubbly does your marketing and sales — one autonomous system that learns your market, ranks your content, finds in-market buyers, runs outreach and calls, and books the meetings.",
   applicationName: "Hubbly",
   keywords: [
-    "autonomous growth engine",
     "AI sales automation",
     "autonomous outbound",
     "AI SDR platform",
@@ -70,7 +69,7 @@ export const metadata: Metadata = {
     url: `${siteUrl}/`,
     siteName: "Hubbly",
     locale: "en_US",
-    title: "Hubbly — Autonomous Growth Engine",
+    title: "Hubbly — The Autonomous Revenue Operating System",
     description:
       "Drop your website in. Hubbly does your marketing and sales — one autonomous system that learns your market, ranks your content, finds in-market buyers, runs outreach and calls, and books the meetings.",
     images: [
@@ -78,7 +77,7 @@ export const metadata: Metadata = {
         url: "/og/hubbly-og.png",
         width: 1200,
         height: 630,
-        alt: "Hubbly — Autonomous Growth Engine",
+        alt: "Hubbly — The Autonomous Revenue Operating System",
       },
     ],
   },
@@ -88,7 +87,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@hubblyio",
     creator: "@hubblyio",
-    title: "Hubbly — Autonomous Growth Engine",
+    title: "Hubbly — The Autonomous Revenue Operating System",
     description: "Drop your website in. Hubbly does your marketing and sales — one autonomous system that learns your market, ranks your content, finds in-market buyers, runs outreach and calls, and books the meetings.",
     images: ["/og/hubbly-og.png"],
   },

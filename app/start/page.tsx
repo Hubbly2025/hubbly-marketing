@@ -3,16 +3,16 @@ import Link from "next/link"
 import { StartForm } from "./start-form"
 
 export const metadata: Metadata = {
-  title: "Start your 14-day Autopilot trial",
+  title: "Start your 14-day trial",
   description:
-    "Self-serve signup for Hubbly Autopilot. No contract — the trial starts from your inbox.",
+    "Self-serve signup for Hubbly. No contract — the trial starts from your inbox.",
   alternates: { canonical: "https://hubbly.io/start" },
 }
 
 const riskReversalLines = [
   "Signup takes 30 seconds.",
   "Cancel anytime. No 6-month contract.",
-  "You keep every page Autopilot publishes — they live on your domain.",
+  "You keep every page Hubbly publishes — they live on your domain.",
 ]
 
 export default function StartPage() {
@@ -33,7 +33,7 @@ export default function StartPage() {
           </Link>
 
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#FF6B35]">
-            Autopilot · $498/mo
+            Self-serve · no sales call
           </p>
         </header>
 
@@ -43,7 +43,7 @@ export default function StartPage() {
               Self-serve
             </p>
             <h1 className="mt-5 font-[var(--font-bebas)] text-5xl leading-none tracking-tight md:text-7xl">
-              Start your 14-day Autopilot trial
+              Start your 14-day trial
             </h1>
             <div className="mt-8 space-y-3">
               {riskReversalLines.map((line) => (
@@ -53,12 +53,25 @@ export default function StartPage() {
                 </p>
               ))}
             </div>
-            <p className="mt-8 font-mono text-xs leading-6 text-white/45">
-              Want the machine mapped onto your business first?{" "}
-              <Link href="/demo" className="text-[#FF6B35] hover:text-[#FF6B35]/80">
-                Book a strategy call
-              </Link>{" "}
-              — 20 minutes, and the price stays the same either way. Or email{" "}
+            <div className="mt-8 flex flex-col items-start gap-4 border border-[#FF6B35]/40 bg-white/[0.02] p-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#FF6B35]">
+                Your Hubbly plan
+              </p>
+              <p className="text-pretty font-[var(--font-bebas)] text-2xl leading-[1.05] tracking-tight text-white md:text-3xl">
+                Built from everything this audit found — your keywords, your competitors, your revenue at risk.
+              </p>
+              <Link
+                href="/demo"
+                className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
+              >
+                See your plan →
+              </Link>
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
+                15-minute walkthrough · built from your audit
+              </p>
+            </div>
+            <p className="mt-6 font-mono text-xs leading-6 text-white/45">
+              Questions first? Email{" "}
               <a href="mailto:vince@hubbly.io" className="text-[#FF6B35] hover:text-[#FF6B35]/80">
                 vince@hubbly.io
               </a>

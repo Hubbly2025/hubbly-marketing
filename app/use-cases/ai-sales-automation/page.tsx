@@ -55,7 +55,7 @@ export default function AISalesAutomationPage() {
       }}
       cta={{
         primary: "Start free",
-        secondary: "Get pricing",
+        secondary: "See how it works",
       }}
     />
   )

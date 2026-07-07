@@ -162,10 +162,10 @@ export function FinalCloseSection() {
 
         {/* Bottom tagline */}
         <p className="font-mono text-xs md:text-sm text-muted-foreground/60 mb-4">
-          From website to coordinated execution — in one autonomous growth engine.
+          From website to coordinated execution — one autonomous revenue operating system.
         </p>
         <p className="font-mono text-lg md:text-xl tracking-[0.3em] text-muted-foreground/30 uppercase">
-          THE AUTONOMOUS GROWTH ENGINE.
+          THE AUTONOMOUS REVENUE OPERATING SYSTEM.
         </p>
       </div>
     </section>

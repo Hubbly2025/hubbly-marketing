@@ -148,10 +148,10 @@ export default function PlatformPage() {
             Start Free
           </a>
           <a
-            href="/demo"
+            href="/#audit"
             className="inline-flex items-center justify-center gap-2 border border-border/50 px-6 py-4 font-mono text-xs uppercase tracking-widest text-foreground hover:bg-card/50 transition-all duration-200"
           >
-            Get Pricing
+            See what Hubbly finds
           </a>
         </div>
       </div>

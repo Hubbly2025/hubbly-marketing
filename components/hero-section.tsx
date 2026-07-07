@@ -55,7 +55,7 @@ export function HeroSection() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
           </span>
           <span className="font-mono text-[10px] md:text-[13px] tracking-[0.1em] text-muted-foreground uppercase">
-            Autonomous Growth Engine
+            The Autonomous Revenue Operating System
           </span>
         </div>
 
@@ -140,19 +140,13 @@ export function HeroSection() {
           <span className="font-mono text-[11px] md:text-xs text-muted-foreground">
             Free · takes 2 minutes · no credit card
           </span>
-          <a
-            href="/pricing"
-            className="font-mono text-[11px] md:text-xs uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors duration-200"
-          >
-            See pricing →
-          </a>
         </div>
       </div>
 
       {/* Floating info tag - hidden on mobile */}
       <div className="hidden sm:block absolute bottom-8 right-8 md:bottom-12 md:right-12">
         <div className="border border-border/50 bg-card/30 px-4 py-2 font-mono text-xs uppercase tracking-widest text-foreground/60">
-          AUTONOMOUS GROWTH ENGINE
+            THE AUTONOMOUS REVENUE OPERATING SYSTEM
         </div>
       </div>
     </section>

@@ -12,7 +12,7 @@ const intelligenceAgents = [
   { name: "Research", description: "Builds competitor intelligence and market context so strategy is grounded in the actual category landscape." },
   { name: "ICP", description: "Maps your best-fit buyer profile, filters low-intent prospects, and defines the accounts worth pursuing." },
   { name: "Strategy", description: "Translates business context, market inputs, and ICP logic into a go-to-market plan the system can execute." },
-  { name: "Creative", description: "Produces approved campaign assets that support outbound and, on Business tier, paid acquisition workflows." },
+  { name: "Creative", description: "Produces approved campaign assets that support outbound and paid acquisition workflows." },
 ]
 
 const executionAgents = [

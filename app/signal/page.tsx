@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { SignalExperience } from "@/components/signal/signal-experience"
+import LazyDemo from "@/components/lazy-demo"
 
 export const metadata: Metadata = {
   title: "Hubbly Signal — We already saw you.",
@@ -9,5 +10,21 @@ export const metadata: Metadata = {
 }
 
 export default function SignalPage() {
-  return <SignalExperience />
+  return (
+    <>
+      {/* DEMO HERO */}
+      <section className="px-4 pt-24 pb-4 md:px-8 md:pt-28">
+        <div className="mx-auto w-full max-w-[1400px]">
+          <LazyDemo
+            src="/demos/hubbly-agent-demos.html?demo=signal"
+            title="Hubbly Signal demo"
+            aspect={null}
+            className="h-[min(80vh,860px)]"
+          />
+        </div>
+      </section>
+
+      <SignalExperience />
+    </>
+  )
 }

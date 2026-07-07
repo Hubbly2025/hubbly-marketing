@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Reveal } from "@/components/autopilot/reveal"
+import LazyDemo from "@/components/lazy-demo"
 import {
   TerminalBoot,
   HudRow,
   MirrorRow,
-  PriceCol,
   QueueLine,
   SampleQuery,
   TOTAL_SECTIONS,
@@ -464,40 +464,21 @@ export function SignalExperience() {
         </div>
       </section>
 
-      {/* SCENE 6 · THE NUMBER */}
-      <section ref={registerSection} className="flex min-h-screen items-center px-6 py-32 md:px-8 md:py-44">
+      {/* SCENE 5.5 · WATCH IT RUN */}
+      <section className="px-6 py-32 md:px-8 md:py-44">
         <div className="mx-auto w-full max-w-[1060px]">
           <Reveal as="span" className="block font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
-            Simple pricing
+            See it in motion
           </Reveal>
           <Reveal delay={120}>
             <h2 className="mt-7 font-[var(--font-bebas)] text-[clamp(34px,5.5vw,68px)] font-semibold leading-[1.02] tracking-tight text-foreground/90">
-              Pay for resolved demand,
-              <br />
-              not software overhead.
+              Watch Signal resolve real traffic.
             </h2>
           </Reveal>
           <Reveal delay={240}>
-            <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 min-[880px]:grid-cols-4">
-              <PriceCol name="FREE" price="$0" unit="/mo" desc="See who is already visiting." />
-              <PriceCol name="SIGNAL" price="$98" unit="/mo" desc="Resolve and enrich your highest-intent traffic." />
-              <PriceCol name="PRO" price="$298" unit="/mo" desc="Scale resolution, enrichment, and vertical intelligence." />
-              <PriceCol
-                name="AUTOPILOT"
-                price="$498"
-                unit="/mo"
-                desc="Add the execution engine across search, AI answers, and conversion."
-                hot
-              />
+            <div className="mt-12">
+              <LazyDemo src="/demos/hubbly-agent-demos.html" title="Hubbly Signal demo" aspect="16 / 10" />
             </div>
-          </Reveal>
-          <Reveal delay={360}>
-            <p className="mt-6 font-mono text-[10.5px] tracking-[0.04em] text-muted-foreground/45">
-              Every paid tier starts with 14 days uncapped. Full outbound agent team →{" "}
-              <a href="https://hubbly.io" className="border-b border-border/60 text-muted-foreground/70 hover:text-accent">
-                Hubbly OS
-              </a>
-            </p>
           </Reveal>
         </div>
       </section>

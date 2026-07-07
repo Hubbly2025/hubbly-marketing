@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hubbly · Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0e0e;--accent:#FF6B35;--ink:#F5F5F4;--muted:#8f8a85;--good:#4ADE80;--bad:#FF3D81;
+    --domain:#FF6B35;--competitor:#FF3D81;--keyword:#22D3EE;--intent:#A78BFA;
+    --glass-tint:rgba(255,255,255,.05);--glass-border:rgba(255,255,255,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;overflow:hidden}
+
+  .ambient{position:fixed;inset:0;z-index:0;overflow:hidden}
+  .orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.45;mix-blend-mode:screen}
+  .orb.a{width:700px;height:700px;background:var(--accent);top:-200px;left:-140px;animation:d1 30s ease-in-out infinite}
+  .orb.b{width:540px;height:540px;background:#FF3D81;bottom:-200px;right:-80px;animation:d2 36s ease-in-out infinite}
+  .orb.c{width:460px;height:460px;background:#22D3EE;top:40%;left:58%;opacity:.28;animation:d3 42s ease-in-out infinite}
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  @keyframes d1{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,50px)}}
+  @keyframes d2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-40px)}}
+  @keyframes d3{0%,100%{transform:translate(0,0)scale(1)}50%{transform:translate(-50px,30px)scale(1.1)}}
+
+  #globe{position:fixed;inset:0;z-index:2;display:block}
+
+  .glass{background:var(--glass-tint);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
+    border:1px solid var(--glass-border);border-radius:22px;
+    box-shadow:0 24px 56px -20px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.25)}
+
+  .board{position:fixed;inset:0;z-index:3;display:grid;pointer-events:none;
+    grid-template-columns:340px 1fr 340px;grid-template-rows:auto 1fr auto;gap:22px;padding:26px 26px 0}
+  .board > *{pointer-events:auto}
+
+  /* header */
+  .head{grid-column:1/4;display:flex;align-items:center;gap:18px;padding:14px 22px;border-radius:999px}
+  .mark{font-weight:700;font-size:20px;letter-spacing:-.02em}
+  .mark span{color:var(--accent)}
+  .head .dom{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--muted)}
+  .head .live{margin-left:auto;display:flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .clock{font-family:"JetBrains Mono",monospace;font-size:14px;font-weight:500;font-variant-numeric:tabular-nums;padding-left:18px;border-left:1px solid rgba(255,255,255,.1)}
+
+  /* stat columns */
+  .col{display:flex;flex-direction:column;gap:18px;justify-content:center}
+  .stat{padding:20px 22px}
+  .stat .lbl{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+  .stat .num{margin-top:10px;font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;transition:color .3s}
+  .stat .num small{font-size:17px;color:var(--muted);font-weight:400}
+  .stat .delta{margin-top:9px;font-family:"JetBrains Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums}
+  .up{color:var(--good)}.down{color:var(--bad)}
+  .num.flash{color:var(--accent)}
+
+  /* agent feed */
+  .feed{padding:20px 22px;display:flex;flex-direction:column;min-height:0}
+  .feed .lbl{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  .feed ul{list-style:none;overflow:hidden;display:flex;flex-direction:column;gap:11px}
+  .feed li{display:flex;gap:10px;font-size:13px;line-height:1.45;color:var(--ink);opacity:0;transform:translateY(6px);animation:in .4s ease forwards}
+  .feed li .t{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);flex:none;padding-top:1px;font-variant-numeric:tabular-nums}
+  .feed li b{color:var(--accent);font-weight:600}
+  @keyframes in{to{opacity:1;transform:none}}
+
+  .center{grid-column:2;grid-row:2;position:relative}
+  .center .cap{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+  .center .cap b{color:var(--ink);font-weight:500}
+
+  /* ticker */
+  .ticker{grid-column:1/4;margin:0 -26px;border-radius:0;border-left:none;border-right:none;border-bottom:none;
+    padding:0;overflow:hidden;height:52px;display:flex;align-items:center}
+  .tape{display:flex;gap:64px;white-space:nowrap;animation:tape 60s linear infinite;padding-left:100%}
+  .tape span{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px}
+  .tape b{color:var(--ink);font-weight:500}
+  .tape .u{color:var(--good)}.tape .d{color:var(--bad)}.tape .a{color:var(--accent)}
+  @keyframes tape{to{transform:translateX(-100%)}}
+
+  .exit{position:fixed;top:26px;right:26px;z-index:9;opacity:0;transition:opacity .3s;
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+    background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);padding:9px 14px;border-radius:10px;cursor:pointer}
+  body:hover .exit{opacity:1}
+
+  @media (prefers-reduced-motion:reduce){
+    .orb,.dot,.tape{animation:none!important}
+  }
+  @media (max-width:1100px){
+    .board{grid-template-columns:280px 1fr 280px}
+    .stat .num{font-size:32px}
+  }
+</style>
+</head>
+<body>
+<div class="ambient"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
+<div class="grain"></div>
+<canvas id="globe"></canvas>
+
+<div class="board">
+  <header class="glass head">
+    <div class="mark">Hubb<span>ly</span></div>
+    <div class="dom">morganandmorgan.com</div>
+    <div class="live"><span class="dot"></span>Board · live</div>
+    <div class="clock" id="clock">--:--:--</div>
+  </header>
+
+  <div class="col" style="grid-column:1;grid-row:2">
+    <div class="glass stat">
+      <div class="lbl">Revenue at risk</div>
+      <div class="num" id="nRisk">$486,200<small>/mo</small></div>
+      <div class="delta down" id="dRisk">▲ competitors gaining on “car accident lawyer”</div>
+    </div>
+    <div class="glass stat">
+      <div class="lbl">Pipeline this week</div>
+      <div class="num" id="nPipe">$128,400</div>
+      <div class="delta up" id="dPipe">▲ +$4.2k today</div>
+    </div>
+    <div class="glass stat">
+      <div class="lbl">Identities resolved today</div>
+      <div class="num" id="nId">1,284</div>
+      <div class="delta up" id="dId">▲ live via Signal</div>
+    </div>
+  </div>
+
+  <div class="center">
+    <div class="cap">Market graph · <b>5 battleground keywords</b> · 4 competitors in field</div>
+  </div>
+
+  <div class="col" style="grid-column:3;grid-row:2">
+    <div class="glass stat">
+      <div class="lbl">AEO citation share</div>
+      <div class="num" id="nAeo">18.6<small>%</small></div>
+      <div class="delta up">▲ +4.2 pts this week</div>
+    </div>
+    <div class="glass feed" style="flex:1">
+      <div class="lbl">Hubbly · last hour</div>
+      <ul id="feed"></ul>
+    </div>
+  </div>
+
+  <footer class="glass ticker" style="grid-row:3">
+    <div class="tape" id="tape"></div>
+  </footer>
+</div>
+
+<button class="exit" onclick="document.documentElement.requestFullscreen?.()">⛶ fullscreen</button>
+
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- clock ---------------- */
+const clock=document.getElementById('clock');
+setInterval(()=>{clock.textContent=new Date().toLocaleTimeString('en-US',{hour12:false});},1000);
+
+/* ---------------- globe ---------------- */
+const cvs=document.getElementById('globe'),ctx=cvs.getContext('2d');
+let W,H,cx,cy,R,angle=0;
+const COL={domain:'#FF6B35',competitor:'#FF3D81',keyword:'#22D3EE',intent:'#A78BFA'};
+const nodes=[
+ {id:0,label:'morganandmorgan.com',cat:'domain',size:1.6,p:{x:0,y:.1,z:1}},
+ {label:'Forbes Advisor',cat:'competitor',size:1.05},{label:'Justia',cat:'competitor',size:1},
+ {label:'FindLaw',cat:'competitor',size:1.15},{label:'Cellino Law',cat:'competitor',size:.95},
+ {label:'car accident lawyer',cat:'keyword',size:1.3},{label:'personal injury lawyer',cat:'keyword',size:1.05},
+ {label:'truck accident attorney',cat:'keyword',size:1},{label:'motorcycle accident lawyer',cat:'keyword',size:.95},
+ {label:'slip and fall lawyer',cat:'keyword',size:.9},
+ {label:'accident claims',cat:'intent',size:.9},{label:'injury compensation',cat:'intent',size:.85},
+ {label:'hiring a lawyer',cat:'intent',size:.9},
+];
+const golden=Math.PI*(3-Math.sqrt(5));
+for(let i=1;i<nodes.length;i++){
+  const t=i/nodes.length,y=1-t*1.9,r=Math.sqrt(Math.max(0,1-y*y)),th=i*golden;
+  nodes[i].p={x:Math.cos(th)*r,y,z:Math.sin(th)*r};
+}
+const edges=[[0,5,3],[0,6,2],[0,7,2],[0,8,1.6],[0,9,1.4],[1,5,1],[1,7,1],[2,5,1],[2,9,1],[3,5,1],[3,6,1],[3,7,1],[4,8,1],[4,6,1],[5,10,.7],[5,11,.7],[5,12,.7],[6,10,.7],[8,10,.7],[7,12,.7],[9,12,.7]];
+let pulses=[]; // {edge, t}
+
+function resize(){
+  const DPR=Math.min(2,devicePixelRatio||1);
+  W=innerWidth;H=innerHeight;
+  cvs.width=W*DPR;cvs.height=H*DPR;cvs.style.width=W+'px';cvs.style.height=H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  cx=W/2;cy=H*0.52;R=Math.min(W-760,H-260)*0.42;R=Math.max(180,R);
+}
+addEventListener('resize',resize);resize();
+
+const tilt=-0.32;
+function rot(p){
+  const ca=Math.cos(angle),sa=Math.sin(angle);
+  let x=p.x*ca+p.z*sa,z=-p.x*sa+p.z*ca,y=p.y;
+  const ct=Math.cos(tilt),st=Math.sin(tilt);
+  return{x,y:y*ct-z*st,z:y*st+z*ct};
+}
+function hex(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // wire sphere
+  ctx.lineWidth=1;
+  for(let L=0;L<12;L++){const th=(L/12)*Math.PI*2;ctx.beginPath();
+    for(let s=0;s<=36;s++){const ph=-Math.PI/2+(s/36)*Math.PI;
+      const q=rot({x:Math.cos(ph)*Math.cos(th),y:Math.sin(ph),z:Math.cos(ph)*Math.sin(th)});
+      const X=cx+q.x*R,Y=cy-q.y*R;s?ctx.lineTo(X,Y):ctx.moveTo(X,Y);}
+    ctx.strokeStyle='rgba(255,255,255,.05)';ctx.stroke();}
+  for(let La=1;La<6;La++){const ph=-Math.PI/2+(La/6)*Math.PI;ctx.beginPath();
+    for(let s=0;s<=48;s++){const th=(s/48)*Math.PI*2;
+      const q=rot({x:Math.cos(ph)*Math.cos(th),y:Math.sin(ph),z:Math.cos(ph)*Math.sin(th)});
+      const X=cx+q.x*R,Y=cy-q.y*R;s?ctx.lineTo(X,Y):ctx.moveTo(X,Y);}
+    ctx.strokeStyle='rgba(255,255,255,.05)';ctx.stroke();}
+
+  nodes.forEach(n=>{const q=rot(n.p);n.sx=cx+q.x*R;n.sy=cy-q.y*R;n.d=(q.z+1)/2;n.sr=(4+n.size*7)*(0.55+0.45*n.d);});
+
+  edges.map((e,i)=>({e,i,d:(nodes[e[0]].d+nodes[e[1]].d)/2})).sort((a,b)=>a.d-b.d).forEach(({e,d})=>{
+    const A=nodes[e[0]],B=nodes[e[1]];
+    const domainEdge=e[0]===0||e[1]===0;
+    const al=(0.05+0.14*d);
+    ctx.beginPath();ctx.moveTo(A.sx,A.sy);ctx.lineTo(B.sx,B.sy);
+    ctx.strokeStyle=domainEdge?`rgba(255,140,90,${al})`:`rgba(255,255,255,${al})`;
+    ctx.lineWidth=(0.6+e[2]*0.5)*(0.6+0.4*d);ctx.stroke();
+  });
+
+  // pulses travelling along edges (activity)
+  pulses=pulses.filter(p=>p.t<1);
+  pulses.forEach(p=>{
+    const A=nodes[edges[p.edge][0]],B=nodes[edges[p.edge][1]];
+    const x=A.sx+(B.sx-A.sx)*p.t,y=A.sy+(B.sy-A.sy)*p.t;
+    const g=ctx.createRadialGradient(x,y,0,x,y,10);
+    g.addColorStop(0,'rgba(255,107,53,.9)');g.addColorStop(1,'rgba(255,107,53,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,10,0,7);ctx.fill();
+    p.t+=0.014;
+  });
+
+  nodes.map((n,i)=>({n,i})).sort((a,b)=>a.n.d-b.n.d).forEach(({n})=>{
+    const c=COL[n.cat],dim=0.35+0.65*n.d;
+    const g=ctx.createRadialGradient(n.sx,n.sy,0,n.sx,n.sy,n.sr*3.2);
+    g.addColorStop(0,hex(c,0.26*dim));g.addColorStop(1,hex(c,0));
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(n.sx,n.sy,n.sr*3.2,0,7);ctx.fill();
+    ctx.beginPath();ctx.arc(n.sx,n.sy,n.sr,0,7);
+    ctx.fillStyle=hex(c,dim);ctx.fill();
+    ctx.lineWidth=1;ctx.strokeStyle=hex('#ffffff',0.35*dim);ctx.stroke();
+    if(n.cat==='domain'){
+      ctx.font='600 14px "Space Grotesk"';ctx.fillStyle='rgba(245,245,244,'+dim+')';
+      ctx.textAlign='center';ctx.fillText(n.label,n.sx,n.sy-n.sr-10);
+    }
+  });
+
+  if(!reduce)angle+=0.0016;
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+/* ---------------- live feel: feed + numbers + pulses ---------------- */
+const feedEl=document.getElementById('feed');
+const feedItems=[
+ ['Rank','published draft → <b>“What to do after a truck accident”</b> · verify passed'],
+ ['Signal','resolved <b>14 identities</b> from live site traffic'],
+ ['Score','flagged <b>3 hot leads</b> · accident claims intent'],
+ ['Rank','snapshot taken → rewrote meta on <b>/car-accident-lawyer</b>'],
+ ['Hubbly Spy','FindLaw moved <b>#4 → #3</b> on “personal injury lawyer”'],
+ ['Send','sequence step 2 delivered to <b>41 contacts</b>'],
+ ['Rank','AEO probe complete · cited in <b>2 of 9</b> answers'],
+ ['Book','meeting booked → <b>Tue 10:30a</b> · truck accident consult'],
+ ['Signal','high-intent visitor resolved · <b>commercial fleet accident</b>'],
+ ['Rank','rollback armed · monitoring <b>/truck-accidents</b> post-publish'],
+];
+let fi=0,shown=[];
+function pushFeed(){
+  const [agent,msg]=feedItems[fi%feedItems.length];fi++;
+  const t=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit'});
+  const li=document.createElement('li');
+  li.innerHTML=`<span class="t">${t}</span><span><b>${agent}</b> ${msg}</span>`;
+  feedEl.prepend(li);shown.push(li);
+  if(shown.length>6){const old=shown.shift();old.remove();}
+  // fire a pulse on a random domain edge
+  pulses.push({edge:Math.floor(Math.random()*5),t:0});
+}
+pushFeed();pushFeed();pushFeed();pushFeed();
+setInterval(pushFeed,reduce?12000:7000);
+
+/* number drift */
+let pipe=128400,ids=1284,aeo=18.6;
+const nPipe=document.getElementById('nPipe'),nId=document.getElementById('nId'),nAeo=document.getElementById('nAeo');
+function flash(el){el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),600);}
+setInterval(()=>{
+  if(Math.random()<.6){ids+=Math.floor(1+Math.random()*4);nId.textContent=ids.toLocaleString();flash(nId);}
+  if(Math.random()<.35){pipe+=Math.floor(100+Math.random()*900);nPipe.textContent='$'+pipe.toLocaleString();flash(nPipe);}
+  if(Math.random()<.12){aeo=Math.min(99,aeo+0.1);nAeo.innerHTML=aeo.toFixed(1)+'<small>%</small>';flash(nAeo);}
+},reduce?15000:5000);
+
+/* ticker */
+const tapeData=[
+ '<b>car accident lawyer</b> · you <span class="d">#6</span> · FindLaw <span class="u">#1</span> · Forbes Advisor #2',
+ '<b>personal injury lawyer</b> · you <span class="u">#3 ▲1</span> this week',
+ '<b>truck accident attorney</b> · you #5 · Justia <span class="d">▼2</span>',
+ '<span class="a">AEO</span> · cited in 18.6% of AI answers · target 30%',
+ '<b>motorcycle accident lawyer</b> · Cellino Law entered page one',
+ '<span class="a">Rank</span> · 3 pages published this week · 0 rollbacks',
+ '<b>slip and fall lawyer</b> · you <span class="u">#4 ▲2</span> · momentum',
+ '<span class="a">Signal</span> · 6,204 identities resolved this month',
+];
+const tape=document.getElementById('tape');
+tape.innerHTML=(tapeData.concat(tapeData)).map(s=>`<span>${s}</span>`).join('');
+</script>
+</body>
+</html>

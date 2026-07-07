@@ -30,8 +30,8 @@ export function StartForm() {
           company: website.trim(),
           role: "self_serve",
           company_size: "self_serve_signup",
-          pain_points: `Self-serve Autopilot trial signup. First name: ${firstName.trim() || "not given"}`,
-          expected_results: "Start the 14-day Autopilot trial",
+          pain_points: `Self-serve trial signup. First name: ${firstName.trim() || "not given"}`,
+          expected_results: "Start the 14-day trial",
           timeline: "immediate",
           utm_source: "audit_report_offer",
           audit_url: website.trim(),
@@ -59,7 +59,7 @@ export function StartForm() {
           You&apos;re in
         </p>
         <p className="mt-5 max-w-md text-xl leading-8 text-white md:text-2xl">
-          You&apos;re in. Check your email — your Autopilot trial starts there.
+          You&apos;re in. Check your email — your trial starts there.
         </p>
         <p className="mt-4 font-mono text-xs leading-6 text-white/55">
           Prefer a walkthrough first?{" "}
@@ -122,7 +122,7 @@ export function StartForm() {
       )}
 
       <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
-        14-day trial · Cancel anytime · The price is the price
+        14-day trial · Cancel anytime · No commitment
       </p>
     </form>
   )

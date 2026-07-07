@@ -1,18 +1,182 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { AuditScanProgress } from "@/components/audit/audit-scan-progress"
+import ScanTheater, { type ScanEvent } from "@/components/audit/scan-theater"
+import type { Audit } from "@/components/audit/types"
+import { getDomain } from "@/components/audit/audit-utils"
 
 type AuditStatus = "processing" | "complete" | "failed"
+
+// Backend `current_step` values come from lib/audit/process-audit.ts:
+// queued → scraping → analyzing → building_report → complete | failed.
+// Map each to honest, human copy. Nothing here invents scan findings — the
+// globe only shows the domain node + wire sphere while these play.
+const STEP_COPY: Record<string, string> = {
+  queued: "Queued — starting your scan…",
+  scraping: "Reading your site…",
+  analyzing: "Scanning your market…",
+  building_report: "Checking the page-one field…",
+  complete: "Pricing the gap…",
+}
+
+// Honest coarse progress per backend step — drives the rail + intensity floor.
+const STEP_PROGRESS: Record<string, number> = {
+  queued: 0.08,
+  scraping: 0.28,
+  analyzing: 0.55,
+  building_report: 0.8,
+  complete: 0.95,
+}
+
+// DELIBERATE PACING (product decision): the scan is an unboxing, not a race.
+// The experience runs a minimum of ~60s even if the backend finishes sooner —
+// we HOLD the real data and keep the build going until the floor, then reveal.
+// Pacing/timing is presentation; the revealed number is still the real output.
+const SCAN_MIN_DURATION_MS = 60000
+// If the real scan runs LONGER than the floor, still give the build this long.
+const MIN_BUILD_AFTER_DATA_MS = 6000
+// Count-up duration inside the reveal, then a hold on the number before handoff.
+const RISK_COUNT_MS = 1600
+const REVEAL_HOLD_MS = 900
 
 export function AuditLoadingScreen({ auditId }: { auditId: string }) {
   const router = useRouter()
   const [status, setStatus] = useState<AuditStatus>("processing")
-  const [serverStep, setServerStep] = useState("")
-  const [serverProgress, setServerProgress] = useState<number | null>(null)
   const [errorMessage, setErrorMessage] = useState("")
+  const [domain, setDomain] = useState<string | null>(null)
 
+  // Bridge between the parent's polling logic and ScanTheater's push fn.
+  const pushRef = useRef<((event: ScanEvent) => void) | null>(null)
+  const queueRef = useRef<ScanEvent[]>([])
+  const lastStepRef = useRef<string>("")
+  const revealStartedRef = useRef(false)
+  const timersRef = useRef<number[]>([])
+  const navigatedRef = useRef(false)
+  // When the scan experience began — used to enforce the minimum-duration floor.
+  const mountedAtRef = useRef<number>(Date.now())
+
+  const emit = useCallback((event: ScanEvent) => {
+    if (pushRef.current) pushRef.current(event)
+    else queueRef.current.push(event)
+  }, [])
+
+  // Stable subscribe — identity must not change or ScanTheater re-inits.
+  const subscribe = useCallback((push: (event: ScanEvent) => void) => {
+    pushRef.current = push
+    if (queueRef.current.length) {
+      queueRef.current.forEach((event) => push(event))
+      queueRef.current = []
+    }
+    return () => {
+      pushRef.current = null
+    }
+  }, [])
+
+  const goToCapture = useCallback(() => {
+    if (navigatedRef.current) return
+    navigatedRef.current = true
+    router.push(`/audit/capture/${auditId}`)
+  }, [auditId, router])
+
+  // Stage the reveal from REAL payload values only. The blooms are spread
+  // across the remaining time up to the minimum-duration floor, the crescendo
+  // is told when to crest, and the revenue reveal is gated to the floor so it
+  // never fires early — then done handoff after the count-up + hold.
+  const runReveal = useCallback(
+    (audit: Audit) => {
+      if (revealStartedRef.current) return
+      revealStartedRef.current = true
+
+      const analysis = audit.analysis
+      const seo = analysis?.seo_report
+
+      const keywords = (seo?.gapKeywords ?? [])
+        .map((gap) => gap.keyword)
+        .filter((keyword): keyword is string => Boolean(keyword && keyword.trim()))
+        .slice(0, 8)
+
+      const competitorSource = audit.competitors?.length ? audit.competitors : analysis?.competitors ?? []
+      const competitors = competitorSource
+        .map((competitor) => competitor?.name)
+        .filter((name): name is string => Boolean(name && name.trim()))
+        .slice(0, 6)
+
+      const revenueAtRisk = (seo as unknown as { revenueAtRiskMonthly?: number } | undefined)
+        ?.revenueAtRiskMonthly
+      const topKeyword = keywords[0] ?? null
+
+      const at = (fn: () => void, ms: number) => {
+        const id = window.setTimeout(fn, ms)
+        timersRef.current.push(id)
+      }
+
+      // Effective build duration: hold to the floor if the scan finished early,
+      // otherwise a short dressing window if it ran long. This is when the
+      // revenue reveal fires — the whole crescendo is paced to crest here.
+      const elapsed = Date.now() - mountedAtRef.current
+      const remaining = Math.max(MIN_BUILD_AFTER_DATA_MS, SCAN_MIN_DURATION_MS - elapsed)
+
+      // Tell the theater to build so intensity crests exactly at the reveal.
+      emit({ type: "crescendo", revealInMs: remaining })
+
+      // Spread keyword + competitor blooms across ~66% of the window so the
+      // field keeps populating well into the build (accelerating activity does
+      // the rest). Keywords first, then the colder competitor nodes.
+      const items: ScanEvent[] = [
+        ...keywords.map((label): ScanEvent => ({ type: "keyword", label })),
+        ...competitors.map((label): ScanEvent => ({ type: "competitor", label })),
+      ]
+      const bloomWindow = remaining * 0.66
+      const stagger = items.length ? bloomWindow / (items.length + 1) : 0
+      let delay = Math.min(600, stagger || 600)
+      items.forEach((event) => {
+        at(() => emit(event), delay)
+        delay += stagger
+      })
+
+      // Beat 5 — the revenue reveal, gated to the floor. Real figure only; if
+      // absent, ScanTheater shows the truthful competitive-map fallback.
+      at(
+        () =>
+          emit({
+            type: "reveal",
+            monthlyUsd: typeof revenueAtRisk === "number" && revenueAtRisk > 0 ? revenueAtRisk : null,
+            label: "estimated · category benchmarks",
+            topKeyword,
+          }),
+        remaining,
+      )
+
+      // Beat 6 — hold on the number, then hand off to the existing capture step.
+      at(() => emit({ type: "done" }), remaining + RISK_COUNT_MS + REVEAL_HOLD_MS)
+    },
+    [emit],
+  )
+
+  // Fetch the domain once so the globe centers on the real site.
+  useEffect(() => {
+    let cancelled = false
+    async function loadDomain() {
+      try {
+        const response = await fetch(`/api/audit/${auditId}`, { cache: "no-store" })
+        const data = await response.json()
+        if (!cancelled && response.ok && data?.audit?.url) {
+          setDomain(getDomain(data.audit.url))
+          return
+        }
+      } catch {
+        // fall through to generic label
+      }
+      if (!cancelled) setDomain("your site")
+    }
+    loadDomain()
+    return () => {
+      cancelled = true
+    }
+  }, [auditId])
+
+  // Poll status; emit honest status copy on each step change.
   useEffect(() => {
     let cancelled = false
 
@@ -21,20 +185,29 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
         const response = await fetch(`/api/audit/status/${auditId}`, { cache: "no-store" })
         const data = await response.json()
 
-        if (!cancelled && response.ok) {
-          setStatus(data.status)
-          setServerStep(data.current_step || "")
-          setServerProgress(typeof data.progress_percent === "number" ? data.progress_percent : null)
-          setErrorMessage(data.error_message || "")
+        if (cancelled) return
+
+        if (!response.ok) {
+          setStatus("failed")
+          setErrorMessage(data?.error || "")
+          return
         }
 
-        if (!cancelled && !response.ok) {
-          setStatus("failed")
+        const nextStatus: AuditStatus = data.status
+        const step: string = data.current_step || ""
+
+        if (step && step !== lastStepRef.current && STEP_COPY[step]) {
+          lastStepRef.current = step
+          emit({ type: "status", text: STEP_COPY[step] })
+          if (typeof STEP_PROGRESS[step] === "number") {
+            emit({ type: "progress", value: STEP_PROGRESS[step] })
+          }
         }
+
+        setStatus(nextStatus)
+        setErrorMessage(data.error_message || "")
       } catch {
-        if (!cancelled) {
-          setStatus("failed")
-        }
+        if (!cancelled) setStatus("failed")
       }
     }
 
@@ -45,13 +218,42 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
       cancelled = true
       window.clearInterval(interval)
     }
-  }, [auditId])
+  }, [auditId, emit])
 
+  // On completion, fetch the full payload and stage the reveal. If that
+  // fetch fails, fall back to the previous behavior (straight to capture).
   useEffect(() => {
-    if (status === "complete") {
-      router.push(`/audit/capture/${auditId}`)
+    if (status !== "complete") return
+    let cancelled = false
+
+    async function loadAndReveal() {
+      try {
+        const response = await fetch(`/api/audit/${auditId}`, { cache: "no-store" })
+        const data = await response.json()
+        if (cancelled) return
+        if (response.ok && data?.audit) {
+          runReveal(data.audit as Audit)
+          return
+        }
+      } catch {
+        // fall through
+      }
+      if (!cancelled) goToCapture()
     }
-  }, [auditId, router, status])
+
+    loadAndReveal()
+    return () => {
+      cancelled = true
+    }
+  }, [status, auditId, runReveal, goToCapture])
+
+  // Clear reveal timers on unmount.
+  useEffect(() => {
+    const timers = timersRef.current
+    return () => {
+      timers.forEach((id) => window.clearTimeout(id))
+    }
+  }, [])
 
   if (status === "failed") {
     return (
@@ -66,9 +268,7 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
           >
             Something went wrong analyzing that URL.
           </h1>
-          <p className="mt-4 max-w-md text-sm text-[#8a8a8a]">
-            {errorMessage || "Try a different one."}
-          </p>
+          <p className="mt-4 max-w-md text-sm text-[#8a8a8a]">{errorMessage || "Try a different one."}</p>
           <a
             href="/#audit"
             className="mt-8 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-6 text-xs uppercase tracking-widest text-[#0e0e0e] transition-opacity duration-200 hover:opacity-90"
@@ -80,8 +280,27 @@ export function AuditLoadingScreen({ auditId }: { auditId: string }) {
     )
   }
 
-  const step = serverStep ? serverStep.replace(/_/g, " ") : "building report"
-  const percent = serverProgress !== null ? serverProgress : 75
-
-  return <AuditScanProgress step={step} percent={percent} />
+  return (
+    <main
+      className="flex min-h-[100svh] flex-col items-center justify-center bg-[#0a0a0a] px-4 py-10 text-[#e8e8e8]"
+      style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
+    >
+      <div className="w-full max-w-4xl">
+        <div className="mb-6 text-center">
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#FF6B35]">GTM audit running</p>
+          <h1
+            className="mt-3 text-3xl font-normal tracking-tight text-[#f5f5f5] md:text-4xl"
+            style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}
+          >
+            Building your report
+          </h1>
+        </div>
+        {domain ? (
+          <ScanTheater domain={domain} subscribe={subscribe} onDone={goToCapture} />
+        ) : (
+          <div className="h-[560px] w-full animate-pulse rounded-2xl border border-white/10 bg-white/[0.02]" />
+        )}
+      </div>
+    </main>
+  )
 }

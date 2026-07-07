@@ -13,17 +13,19 @@ import {
   SnapshotRow,
 } from "./report-parts"
 import { SeoSection } from "./seo-section"
+import { CalEmbed } from "@/app/demo/cal-embed"
 import type { SeoReport } from "@/lib/seo-report/types"
 
 // v3 close: the report sells the whole machine and closes to a strategy
-// call. /demo is the live cal.com booking route — the call is framed as
-// activation, not negotiation, and pricing stays fully public on this page
-// (that's the wedge). /start stays live as the self-serve secondary path.
+// call. No prices anywhere — the removed tier block is now the "Your Hubbly
+// plan" CTA, which smooth-scrolls to the cal.com embed mounted directly below
+// it on this same page. The call is framed as activation, not negotiation.
+// /start stays live as the self-serve secondary path.
 // TODO(stripe): when checkout + onboarding are automated, self-serve can
 // take primary again via Stripe Checkout.
 const CTA_LABEL = "Book my strategy call"
 const CTA_HREF = "/demo"
-const SELF_SERVE_HREF = "/start"
+const REPORT_EMBED_ID = "hubbly-plan-embed"
 
 // Provenance chip used on every rendered number and mechanism block so the
 // report reads as measured/estimated/modeled/recommendation, never
@@ -393,9 +395,8 @@ function MachineSection({
   )
 }
 
-// v3 offer — the stack mirrors the four pillars, then transparent two-tier
-// pricing. The wedge: price is public on this page, the call is activation,
-// not negotiation. Anchor is round category ranges only — no fake precision.
+// v3 offer — the stack mirrors the four pillars, then two capability scopes.
+// The wedge: no sales gate, the call is activation, not negotiation.
 const OFFER_STACK: Array<{
   pillar: string
   name: string
@@ -471,74 +472,50 @@ function OfferClose({ companyName }: { companyName: string }) {
         ))}
       </div>
 
-      <div className="mt-8 border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
-          Market-price comparison
+      <div className="mt-8 flex flex-col items-center gap-4 border border-[#FF6B35]/40 bg-[#0A0A0A]/60 p-8 text-center md:p-10">
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#FF6B35]">
+          Your Hubbly plan
         </p>
-        <p className="mt-3 text-sm leading-7 text-white/78">
-          Buying this as pieces: an SEO agency at{" "}
-          <span className="text-white">$3,000–5,000/mo</span>, plus a visitor-identification
-          tool, an intent-data vendor, and an outreach platform —{" "}
-          <span className="text-white">$5,000–8,000/mo</span> across four contracts that don't
-          share data.
+        <p className="max-w-xl text-pretty font-[var(--font-bebas)] text-3xl leading-[1.05] tracking-tight text-white md:text-4xl">
+          This is your market. Here&apos;s how you take it back.
         </p>
-      </div>
-
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <div className="border border-white/10 bg-[#0A0A0A]/60 p-5 md:p-6">
-          <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
-            Autopilot · $498/mo
-          </p>
-          <p className="mt-3 font-mono text-xs leading-6 text-white/65">
-            Recover + Target + Capture
-          </p>
-        </div>
-        <div className="border border-[#FF6B35]/50 bg-[#0A0A0A]/60 p-5 md:p-6">
-          <p className="font-[var(--font-bebas)] text-4xl leading-none text-white md:text-5xl">
-            Workforce · $995/mo
-          </p>
-          <p className="mt-3 font-mono text-xs leading-6 text-white/65">
-            Everything in Autopilot + the Convert outreach agents
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 text-center">
-        <p className="font-mono text-sm text-white">
-          The price is on this page. The call is for activation, not negotiation.
-        </p>
-        <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.22em] text-white/50">
-          14-day trial · cancel anytime · no 6-month contract · you keep every page and every name.
-        </p>
-      </div>
-
-      <div className="mt-8 flex flex-col items-center gap-3 text-center">
-        <a
-          href={CTA_HREF}
-          className="inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
-        >
-          {CTA_LABEL} →
-        </a>
-        <p className="max-w-xl font-mono text-xs leading-6 text-white/60">
-          20 minutes. We walk through <span className="text-white">this report</span>, map the
-          machine onto {companyName}, and you leave with the plan whether you buy or not.
+        <p className="max-w-xl text-pretty font-mono text-sm leading-7 text-white/70">
+          Everything above — your competitors, your battleground keywords, your revenue at risk — becomes your plan on a 15-minute call. We&apos;ll show you exactly what Hubbly runs first.
         </p>
         <a
-          href={SELF_SERVE_HREF}
-          className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-white/50 underline-offset-4 transition-colors hover:text-white/80 hover:underline"
+          href={`#${REPORT_EMBED_ID}`}
+          onClick={(e) => {
+            e.preventDefault()
+            const el = document.getElementById(REPORT_EMBED_ID)
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "start" })
+              el.focus({ preventScroll: true })
+            }
+          }}
+          className="mt-2 inline-flex min-h-12 items-center justify-center bg-[#FF6B35] px-8 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90"
         >
-          Already sold? Skip the call — start self-serve →
+          See your plan →
         </a>
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
+          15 minutes · walk through your audit · no commitment
+        </p>
+      </div>
+
+      <div
+        id={REPORT_EMBED_ID}
+        tabIndex={-1}
+        className="mt-6 min-h-[700px] scroll-mt-8 border border-white/10 bg-[#0A0A0A]/60 p-3 outline-none md:p-4"
+      >
+        <CalEmbed />
       </div>
     </section>
   )
 }
 
 // Sticky close bar — appears only AFTER the reader has scrolled past the
-// offer once (never spoils the price before the anchor comparison lands),
-// hides while the offer itself is on screen, and stays dismissed for the tab
-// session (sessionStorage, deliberately not localStorage). No countdowns, no
-// fake scarcity — just the measured number and the price.
+// offer once, hides while the offer itself is on screen, and stays dismissed
+// for the tab session (sessionStorage, deliberately not localStorage). No
+// countdowns, no fake scarcity — just the measured number and the CTA.
 function StickyOfferBar({ gapVolumeMonthly }: { gapVolumeMonthly: number }) {
   const [seenOffer, setSeenOffer] = useState(false)
   const [offerInView, setOfferInView] = useState(false)
@@ -568,8 +545,8 @@ function StickyOfferBar({ gapVolumeMonthly }: { gapVolumeMonthly: number }) {
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-5 py-3 md:flex-row md:justify-between md:px-10">
         <p className="font-mono text-xs text-white/80">
           {gapVolumeMonthly > 0
-            ? `~${gapVolumeMonthly.toLocaleString()}/mo searches are going to competitors · Autopilot $498/mo`
-            : "Autopilot $498/mo · Workforce $995/mo · 14-day trial · cancel anytime"}
+            ? `~${gapVolumeMonthly.toLocaleString()}/mo searches are going to competitors · start recovering them`
+            : "The whole machine, running for your business · 14-day trial · cancel anytime"}
         </p>
         <div className="flex items-center gap-4">
           <a
