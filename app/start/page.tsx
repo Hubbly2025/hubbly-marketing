@@ -3,15 +3,14 @@ import Link from "next/link"
 import { StartForm } from "./start-form"
 
 export const metadata: Metadata = {
-  title: "Start your 14-day trial",
-  description:
-    "Self-serve signup for Hubbly. No contract — the trial starts from your inbox.",
+  title: "Get started with Hubbly",
+  description: "Self-serve signup for Hubbly. No contract — next steps arrive in your inbox.",
   alternates: { canonical: "https://hubbly.io/start" },
 }
 
 const riskReversalLines = [
   "Signup takes 30 seconds.",
-  "Cancel anytime. No 6-month contract.",
+  "No 6-month contract.",
   "You keep every page Hubbly publishes — they live on your domain.",
 ]
 
@@ -43,7 +42,7 @@ export default function StartPage() {
               Self-serve
             </p>
             <h1 className="mt-5 font-[var(--font-bebas)] text-5xl leading-none tracking-tight md:text-7xl">
-              Start your 14-day trial
+              Get started with Hubbly
             </h1>
             <div className="mt-8 space-y-3">
               {riskReversalLines.map((line) => (

@@ -546,7 +546,7 @@ function StickyOfferBar({ gapVolumeMonthly }: { gapVolumeMonthly: number }) {
         <p className="font-mono text-xs text-white/80">
           {gapVolumeMonthly > 0
             ? `~${gapVolumeMonthly.toLocaleString()}/mo searches are going to competitors · start recovering them`
-            : "The whole machine, running for your business · 14-day trial · cancel anytime"}
+            : "The whole machine, running for your business · book a strategy call"}
         </p>
         <div className="flex items-center gap-4">
           <a

@@ -35,6 +35,17 @@ const nextConfig = {
         destination: "/rank",
         permanent: true,
       },
+      // Waitlist funnel retired — site is live and sales-led.
+      {
+        source: "/waitlist",
+        destination: "/demo",
+        permanent: true,
+      },
+      {
+        source: "/waitlist/confirmation",
+        destination: "/demo",
+        permanent: true,
+      },
     ]
   },
   async headers() {

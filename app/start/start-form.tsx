@@ -2,12 +2,12 @@
 
 import { useState } from "react"
 
-// Posts to the existing waitlist API (app/api/waitlist/signup/route.ts —
-// do not edit that route). The API requires role/company_size/pain_points/
-// expected_results as non-empty strings, so the self-serve flow sends honest
-// fixed values: role "self_serve" scores zero priority points — we don't
-// fabricate a founder title to game the queue. The visitor's first name rides
-// in pain_points so it reaches the internal notification email.
+// Posts to the signup API (app/api/signup/route.ts). The API requires
+// role/company_size/pain_points/expected_results as non-empty strings, so the
+// self-serve flow sends honest fixed values: role "self_serve" scores zero
+// priority points — we don't fabricate a founder title to game the queue. The
+// visitor's first name rides in pain_points so it reaches the internal
+// notification email.
 export function StartForm() {
   const [firstName, setFirstName] = useState("")
   const [email, setEmail] = useState("")
@@ -22,7 +22,7 @@ export function StartForm() {
     setErrorMessage("")
 
     try {
-      const response = await fetch("/api/waitlist/signup", {
+      const response = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -30,8 +30,8 @@ export function StartForm() {
           company: website.trim(),
           role: "self_serve",
           company_size: "self_serve_signup",
-          pain_points: `Self-serve trial signup. First name: ${firstName.trim() || "not given"}`,
-          expected_results: "Start the 14-day trial",
+          pain_points: `Self-serve signup. First name: ${firstName.trim() || "not given"}`,
+          expected_results: "Self-serve signup",
           timeline: "immediate",
           utm_source: "audit_report_offer",
           audit_url: website.trim(),
@@ -59,7 +59,7 @@ export function StartForm() {
           You&apos;re in
         </p>
         <p className="mt-5 max-w-md text-xl leading-8 text-white md:text-2xl">
-          You&apos;re in. Check your email — your trial starts there.
+          You&apos;re in. Check your email — your next steps are there.
         </p>
         <p className="mt-4 font-mono text-xs leading-6 text-white/55">
           Prefer a walkthrough first?{" "}
@@ -112,7 +112,7 @@ export function StartForm() {
         disabled={status === "submitting"}
         className="mt-7 inline-flex min-h-12 w-full items-center justify-center bg-[#FF6B35] px-6 font-mono text-xs uppercase tracking-widest text-[#0A0A0A] transition-opacity duration-200 hover:opacity-90 disabled:opacity-60"
       >
-        {status === "submitting" ? "Starting…" : "Start my 14-day trial →"}
+        {status === "submitting" ? "Starting…" : "Get started →"}
       </button>
 
       {status === "error" && (
@@ -122,7 +122,7 @@ export function StartForm() {
       )}
 
       <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
-        14-day trial · Cancel anytime · No commitment
+        Self-serve · No commitment
       </p>
     </form>
   )
