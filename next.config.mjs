@@ -18,6 +18,17 @@ const nextConfig = {
         destination: "/#audit",
         permanent: false,
       },
+      // Legacy WordPress-era URLs that still receive traffic/backlinks.
+      {
+        source: "/hubbly-growth",
+        destination: "/platform",
+        permanent: true,
+      },
+      {
+        source: "/how-it-works",
+        destination: "/#how-it-works",
+        permanent: true,
+      },
     ]
   },
   async headers() {
