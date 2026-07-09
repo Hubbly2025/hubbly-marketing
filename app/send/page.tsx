@@ -6,11 +6,13 @@ import { FooterSection } from "@/components/footer-section"
 import { Reveal } from "@/components/autopilot/reveal"
 import LazyDemo from "@/components/lazy-demo"
 import { pageMetadata, productJsonLd } from "@/lib/seo"
+import { PRODUCT_LINES_TAGLINE } from "@/lib/products"
 
 const appJsonLd = productJsonLd({
   name: "Hubbly Send",
   description:
-    "Hubbly Send is the outbound email agent inside Hubbly — sequencing, deliverability, and replies, with leads and copy arriving already attached from the pipeline. One of five Hubbly product lines — Signal, Rank, Send, Voice, and Spy — running from one shared buyer context, on autopilot by default with opt-in approval gates.",
+    "Hubbly Send is the outbound email agent inside Hubbly — sequencing, deliverability, and replies, with leads and copy arriving already attached from the pipeline. " +
+    PRODUCT_LINES_TAGLINE,
   path: "/send",
 })
 

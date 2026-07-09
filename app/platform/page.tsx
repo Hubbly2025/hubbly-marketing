@@ -23,9 +23,8 @@ const executeAgents = [
   { name: "Discover", description: "Finds and enriches accounts and leads from 498M+ identity records" },
   { name: "Score", description: "Ranks opportunities by fit, intent, urgency, and conversion potential" },
   { name: "Write", description: "Creates emails, ads, landing copy, scripts, and sales messaging" },
-  { name: "Send", description: "Launches and manages outbound sequences across email" },
+  { name: "Send", description: "Launches and manages outbound sequences across email, and classifies inbound replies back into the system" },
   { name: "Call", description: "Places AI calls, qualifies prospects, and captures call outcomes" },
-  { name: "Listen", description: "Classifies inbound replies and routes interest, objections, and outcomes back into the system" },
   { name: "Book", description: "Schedules meetings and routes qualified opportunities" },
 ]
 

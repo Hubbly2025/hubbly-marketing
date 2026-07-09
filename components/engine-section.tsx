@@ -20,8 +20,7 @@ const agents = [
   { id: "write", label: "WRITE", sublabel: "Draft", position: { x: 95, y: 62 }, layer: "execute" },
   { id: "send", label: "SEND", sublabel: "Launch", position: { x: 84, y: 80 }, layer: "execute" },
   { id: "call", label: "CALL", sublabel: "Voice", position: { x: 65, y: 92 }, layer: "execute" },
-  { id: "listen", label: "LISTEN", sublabel: "Replies", position: { x: 42, y: 95 }, layer: "execute" },
-  { id: "book", label: "BOOK", sublabel: "Meetings", position: { x: 22, y: 88 }, layer: "execute" },
+  { id: "book", label: "BOOK", sublabel: "Meetings", position: { x: 32, y: 92 }, layer: "execute" },
   // IMPROVE layer (left side)
   { id: "track", label: "TRACK", sublabel: "Monitor", position: { x: 8, y: 70 }, layer: "improve" },
   { id: "optimize", label: "OPTIMIZE", sublabel: "Learn", position: { x: 5, y: 50 }, layer: "improve" },

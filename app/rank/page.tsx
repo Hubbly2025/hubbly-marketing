@@ -7,6 +7,7 @@ import { AutopilotEngine } from "@/components/autopilot/autopilot-engine"
 import { Reveal } from "@/components/autopilot/reveal"
 import LazyDemo from "@/components/lazy-demo"
 import { pageMetadata, productJsonLd } from "@/lib/seo"
+import { PRODUCT_LINES_TAGLINE } from "@/lib/products"
 
 export const metadata: Metadata = pageMetadata({
   title: "Hubbly Rank — SEO + AEO on autopilot",
@@ -18,7 +19,8 @@ export const metadata: Metadata = pageMetadata({
 const appJsonLd = productJsonLd({
   name: "Hubbly Rank",
   description:
-    "Hubbly Rank runs SEO and AI-engine visibility on autopilot — content, technical fixes, and answer-engine placement, with snapshot, verify, and rollback rails always on. One of five Hubbly product lines — Signal, Rank, Send, Voice, and Spy — running from one shared buyer context, on autopilot by default with opt-in approval gates.",
+    "Hubbly Rank runs SEO and AI-engine visibility on autopilot — content, technical fixes, and answer-engine placement, with snapshot, verify, and rollback rails always on. " +
+    PRODUCT_LINES_TAGLINE,
   path: "/rank",
 })
 

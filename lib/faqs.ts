@@ -1,10 +1,16 @@
 // Single source of truth for the visible FAQ (components/faq-section.tsx)
 // and the FAQPage JSON-LD (components/structured-data.tsx) — keep them in sync.
+import { PRODUCT_COUNT_WORD, PRODUCT_LINES_LIST } from "./products"
+
+// Sentence-initial form of the count word (e.g. "Five").
+const PRODUCT_COUNT_WORD_CAP =
+  PRODUCT_COUNT_WORD.charAt(0).toUpperCase() + PRODUCT_COUNT_WORD.slice(1)
+
 export const faqs = [
   {
     question: "What is Hubbly?",
     answer:
-      "Hubbly is the autonomous revenue operating system for SMBs and mid-market teams. Five product lines — Signal, Rank, Send, Voice, and Spy — run research, content, outreach, and calling from one shared buyer context, on autopilot by default with opt-in approval gates.",
+      `Hubbly is the autonomous revenue operating system for SMBs and mid-market teams. ${PRODUCT_COUNT_WORD_CAP} product lines — ${PRODUCT_LINES_LIST} — run research, content, outreach, and calling from one shared buyer context, on autopilot by default with opt-in approval gates.`,
   },
   {
     question: "What is an autonomous revenue operating system?",
@@ -14,7 +20,7 @@ export const faqs = [
   {
     question: "How is Hubbly different from an AI SDR tool?",
     answer:
-      "An AI SDR tool automates one slice of outbound. Hubbly is broader: five product lines — Signal, Rank, Send, Voice, and Spy — cover research, content, outreach, and calling, coordinated through one shared buyer context rather than a single outbound layer.",
+      `An AI SDR tool automates one slice of outbound. Hubbly is broader: ${PRODUCT_COUNT_WORD} product lines — ${PRODUCT_LINES_LIST} — cover research, content, outreach, and calling, coordinated through one shared buyer context rather than a single outbound layer.`,
   },
   {
     question: "Does Hubbly replace my CRM?",

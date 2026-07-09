@@ -27,7 +27,7 @@ const cards = [
   },
   {
     title: "No sales gate",
-    description: "Self-serve from your first audit. No demos, no negotiation, no sales call to get started.",
+    description: "Start with a free audit, then a strategy call that maps the plan onto your business — activation, not negotiation. No sales-gated dashboard to buy before you see the rails run.",
   },
 ]
 

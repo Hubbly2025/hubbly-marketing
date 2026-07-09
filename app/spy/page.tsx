@@ -6,11 +6,13 @@ import { FooterSection } from "@/components/footer-section"
 import { Reveal } from "@/components/autopilot/reveal"
 import LazyDemo from "@/components/lazy-demo"
 import { pageMetadata, productJsonLd } from "@/lib/seo"
+import { PRODUCT_LINES_TAGLINE } from "@/lib/products"
 
 const appJsonLd = productJsonLd({
   name: "Hubbly Spy",
   description:
-    "Hubbly Spy watches the page-one field around the searches that pay you and turns every competitor move into a counter-move. One of five Hubbly product lines — Signal, Rank, Send, Voice, and Spy — running from one shared buyer context, on autopilot by default with opt-in approval gates.",
+    "Hubbly Spy watches the page-one field around the searches that pay you and turns every competitor move into a counter-move. " +
+    PRODUCT_LINES_TAGLINE,
   path: "/spy",
 })
 

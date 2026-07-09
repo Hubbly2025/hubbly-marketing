@@ -7,11 +7,13 @@ import { VoiceCall } from "@/components/voice/voice-call"
 import { Reveal } from "@/components/autopilot/reveal"
 import LazyDemo from "@/components/lazy-demo"
 import { pageMetadata, productJsonLd } from "@/lib/seo"
+import { PRODUCT_LINES_TAGLINE } from "@/lib/products"
 
 const appJsonLd = productJsonLd({
   name: "Hubbly Voice",
   description:
-    "Hubbly Voice is the conversation layer of Hubbly — it reaches buyers, handles the conversation, logs the outcome, and sets the next step in motion. One of five Hubbly product lines — Signal, Rank, Send, Voice, and Spy — running from one shared buyer context, on autopilot by default with opt-in approval gates.",
+    "Hubbly Voice is the conversation layer of Hubbly — it reaches buyers, handles the conversation, logs the outcome, and sets the next step in motion. " +
+    PRODUCT_LINES_TAGLINE,
   path: "/voice",
 })
 

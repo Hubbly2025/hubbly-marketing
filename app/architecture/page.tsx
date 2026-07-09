@@ -21,9 +21,8 @@ const executionAgents = [
   { name: "Discover", description: "Finds buyers and accounts that match the approved ICP and targeting logic." },
   { name: "Score", description: "Ranks prospects using fit and intent signals so the system focuses on the right opportunities first." },
   { name: "Write", description: "Drafts outreach sequences and personalized messaging based on approved positioning and live signals." },
-  { name: "Send", description: "Launches email campaigns and manages outbound delivery." },
+  { name: "Send", description: "Launches email campaigns, manages outbound delivery, and classifies inbound replies so interest, objections, and outcomes route back into the system." },
   { name: "Call", description: "Places AI voice calls to high-priority leads as part of the execution flow." },
-  { name: "Listen", description: "Classifies inbound replies and routes interest, objections, and outcomes back into the system." },
   { name: "Book", description: "Converts positive engagement into scheduled meetings through calendar workflows." },
 ]
 
@@ -65,7 +64,7 @@ const faqs = [
   },
   {
     question: "What agents does Hubbly use?",
-    answer: "Hubbly organizes its agents across three areas of work: Intelligence (Recon, Research, ICP, Strategy, Creative), Execution (Discover, Score, Write, Send, Call, Listen, Book), and Optimization (Track, Optimize, Advisor behaviors within the improvement loop).",
+    answer: "Hubbly organizes its agents across three areas of work: Intelligence (Recon, Research, ICP, Strategy, Creative), Execution (Discover, Score, Write, Send, Call, Book), and Optimization (Track, Optimize, Advisor behaviors within the improvement loop).",
   },
 ]
 
