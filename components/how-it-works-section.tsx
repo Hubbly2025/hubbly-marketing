@@ -52,9 +52,9 @@ const executionStages: { label: string; sub: string; tint?: string }[] = [
   { label: "WRITE", sub: "Draft outreach" },
   { label: "SEND", sub: "Launch email", tint: "var(--send)" },
   { label: "CALL", sub: "AI voice", tint: "var(--voice)" },
-  { label: "LISTEN", sub: "Handle replies" },
   { label: "BOOK", sub: "Close calendar" },
   { label: "TRACK", sub: "Log revenue" },
+  { label: "OPTIMIZE", sub: "Learning loop" },
 ]
 
 export function HowItWorksSection() {
@@ -243,7 +243,7 @@ export function HowItWorksSection() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75" style={{ animationDelay: "0.9s" }}></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
             </span>
-            <span className="font-mono text-[9px] md:text-xs text-foreground/70 uppercase tracking-wider">Replies</span>
+            <span className="font-mono text-[9px] md:text-xs text-foreground/70 uppercase tracking-wider">Learning</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
