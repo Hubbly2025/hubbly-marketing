@@ -5,9 +5,11 @@
 // the five product-page JSON-LD descriptions (app/{signal,rank,send,voice,spy}/page.tsx)
 // and the two count-bearing FAQ answers (lib/faqs.ts).
 //
-// Two static files CANNOT import this and must be hand-edited on the same bump:
+// These also carry the roster but CANNOT import this file, so hand-edit each on
+// the same bump:
 //   - public/llms.txt        (## Product lines + the summary line)
 //   - public/llms-full.txt   (## Product lines + the summary line)
+//   - app/sitemap.ts         (the product-line URL entries — add the new /route)
 export const PRODUCT_LINES = ["Signal", "Rank", "Send", "Voice", "Spy"] as const
 
 // Word form of PRODUCT_LINES.length. Kept manual so copy reads naturally ("five").
