@@ -288,3 +288,37 @@
   border-color: #ff6b35;
   box-shadow: 0 0 0 1px #ff6b35;
 }
+
+/*
+ * Scroll fade-up reveal, used by the <Reveal> helper in
+ * components/landing-interactions.tsx.
+ *
+ * The base state is deliberately opacity: 1 / no transform, so content is
+ * always readable even if the animation never runs (no JS, reduced motion,
+ * or an observer that never fires). The animation is additive on .is-visible.
+ */
+.reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal.is-visible {
+  animation: reveal-up 0.6s ease both;
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal.is-visible {
+    animation: none;
+  }
+}
