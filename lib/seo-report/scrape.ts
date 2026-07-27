@@ -1,3 +1,4 @@
+import { optionalEnv } from "./env";
 import { assertPublicHttpUrl } from "./url-guard";
 
 export type ScrapedPage = {
@@ -270,8 +271,9 @@ async function fetchRenderedText(baseUrl: string): Promise<{ response: Response;
     accept: "text/plain",
     "x-return-format": "text"
   };
-  if (process.env.JINA_API_KEY) {
-    headers.authorization = `Bearer ${process.env.JINA_API_KEY}`;
+  const jinaKey = optionalEnv("JINA_API_KEY");
+  if (jinaKey) {
+    headers.authorization = `Bearer ${jinaKey}`;
   }
   const response = await fetchWithHardTimeout(`https://r.jina.ai/${baseUrl}`, renderedFetchTimeoutMs, {
     method: "GET",

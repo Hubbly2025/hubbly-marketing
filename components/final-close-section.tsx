@@ -44,13 +44,15 @@ export function FinalCloseSection() {
 
     const auditError = params.get("audit_error")
     if (auditError) {
+      const detail = params.get("audit_error_detail")
       setError(
         auditError === "invalid"
-          ? "That doesn't look like a valid website URL. Try something like yourwebsite.com."
+          ? detail || "That doesn't look like a valid website URL. Try something like yourwebsite.com."
           : "We couldn't start your audit just now. Please try again in a moment.",
       )
-      // Remove the param so a refresh doesn't keep showing the error.
+      // Remove the params so a refresh doesn't keep showing the error.
       params.delete("audit_error")
+      params.delete("audit_error_detail")
       const cleaned = params.toString()
       window.history.replaceState(
         null,

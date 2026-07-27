@@ -1,4 +1,5 @@
 import { after, NextRequest, NextResponse } from "next/server"
+import { InvalidAuditUrlError, normalizeAuditUrl } from "@/lib/audit/normalize-url"
 import { processAudit } from "@/lib/audit/process-audit"
 import { rateLimit } from "@/lib/seo-report/redis"
 
@@ -10,38 +11,23 @@ function getClientIp(request: NextRequest): string {
   return request.headers.get("x-real-ip")?.trim() || "unknown"
 }
 
-function normalizeAuditUrl(value: unknown) {
-  if (typeof value !== "string" || !value.trim()) {
-    throw new Error("Enter a website URL.")
-  }
-
-  if (value.length > 2048) {
-    throw new Error("Enter a valid website URL.")
-  }
-
-  const trimmed = value.trim()
-  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
-  const parsed = new URL(withProtocol)
-
-  if (!["http:", "https:"].includes(parsed.protocol)) {
-    throw new Error("Enter a valid website URL.")
-  }
-
-  parsed.hash = ""
-  parsed.search = ""
-  parsed.pathname = parsed.pathname.replace(/\/+$/, "") || "/"
-
-  return parsed.toString().replace(/\/$/, "")
-}
-
 export async function POST(request: NextRequest) {
   let normalizedUrl: string
 
   try {
     const formData = await request.formData()
     normalizedUrl = normalizeAuditUrl(formData.get("url"))
-  } catch {
-    return NextResponse.redirect(new URL("/?audit_error=invalid#audit", request.url), { status: 303 })
+  } catch (error) {
+    // Carry the specific validation reason (e.g. "Try a16z.com instead") through
+    // to the form instead of collapsing every bad input into one generic string.
+    const target = new URL("/", request.url)
+    target.searchParams.set("audit_error", "invalid")
+    if (error instanceof InvalidAuditUrlError) {
+      target.searchParams.set("audit_error_detail", error.message.slice(0, 160))
+    }
+    return NextResponse.redirect(new URL(`${target.pathname}?${target.searchParams}#audit`, request.url), {
+      status: 303,
+    })
   }
 
   const limit = await rateLimit(`audit:${getClientIp(request)}`)

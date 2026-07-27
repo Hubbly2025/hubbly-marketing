@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { Tool, ToolUseBlock } from "@anthropic-ai/sdk/resources/messages";
 import { generationModel } from "./models";
-import { requireEnv } from "./env";
+import { optionalEnv } from "./env";
 import type { Classification } from "./classifier";
 import type { ScrapedPage } from "./scrape";
 import type { Evidence, SignalAudit } from "./types";
@@ -180,12 +180,12 @@ export async function parseWithClaude(
   classification: Classification,
   pages: ScrapedPage[]
 ): Promise<PartialAudit> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = optionalEnv("ANTHROPIC_API_KEY");
   if (!apiKey) {
     return fallbackAuditFromScrape(classification, pages);
   }
 
-  const anthropic = new Anthropic({ apiKey: requireEnv("ANTHROPIC_API_KEY") });
+  const anthropic = new Anthropic({ apiKey });
   const groundedText = pages.map((page) => `URL: ${page.url}\nTITLE: ${page.title || "Not detected"}\nTEXT:\n${page.text}`).join("\n\n---\n\n");
 
   const message = await anthropic.messages.create({
