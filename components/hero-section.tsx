@@ -36,7 +36,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="hero" className="relative min-h-[85vh] md:min-h-screen flex items-center px-4 md:pl-28 md:pr-12 pt-16 md:pt-0">
+    <section ref={sectionRef} id="hero" className="section-shell relative min-h-[85vh] md:min-h-screen flex items-center px-4 md:pl-28 md:pr-12 pt-16 md:pt-0">
       <AnimatedNoise opacity={0.03} />
 
       {/* Left vertical labels - hidden on mobile */}

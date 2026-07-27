@@ -77,7 +77,7 @@ export function RankSection() {
     <section
       ref={sectionRef}
       id="rank"
-      className="relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30"
+      className="section-shell relative py-24 md:py-32 px-4 md:pl-28 md:pr-12 border-t border-border/30"
     >
       <div ref={headerRef} className="mb-12 md:mb-16 max-w-3xl">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-rank">Hubbly Rank · The wedge</span>

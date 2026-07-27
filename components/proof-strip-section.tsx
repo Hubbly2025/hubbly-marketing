@@ -60,7 +60,7 @@ export function ProofStripSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="proof-strip" className="relative py-20 md:py-24 px-4 md:pl-28 md:pr-12 border-t border-border/30">
+    <section ref={sectionRef} id="proof-strip" className="section-shell relative py-20 md:py-24 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       <div ref={headerRef} className="mb-10 md:mb-12">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">02 / FOUNDATION</span>
         <h2 className="mt-4 md:mt-6 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight">The intelligence layer behind every growth workflow.</h2>

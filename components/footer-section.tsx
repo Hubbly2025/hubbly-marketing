@@ -32,7 +32,7 @@ export function FooterSection() {
   }, [])
 
   return (
-    <footer ref={footerRef} className="py-16 md:py-20 px-4 md:pl-28 md:pr-12 border-t border-border/30 bg-card/10">
+    <footer ref={footerRef} className="section-shell py-16 md:py-20 px-4 md:pl-28 md:pr-12 border-t border-border/30 bg-card/10">
       {/* Links grid - 5 columns */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-10 mb-12 md:mb-16">
         <div>
