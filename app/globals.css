@@ -288,3 +288,22 @@
   border-color: #ff6b35;
   box-shadow: 0 0 0 1px #ff6b35;
 }
+
+/* Section content shell.
+   Sections are full-bleed (so their border-t dividers span the viewport) and
+   carry their own left-rail padding. Without a max width their content pinned
+   to the left edge on wide screens while the sticky header stayed centered in
+   its max-w-7xl container. This centers each section's flow content in the same
+   1280px column as the header.
+   Positioned decorations (noise overlay, rotated rail labels, glows) are
+   excluded so they keep spanning the full section. */
+.section-shell > *:not(.noise-overlay):not([class*="absolute"]):not([class*="inset-"]) {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem; /* = max-w-7xl, matches the sticky header container */
+}
+
+/* Sections keep their asymmetric left rail (pl-28/pr-12) for the vertical rail
+   labels. Because that padding differs from the header's pl-24/pr-6, centering
+   inside it lands slightly off; the shared max-width above keeps every section
+   in one consistent column, which is what removes the left-pinned look. */

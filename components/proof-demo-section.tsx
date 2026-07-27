@@ -4,7 +4,7 @@ export function ProofDemoSection() {
   return (
     <section
       id="proof-demo"
-      className="relative py-20 md:py-24 px-4 md:pl-28 md:pr-12 border-t border-border/30"
+      className="section-shell relative py-20 md:py-24 px-4 md:pl-28 md:pr-12 border-t border-border/30"
     >
       <div className="mb-10 md:mb-12">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">PROOF</span>

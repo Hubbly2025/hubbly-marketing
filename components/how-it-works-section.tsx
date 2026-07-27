@@ -107,7 +107,7 @@ export function HowItWorksSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="how-it-works" className="relative py-28 md:py-44 px-4 md:pl-28 md:pr-12 border-t border-border/30">
+    <section ref={sectionRef} id="how-it-works" className="section-shell relative py-28 md:py-44 px-4 md:pl-28 md:pr-12 border-t border-border/30">
       {/* Header */}
       <div className="how-header mb-14 md:mb-20">
         <span className="font-mono text-xs md:text-sm uppercase tracking-[0.3em] text-accent">04 / HOW IT WORKS</span>
