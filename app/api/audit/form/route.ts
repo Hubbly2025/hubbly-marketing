@@ -1,13 +1,23 @@
 import { after, NextRequest, NextResponse } from "next/server"
 import { processAudit } from "@/lib/audit/process-audit"
 import { rateLimit } from "@/lib/seo-report/redis"
+import { assertPublicHttpUrl } from "@/lib/seo-report/url-guard"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
 
 function getClientIp(request: NextRequest): string {
+  // Prefer the platform-controlled header. Vercel overwrites x-forwarded-for
+  // with the real TCP peer, so it is not client-spoofable here, but
+  // x-vercel-forwarded-for stays correct even if a proxy is put in front later.
+  // x-real-ip is deliberately not trusted: it is caller-supplied on some
+  // topologies, which would let an attacker rotate it to evade the rate limit.
+  const vercelForwarded = request.headers.get("x-vercel-forwarded-for")
+  if (vercelForwarded) return vercelForwarded.split(",")[0]!.trim()
+
   const forwarded = request.headers.get("x-forwarded-for")
   if (forwarded) return forwarded.split(",")[0]!.trim()
-  return request.headers.get("x-real-ip")?.trim() || "unknown"
+
+  return "unknown"
 }
 
 function normalizeAuditUrl(value: unknown) {
@@ -40,6 +50,10 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
     normalizedUrl = normalizeAuditUrl(formData.get("url"))
+    // normalizeAuditUrl only validates shape and protocol. This rejects hosts
+    // that resolve into private/loopback/link-local space before we create a
+    // lead row or schedule any server-side fetch of the submitted URL.
+    await assertPublicHttpUrl(normalizedUrl)
   } catch {
     return NextResponse.redirect(new URL("/?audit_error=invalid#audit", request.url), { status: 303 })
   }

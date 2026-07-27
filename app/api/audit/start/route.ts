@@ -1,13 +1,23 @@
 import { after, NextRequest, NextResponse } from "next/server"
 import { processAudit } from "@/lib/audit/process-audit"
 import { rateLimit } from "@/lib/seo-report/redis"
+import { assertPublicHttpUrl, BlockedUrlError } from "@/lib/seo-report/url-guard"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
 
 function getClientIp(request: NextRequest): string {
+  // Prefer the platform-controlled header. Vercel overwrites x-forwarded-for
+  // with the real TCP peer, so it is not client-spoofable here, but
+  // x-vercel-forwarded-for stays correct even if a proxy is put in front later.
+  // x-real-ip is deliberately not trusted: it is caller-supplied on some
+  // topologies, which would let an attacker rotate it to evade the rate limit.
+  const vercelForwarded = request.headers.get("x-vercel-forwarded-for")
+  if (vercelForwarded) return vercelForwarded.split(",")[0]!.trim()
+
   const forwarded = request.headers.get("x-forwarded-for")
   if (forwarded) return forwarded.split(",")[0]!.trim()
-  return request.headers.get("x-real-ip")?.trim() || "unknown"
+
+  return "unknown"
 }
 
 function normalizeAuditUrl(value: unknown) {
@@ -40,7 +50,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     normalizedUrl = normalizeAuditUrl(body?.url)
+    // normalizeAuditUrl only validates shape and protocol. This rejects hosts
+    // that resolve into private/loopback/link-local space before we create a
+    // lead row or schedule any server-side fetch of the submitted URL.
+    await assertPublicHttpUrl(normalizedUrl)
   } catch (error) {
+    // Deliberately generic for blocked URLs: echoing the guard's reason back
+    // would let a caller use this endpoint to map internal address space.
+    if (error instanceof BlockedUrlError) {
+      return NextResponse.json({ error: "Enter a valid public website URL." }, { status: 400 })
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Enter a valid website URL." },
       { status: 400 },
