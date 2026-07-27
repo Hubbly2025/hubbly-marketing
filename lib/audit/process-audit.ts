@@ -1,3 +1,4 @@
+import { resolveEnv } from "@/lib/seo-report/env"
 import { runSignalAudit } from "@/lib/seo-report/pipeline"
 import type { SeoReport } from "@/lib/seo-report/types"
 
@@ -164,18 +165,28 @@ export async function processAudit(auditId: string, url: string) {
     // an seo_report field.
     let seoReport: SeoReport | undefined
     let signalUsable = false
+    let signalFailureReason: string | undefined
     try {
       const signalResult = await runSignalAudit(url)
       seoReport = signalResult.audit.seoReport
       signalUsable = hasUsableSignalAudit(signalResult.audit)
+      if (!signalUsable) signalFailureReason = "signal produced no usable audit"
     } catch (error) {
+      signalFailureReason = getErrorMessage(error)
       log("warn", "seo_report", "Signal SEO report failed; continuing without it", {
-        error: getErrorMessage(error),
+        error: signalFailureReason,
       })
     }
 
     if (!hasMarketingScrape && !signalUsable) {
-      throw new AuditPipelineError("scrape_failed", "Both marketing and SEO fallback scrapers failed to read the site", true)
+      // Carry the underlying cause into the message. Without this, both a
+      // bot-blocked site and a misconfigured API key produced the same opaque
+      // "Something went wrong analyzing that URL." with nothing to debug from.
+      throw new AuditPipelineError(
+        "scrape_failed",
+        `Both marketing and SEO fallback scrapers failed to read the site (marketing: no readable pages; signal: ${signalFailureReason ?? "unknown"})`,
+        true,
+      )
     }
 
     await markProgress("complete", 100, manualReview ? "Fallback report ready for manual review" : "Audit report complete")
@@ -262,7 +273,7 @@ async function scrapeWebsiteDeep(
   log: (level: AuditDebugLog["level"], step: string, message: string, detail?: Record<string, unknown>) => void,
 ) {
   const base = new URL(url)
-  const scrapingBeeApiKey = process.env.SCRAPINGBEE_API_KEY || process.env.Scrapingbee
+  const scrapingBeeApiKey = resolveEnv("SCRAPINGBEE_API_KEY")
   
   const scrapeResults = await Promise.allSettled(SCRAPE_PATHS.map(async (target) => {
     const targetUrl = new URL(target.path, base).toString()
@@ -663,7 +674,7 @@ Rules:
 }
 
 async function callClaude(prompt: string) {
-  const apiKey = process.env.ANTHROPIC_API_KEY || process.env.Anthropic
+  const apiKey = resolveEnv("ANTHROPIC_API_KEY")
 
   if (!apiKey) {
     throw new AuditPipelineError("missing_anthropic_key", "ANTHROPIC_API_KEY is not configured", false)

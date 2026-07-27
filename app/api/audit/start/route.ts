@@ -1,4 +1,5 @@
 import { after, NextRequest, NextResponse } from "next/server"
+import { normalizeAuditUrl } from "@/lib/audit/normalize-url"
 import { processAudit } from "@/lib/audit/process-audit"
 import { rateLimit } from "@/lib/seo-report/redis"
 
@@ -8,30 +9,6 @@ function getClientIp(request: NextRequest): string {
   const forwarded = request.headers.get("x-forwarded-for")
   if (forwarded) return forwarded.split(",")[0]!.trim()
   return request.headers.get("x-real-ip")?.trim() || "unknown"
-}
-
-function normalizeAuditUrl(value: unknown) {
-  if (typeof value !== "string" || !value.trim()) {
-    throw new Error("Enter a website URL.")
-  }
-
-  if (value.length > 2048) {
-    throw new Error("Enter a valid website URL.")
-  }
-
-  const trimmed = value.trim()
-  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
-  const parsed = new URL(withProtocol)
-
-  if (!["http:", "https:"].includes(parsed.protocol)) {
-    throw new Error("Enter a valid website URL.")
-  }
-
-  parsed.hash = ""
-  parsed.search = ""
-  parsed.pathname = parsed.pathname.replace(/\/+$/, "") || "/"
-
-  return parsed.toString().replace(/\/$/, "")
 }
 
 export async function POST(request: NextRequest) {

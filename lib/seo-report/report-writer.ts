@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { optionalEnv } from "./env";
 import { generationModel } from "./models";
 import type { SeoReport } from "./types";
 
@@ -71,7 +72,7 @@ VOICE: Direct, confident, no-BS. Compelling, never overpromising. No banned word
 
 export async function writeSeoReportMarkdown(report: SeoReport, meta: ReportMeta): Promise<string> {
   const deterministic = renderReportMarkdown(report, meta);
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = optionalEnv("ANTHROPIC_API_KEY");
   if (!apiKey) return deterministic;
 
   try {
