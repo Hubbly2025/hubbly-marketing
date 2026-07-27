@@ -1,4 +1,5 @@
 import { runSignalAudit } from "@/lib/seo-report/pipeline"
+import { assertPublicHttpUrl } from "@/lib/seo-report/url-guard"
 import type { SeoReport } from "@/lib/seo-report/types"
 
 const DEFAULT_SUPABASE_URL = "https://fqsnvqkorwiwclbkscuj.supabase.co"
@@ -262,6 +263,23 @@ async function scrapeWebsiteDeep(
   log: (level: AuditDebugLog["level"], step: string, message: string, detail?: Record<string, unknown>) => void,
 ) {
   const base = new URL(url)
+
+  // SSRF guard: `url` originates from an unauthenticated public form, and the
+  // direct-fetch path below returns the response body into the audit report the
+  // submitter can read. Without this check an attacker can make the server read
+  // internal services and cloud metadata (e.g. 169.254.169.254) and have the
+  // contents handed back to them.
+  //
+  // Matches the convention in lib/seo-report/scrape.ts: on a blocked URL we
+  // degrade to an empty scrape rather than throwing, so the audit still
+  // completes and no internal request is ever issued.
+  try {
+    await assertPublicHttpUrl(url)
+  } catch (error) {
+    log("warn", "scraping", "audit.scrape.blocked_url", { reason: getErrorMessage(error) })
+    return { pages: [] as ScrapedPage[], diagnostics: [] }
+  }
+
   const scrapingBeeApiKey = process.env.SCRAPINGBEE_API_KEY || process.env.Scrapingbee
   
   const scrapeResults = await Promise.allSettled(SCRAPE_PATHS.map(async (target) => {
@@ -376,6 +394,37 @@ async function scrapeWithScrapingBee(url: string, apiKey: string): Promise<strin
   return html.length > 500 ? html : null
 }
 
+/**
+ * fetch() with redirects followed manually so every hop is re-validated.
+ *
+ * `redirect: "follow"` would defeat the pre-flight SSRF guard: a public URL is
+ * free to 302 to http://169.254.169.254/ and undici would follow it silently.
+ * Each hop is re-checked with assertPublicHttpUrl, so a redirect into private
+ * address space raises BlockedUrlError instead of being fetched.
+ */
+async function fetchFollowingSafeRedirects(
+  url: string,
+  init: RequestInit,
+  maxRedirects = 5,
+): Promise<Response> {
+  let current = url
+
+  for (let hop = 0; hop <= maxRedirects; hop++) {
+    await assertPublicHttpUrl(current)
+
+    const response = await fetch(current, { ...init, redirect: "manual" })
+
+    const isRedirect = response.status >= 300 && response.status < 400
+    const location = response.headers.get("location")
+    if (!isRedirect || !location) return response
+
+    // Resolve relative Location headers against the URL that produced them.
+    current = new URL(location, current).toString()
+  }
+
+  throw new Error("too_many_redirects")
+}
+
 async function scrapeWithDirectFetch(url: string): Promise<string | null> {
   const parsedUrl = new URL(url)
   
@@ -392,7 +441,7 @@ async function scrapeWithDirectFetch(url: string): Promise<string | null> {
   for (const testUrl of urlVariations) {
     for (const userAgent of USER_AGENTS) {
       try {
-        const response = await fetch(testUrl, {
+        const response = await fetchFollowingSafeRedirects(testUrl, {
           headers: {
             "User-Agent": userAgent,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
@@ -407,7 +456,6 @@ async function scrapeWithDirectFetch(url: string): Promise<string | null> {
             "Upgrade-Insecure-Requests": "1",
           },
           signal: AbortSignal.timeout(10000),
-          redirect: "follow",
         })
 
         if (response.ok) {
