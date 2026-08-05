@@ -183,6 +183,37 @@ export class DataForSeoSource implements SignalDataSource {
       }
     }
 
+      // AI Optimization - LLM Mentions. Supplementary and best-effort: a
+      // timeout or empty payload yields null and the audit still completes.
+      // Auth failures are promoted into the shared supplementaryAuthError so
+      // they surface as auth_failed rather than a silently missing card.
+      let llmMentions: unknown = null;
+      if (!supplementaryAuthError) {
+        try {
+          const llmBody = [
+            {
+              platform: "chat_gpt",
+              language_name: "English",
+              location_name: "United States",
+              target: [
+                { domain },
+                { keyword: "website audit" },
+                { keyword: "seo audit" }
+              ],
+              limit: 20,
+              order_by: ["ai_search_volume,desc"]
+            }
+          ];
+          llmMentions = await this.postLlmMentionsSearch(llmBody, auth, 30000);
+        } catch (error) {
+          if (error instanceof DataForSeoAuthError) {
+            supplementaryAuthError = error;
+          } else {
+            throw error;
+          }
+        }
+      }
+
     if (supplementaryAuthError) {
       const authError: DataForSeoAuthError = supplementaryAuthError;
       console.error("signal.dataforseo.auth_failed", {
@@ -209,7 +240,8 @@ export class DataForSeoSource implements SignalDataSource {
         domainRankOverview: overview,
         competitors,
         backlinksSummary,
-        gapKeywords
+        gapKeywords,
+        llmMentions
       }
     };
 
@@ -275,6 +307,63 @@ export class DataForSeoSource implements SignalDataSource {
       const name = error instanceof Error ? error.name : "";
       const reason = name === "TimeoutError" || name === "AbortError" ? "timeout" : error instanceof Error ? error.message : "error";
       console.warn("signal.dataforseo.safe_failed", { path, reason });
+      return null;
+    }
+  }
+
+  // AI Optimization - LLM Mentions search (search_mentions/live). Same
+  // non-fatal contract as postLiveSafe: transport / HTTP / task failures
+  // resolve to null so the audit still completes on measured keyword data,
+  // while 401/403 and auth-class task codes re-raise as DataForSeoAuthError
+  // so a credential incident still drives the loud auth_failed banner.
+  private async postLlmMentionsSearch(
+    body: unknown,
+    auth: string,
+    timeoutMs = 30000
+  ): Promise<unknown> {
+    // Single place to swap if DataForSEO changes the preferred path again.
+    const path = "/ai_optimization/llm_mentions/search_mentions/live";
+    try {
+      const response = await fetch(`${endpointBase}${path}`, {
+        method: "POST",
+        headers: { authorization: `Basic ${auth}`, "content-type": "application/json" },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(timeoutMs)
+      });
+      if (response.status === 401 || response.status === 403) {
+        throw new DataForSeoAuthError(
+          `DataForSEO ${path} rejected credentials: ${response.status} ${response.statusText}`,
+          path,
+          response.status
+        );
+      }
+      if (!response.ok) {
+        console.warn("signal.dataforseo.llm_mentions_failed", { path, reason: `http_${response.status}` });
+        return null;
+      }
+      const json = (await response.json().catch(() => null)) as DataForSeoResponse | null;
+      const task = json?.tasks?.[0];
+      if (task?.status_code && isAuthTaskStatus(task.status_code)) {
+        throw new DataForSeoAuthError(
+          `DataForSEO ${path} task auth failed: ${task.status_code} ${task.status_message || "Unknown error"}`,
+          path,
+          task.status_code
+        );
+      }
+      if (task?.status_code && task.status_code >= 40000) {
+        console.warn("signal.dataforseo.llm_mentions_failed", {
+          path,
+          reason: `task_${task.status_code}`,
+          message: task.status_message
+        });
+        return null;
+      }
+      return json;
+    } catch (error) {
+      if (error instanceof DataForSeoAuthError) throw error;
+      const name = error instanceof Error ? error.name : "";
+      const reason = name === "TimeoutError" || name === "AbortError" ? "timeout" : error instanceof Error ? error.message : "error";
+      console.warn("signal.dataforseo.llm_mentions_failed", { path, reason });
       return null;
     }
   }
