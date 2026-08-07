@@ -1,5 +1,5 @@
 import type { BacklinkSummary, CompetitorRow, GapKeyword, KeywordRow, NormalizedPull, SourceContext, SignalDataSource } from "../datasource";
-import { getDataForSeoEnv } from "../env";
+import { envCandidateNames, getDataForSeoEnv } from "../env";
 import { brandLabelFromDomain } from "../keyword-filter";
 import { selectGapKeywords, type CompetitorKeywordSet } from "../gap-source";
 import { getCachedDataForSeoPull, setCachedDataForSeoPull } from "../redis";
@@ -60,9 +60,22 @@ export class DataForSeoSource implements SignalDataSource {
 
     const auth = getDataForSeoAuth();
     if (!auth) {
+      const env = getDataForSeoEnv();
       const message = "DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD are required to activate measured keyword data.";
       if (process.env.NODE_ENV === "production") {
-        console.warn("signal.dataforseo.config_missing", { domain, message });
+        // Report which half is missing and which names were checked. Logging
+        // only `message` made a missing login indistinguishable from a missing
+        // password, so this failure was effectively undebuggable in prod.
+        console.warn("signal.dataforseo.config_missing", {
+          domain,
+          message,
+          loginResolved: Boolean(env.login),
+          passwordResolved: Boolean(env.password),
+          checkedNames: [
+            ...envCandidateNames("DATAFORSEO_LOGIN"),
+            ...envCandidateNames("DATAFORSEO_PASSWORD")
+          ]
+        });
         return failedPull(domain, ctx, message);
       }
       throw new Error(message);
