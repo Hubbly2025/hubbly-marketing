@@ -53,7 +53,10 @@ export function normalizeAuditUrl(value: unknown): string {
   // This is what rejects bare input like "a16z" before we burn a scan on it.
   if (!hostname.includes(".")) {
     throw new InvalidAuditUrlError(
-      `"${trimmed}" is missing a domain ending. Try ${hostname}.com instead.`,
+      // Echo the parsed hostname, not the raw input: the hero form prepends
+      // "https://" client-side, which would otherwise surface to the user as
+      // the confusing `"https://a16z" is missing a domain ending`.
+      `"${hostname}" is missing a domain ending. Try ${hostname}.com instead.`,
     )
   }
 
