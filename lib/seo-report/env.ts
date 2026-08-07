@@ -12,6 +12,13 @@ const ENV_ALIASES: Record<string, string[]> = {
   ANTHROPIC_API_KEY: ["Anthropic", "ANTHROPIC_KEY"],
   SCRAPINGBEE_API_KEY: ["Scrapingbee", "SCRAPINGBEE", "SCRAPING_BEE_API_KEY"],
   JINA_API_KEY: ["Jina", "JINA", "JINA_KEY"],
+  // The project also carries a second DataForSEO pair under `*_2` names. The
+  // canonical DATAFORSEO_LOGIN has gone missing from the env store more than
+  // once while DATAFORSEO_LOGIN_2 held the correct account email, which left
+  // the SEO pull unauthenticated (401 40100) and silently degraded. Falling
+  // back keeps the scraper working from whichever name is populated.
+  DATAFORSEO_LOGIN: ["DATAFORSEO_LOGIN_2", "DATAFORSEO_EMAIL"],
+  DATAFORSEO_PASSWORD: ["DATAFORSEO_PASSWORD_2", "DATAFORSEO_API_PASSWORD"],
 }
 
 /**
