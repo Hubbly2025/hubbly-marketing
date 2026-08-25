@@ -67,6 +67,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/start`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
     // Use Cases
     {
       url: `${baseUrl}/use-cases/ai-sales-automation`,
